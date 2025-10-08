@@ -2,8 +2,13 @@
     <h2>📦 Staff Dashboard (Test)</h2>
     <p>You have staff privileges!</p>
     <ul>
-        <li>Manage Inventory</li>
+        <a href="{% url 'product_list' %}">Manage Inventory</a>
         <li>Process Orders</li>
         <li>Customer Management</li>
     </ul>
+
+     <form method="post" action="{% url 'logout' %}">
+        {% csrf_token %}
+        <button type="submit">Log Out</button>
+    </form>
 </div>

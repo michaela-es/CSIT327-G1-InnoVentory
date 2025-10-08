@@ -102,7 +102,12 @@
       </div>
 
       <div class="login-bottom">
-        <button type="submit" class="signup-button">Login</button>
+        <button type="submit" class="login-btn">Login</button>
+
+        <div class="login-link">
+          <span class="login-text">Don't have an account? </span>
+          <a href="{% url 'register' %}" class="login-button">Sign Up</a>
+        </div>
       </div>
     </form>
   </div>
