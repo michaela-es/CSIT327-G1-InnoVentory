@@ -1,22 +1,29 @@
-{% load static %}
 <!DOCTYPE html>
+{% load static %}
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <title>Login - InnoVentory</title>
-  <link rel="stylesheet" href="{% static 'css/registerstyles.css' %}">
+  <link rel="stylesheet" href="{% static 'css/loginstyles.css' %}">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
+
+
+<div class="logo-container">
+    <img src="{% static 'images/logo-placeholder.png' %}" alt="InnoVentory Logo">
+</div>
+
 <div class="register-container">
   <div class="blue-panel">
     <div class="blue-panel-content">
       <div class="blue-panel-text">
-        <h1 class="blue-panel-title">
+        <h1 class="blue-panel-title slide-left">
           Welcome Back to<br>
           <span class="accent-text">InnoVentory</span>
         </h1>
         <p class="blue-panel-subtitle">Manage your inventory with ease and efficiency</p>
+           <img src="{% static 'images/login-img.png' %}" class ="login-img slide-top" alt="Login Image">
       </div>
     </div>
   </div>
@@ -88,15 +95,14 @@
           <input type="checkbox" id="togglePassword" class="checkbox-input">
           <span class="checkbox-text">Show Password</span>
         </label>
+          <div class="login-link">
+            <span class="login-text">Don't have an account? </span>
+          <a href="{% url 'register' %}" class="login-button">Sign Up</a>
+        </div>
       </div>
 
       <div class="login-bottom">
         <button type="submit" class="signup-button">Login</button>
-
-        <div class="login-link">
-          <span class="login-text">Don't have an account? </span>
-          <a href="{% url 'register' %}" class="login-button">Sign Up</a>
-        </div>
       </div>
     </form>
   </div>

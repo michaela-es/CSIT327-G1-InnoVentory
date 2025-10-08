@@ -169,21 +169,43 @@ body {
     gap: 2rem;
     align-items: end;
 }
+
+.signup-button {
+    color: white;
+    width: 300px;
+    height: 69px;
+    background-color: var(--form-accent);
+    border: none;
+    border-radius: 29px;
+    font-family: 'Inter', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    z-index: 2;
+    animation: scale-up-center 0.4s cubic-bezier(0.390, 0.575, 0.565, 1.000) both;
+}
+
 .signup-button:hover {
     background-color: var(--form-accent-hover);
 }
 
-.signup-button:active {
-    transform: translateY(1px);
-}
-
 .signup-button:focus {
     outline: none;
-    box-shadow: 0 0 0 2px rgba(248, 178, 55, 0.5);
+    box-shadow: 0 0 0 3px rgba(248, 178, 55, 0.5);
+}
+
+.signup-button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
 }
 
 /* Login link */
 .login-link {
+    margin-top: 24px;
     font-size: 16px;
     font-weight: 700;
 }
@@ -207,7 +229,21 @@ body {
 }
 
 
-/* Right panel - Blue panel */
+
+.blue-panel {
+    width: 750px;
+    height: 100vh;
+    background: linear-gradient(135deg, var(--form-panel) 0%, #4a6b7a 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 2rem;
+    position: relative;
+    text-align: center;
+    color: white;
+}
+
 .blue-panel-content {
     display: flex;
     flex-direction: column;
@@ -248,38 +284,13 @@ body {
     object-fit: contain;
     filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.2));
     transition: transform 0.3s ease;
+    margin-top: 50px;
 }
 
 .blue-panel img:hover {
     transform: translateY(-5px);
 }
 
-/* Background decoration */
-.blue-panel::before {
-    content: '';
-    position: absolute;
-    top: 10%;
-    left: 5%;
-    width: 200px;
-    height: 200px;
-    background: radial-gradient(circle, rgba(248, 178, 55, 0.15) 0%, transparent 70%);
-    border-radius: 50%;
-    z-index: 1;
-}
-
-.blue-panel::after {
-    content: '';
-    position: absolute;
-    bottom: 15%;
-    right: 8%;
-    width: 150px;
-    height: 150px;
-    background: radial-gradient(circle, rgba(248, 178, 55, 0.1) 0%, transparent 70%);
-    border-radius: 50%;
-    z-index: 1;
-}
-
-/* Responsive design for blue panel */
 @media (max-width: 1200px) {
     .blue-panel {
         width: 500px;
@@ -294,6 +305,7 @@ body {
         font-size: 1.1rem;
     }
 }
+
 
 @media (max-width: 480px) {
     .blue-panel {
@@ -366,8 +378,6 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 1.5rem;
-    margin-top: 2rem;
 }
 
 /* Checkbox styles */
@@ -449,9 +459,56 @@ body {
     .login-bottom {
         gap: 1rem;
     }
+}
 
-    .signup-button {
-        width: 100%;
-        max-width: 300px;
+@keyframes scale-up-center {
+    0% {
+        transform: scale(0.5);
+        opacity: 0;
+    } to {
+        transform: scale(1);
+        opacity: 1;
     }
 }
+.slide-left {
+  animation: slide-left 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+@keyframes slide-left {
+  0% {
+    transform: translateX(-100px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.slide-top {
+    animation: slide-top 0.5s cubic-bezier(0.250, 0.460, 0.450, 0.940) forwards;
+}
+
+@keyframes slide-top {
+  from {
+    transform: translateY(80px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.logo-container {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    z-index: 1000;
+}
+
+.logo-container img {
+    height: 120px;
+    width: auto;
+}
+
