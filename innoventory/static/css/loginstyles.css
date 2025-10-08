@@ -500,4 +500,15 @@ body {
   }
 }
 
+.logo-container {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    z-index: 1000;
+}
+
+.logo-container img {
+    height: 120px;
+    width: auto;
+}
 
