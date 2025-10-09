@@ -85,14 +85,13 @@ python manage.py createsuperuser
 python manage.py runserver
 ```
 Now open your browser and go to 👉 http://127.0.0.1:8000
-
 </details>
 
-👥 Team Members
-Michelle Marie P. Habon - Business Analyst - michellemarie.habon@cit.edu
-Tovi Joshua J. Hermosisima - Scrum Master - tovijoshua.hermosisima@cit.edu
-Ashley N. Igonia - Product Owner - ashley.igonia@cit.edu
+## 👥 Team Members
+**Michelle Marie P. Habon** — Business Analyst — michellemarie.habon@cit.edu  
+**Tovi Joshua J. Hermosisima** — Scrum Master — tovijoshua.hermosisima@cit.edu  
+**Ashley N. Igonia** — Product Owner — ashley.igonia@cit.edu  
+**Kenn Xavier C. Dabon** — Developer — kenn.dabon@cit.edu  
+**Shinely Marie R. Embalsado** — Developer — shinelymarie.embalsado@cit.edu  
+**Michaela Ma. Alexa D. Estrera** — Lead Developer — michaelamaalexa.estrera@cit.edu  
 
-Kenn Xavier C. Dabon - Developer - kenn.dabon@cit.edu
-Shinely Marie R. Embalsado - Developer - shinelymarie.embalsado@cit.edu
-Michaela Ma. Alexa D. Estrera - Lead Developer - michaelamaalexa.estrera@cit.edu
