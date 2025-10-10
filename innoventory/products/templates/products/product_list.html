@@ -45,7 +45,12 @@
         th, td {
             white-space: nowrap;
         }
-
+        .upload-progress {
+            display: none;
+        }
+        .upload-messages {
+            min-height: 50px;
+        }
     </style>
 </head>
 <body>
@@ -54,7 +59,7 @@
             <h1 class="h3">Product Inventory</h1>
             <div>
                 <button class="add-button me-2"
-                    hx-get="{% url 'product_modal' %}"
+                    hx-get="{% url 'product_add_modal' %}"
                     hx-target="#modal-container"
                     hx-trigger="click">Add Product
                 </button>
@@ -94,7 +99,7 @@
                             <td>{{ product.supplier.name }}</td>
                             <td>
                                 <button class="btn btn-primary btn-sm edit-btn"
-                                        hx-get="{% url 'product_modal' product.pk %}"
+                                        hx-get="{% url 'product_edit_modal' product.pk %}"
                                         hx-target="#modal-container"
                                         hx-trigger="click"
                                         title="Edit product">✎</button>
@@ -194,6 +199,11 @@
         if (excelModal) {
             initializeExcelUploadModal();
         }
+
+        const productModal = document.getElementById('productModal');
+        if (productModal) {
+            initializeProductModal();
+        }
     });
 
     function initializeExcelUploadModal() {
@@ -276,9 +286,32 @@
         });
     }
 
+    function initializeProductModal() {
+        const modalElement = document.getElementById('productModal');
+        if (!modalElement) return;
+
+        const modal = new bootstrap.Modal(modalElement);
+        modal.show();
+
+        const productForm = document.getElementById('productForm');
+
+        if (productForm) {
+        }
+
+        modalElement.addEventListener('hidden.bs.modal', function() {
+            setTimeout(() => {
+                modalElement.remove();
+                const modalContainer = document.getElementById('modal-container');
+                if (modalContainer) {
+                    modalContainer.innerHTML = '';
+                }
+            }, 300);
+        });
+    }
+
     document.getElementById('excelUploadSuccessModal')?.addEventListener('hidden.bs.modal', function() {
         window.location.reload();
     });
-</script>
+    </script>
 </body>
 </html>

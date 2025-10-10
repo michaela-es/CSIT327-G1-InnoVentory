@@ -38,13 +38,13 @@ def product_modal(request, pk=None):
         form = ProductForm(instance=product)
         modal_title = 'Edit Product'
         submit_text = 'Save Changes'
-        form_action = reverse('product_modal', args=[pk])
+        form_action = reverse('product_edit_modal', args=[pk])
     else:
         product = None
         form = ProductForm()
         modal_title = 'Add Product'
         submit_text = 'Add Product'
-        form_action = reverse('product_modal')
+        form_action = reverse('product_add_modal')
 
     if request.method == 'POST':
         if pk:
@@ -61,7 +61,18 @@ def product_modal(request, pk=None):
                     window.location.reload();
                 </script>
             ''')
-
+        return render(request, "products/partials/product_modal.html", {
+            "form": form,
+            "modal_title": modal_title,
+            "submit_text": submit_text,
+            "form_action": form_action,
+        })
+    return render(request, "products/partials/product_modal.html", {
+        "form": form,
+        "modal_title": modal_title,
+        "submit_text": submit_text,
+        "form_action": form_action,
+    })
 
 @login_required
 def upload_excel_modal(request):
