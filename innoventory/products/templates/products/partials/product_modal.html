@@ -33,7 +33,11 @@
         </div>
     </div>
 </div>
-
+<style>
+    .modal.fade .modal-dialog {
+        transition: transform 0.1s ease-out !important;
+    }
+</style>
 <script>
     (function() {
         const modalElement = document.getElementById('productModal');
@@ -41,19 +45,29 @@
             const modal = new bootstrap.Modal(modalElement);
             modal.show();
 
+            const closeButtons = modalElement.querySelectorAll('[data-bs-dismiss="modal"]');
+            closeButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    modal.hide();
+                });
+            });
+
+            modalElement.addEventListener('click', function(e) {
+                if (e.target === modalElement) {
+                    modal.hide();
+                }
+            });
+
             modalElement.addEventListener('hidden.bs.modal', function() {
                 const backdrop = document.querySelector('.modal-backdrop');
                 if (backdrop) {
                     backdrop.remove();
                 }
-
                 modalElement.remove();
-
                 const modalContainer = document.getElementById('modal-container');
                 if (modalContainer) {
                     modalContainer.innerHTML = '';
                 }
-
                 document.body.classList.remove('modal-open');
                 document.body.style.overflow = '';
                 document.body.style.paddingRight = '';

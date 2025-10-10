@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
     {% load humanize %}
-
     <meta charset="UTF-8" />
     <title>Product List</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
@@ -44,12 +43,6 @@
         }
         th, td {
             white-space: nowrap;
-        }
-        .upload-progress {
-            display: none;
-        }
-        .upload-messages {
-            min-height: 50px;
         }
     </style>
 </head>
@@ -190,128 +183,5 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://unpkg.com/htmx.org@1.9.2"></script>
-
-    <script>
-    document.body.addEventListener('htmx:afterSwap', function(event) {
-        const modalContainer = document.getElementById('modal-container');
-
-        const excelModal = document.getElementById('excelUploadModal');
-        if (excelModal) {
-            initializeExcelUploadModal();
-        }
-
-        const productModal = document.getElementById('productModal');
-        if (productModal) {
-            initializeProductModal();
-        }
-    });
-
-    function initializeExcelUploadModal() {
-        const modalElement = document.getElementById('excelUploadModal');
-        if (!modalElement) return;
-
-        const modal = new bootstrap.Modal(modalElement);
-        modal.show();
-
-        const excelUploadForm = document.getElementById('excelUploadForm');
-        const uploadProgress = document.getElementById('uploadProgress');
-        const uploadMessages = document.getElementById('uploadMessages');
-        const submitBtn = document.getElementById('submitBtn');
-
-        if (excelUploadForm) {
-            excelUploadForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-
-                if (uploadProgress) uploadProgress.style.display = 'block';
-                if (uploadMessages) uploadMessages.innerHTML = '';
-                if (submitBtn) submitBtn.disabled = true;
-
-                const formData = new FormData(this);
-
-                fetch(this.action, {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        modal.hide();
-
-                        const successModal = new bootstrap.Modal(document.getElementById('excelUploadSuccessModal'));
-                        const successContent = document.getElementById('successMessageContent');
-                        if (successContent) {
-                            successContent.textContent = data.message;
-                        }
-                        successModal.show();
-                    } else {
-                        if (uploadMessages) {
-                            uploadMessages.innerHTML = `
-                                <div class="alert alert-danger alert-dismissible fade show">
-                                    ${data.message}
-                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                                </div>
-                            `;
-                        }
-                        if (submitBtn) submitBtn.disabled = false;
-                    }
-                })
-                .catch(error => {
-                    if (uploadMessages) {
-                        uploadMessages.innerHTML = `
-                            <div class="alert alert-danger alert-dismissible fade show">
-                                An error occurred while uploading the file. Please try again.
-                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                            </div>
-                        `;
-                    }
-                    if (submitBtn) submitBtn.disabled = false;
-                })
-                .finally(() => {
-                    if (uploadProgress) uploadProgress.style.display = 'none';
-                });
-            });
-        }
-
-        modalElement.addEventListener('hidden.bs.modal', function() {
-            setTimeout(() => {
-                modalElement.remove();
-                const modalContainer = document.getElementById('modal-container');
-                if (modalContainer) {
-                    modalContainer.innerHTML = '';
-                }
-            }, 300);
-        });
-    }
-
-    function initializeProductModal() {
-        const modalElement = document.getElementById('productModal');
-        if (!modalElement) return;
-
-        const modal = new bootstrap.Modal(modalElement);
-        modal.show();
-
-        const productForm = document.getElementById('productForm');
-
-        if (productForm) {
-        }
-
-        modalElement.addEventListener('hidden.bs.modal', function() {
-            setTimeout(() => {
-                modalElement.remove();
-                const modalContainer = document.getElementById('modal-container');
-                if (modalContainer) {
-                    modalContainer.innerHTML = '';
-                }
-            }, 300);
-        });
-    }
-
-    document.getElementById('excelUploadSuccessModal')?.addEventListener('hidden.bs.modal', function() {
-        window.location.reload();
-    });
-    </script>
 </body>
 </html>
