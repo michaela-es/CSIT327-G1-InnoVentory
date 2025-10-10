@@ -6,4 +6,5 @@ urlpatterns = [
     path('modal/', views.product_modal, name='product_modal'),  # Add product
     path('modal/<int:pk>/', views.product_modal, name='product_modal'),  # Edit product
     path('delete/<int:pk>/', views.delete_product, name='delete_product'),
+    path('upload-excel/', views.upload_excel_modal, name='upload_excel_modal'),
 ]
