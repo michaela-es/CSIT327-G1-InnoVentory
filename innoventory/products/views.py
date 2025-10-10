@@ -33,26 +33,24 @@ def delete_product(request, pk):
 
 @login_required
 def product_modal(request, pk=None):
+    is_post = request.method == 'POST'
+    is_htmx = request.headers.get('Hx-Request') == 'true'
+
+    # Edit or Add logic
     if pk:
         product = get_object_or_404(Product, pk=pk)
-        form = ProductForm(instance=product)
+        form = ProductForm(request.POST if is_post else None, instance=product)
         modal_title = 'Edit Product'
         submit_text = 'Save Changes'
         form_action = reverse('product_edit_modal', args=[pk])
     else:
         product = None
-        form = ProductForm()
+        form = ProductForm(request.POST if is_post else None)
         modal_title = 'Add Product'
         submit_text = 'Add Product'
         form_action = reverse('product_add_modal')
 
-    if request.method == 'POST':
-        if pk:
-            product = get_object_or_404(Product, pk=pk)
-            form = ProductForm(request.POST, instance=product)
-        else:
-            form = ProductForm(request.POST)
-
+    if is_post:
         if form.is_valid():
             form.save()
             return HttpResponse('''
@@ -61,12 +59,13 @@ def product_modal(request, pk=None):
                     window.location.reload();
                 </script>
             ''')
-        return render(request, "products/partials/product_modal.html", {
-            "form": form,
-            "modal_title": modal_title,
-            "submit_text": submit_text,
-            "form_action": form_action,
-        })
+
+        # ❗️HTMX POST = only return form fields partial
+        if is_htmx:
+            return render(request, "products/partials/product_form_fields.html", {
+                "form": form,
+            })
+
     return render(request, "products/partials/product_modal.html", {
         "form": form,
         "modal_title": modal_title,

@@ -4,14 +4,15 @@
             <form id="productForm" method="post"
                   action="{{ form_action }}"
                   hx-post="{{ form_action }}"
-                  hx-target="#modal-container"
-                  hx-swap="innerHTML">
+                  hx-target="#modal-body-content"
+                  hx-swap="innerHTML"
+                  hx-boost="false">
                 {% csrf_token %}
                 <div class="modal-header">
                     <h5 class="modal-title" id="productModalLabel">{{ modal_title }}</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body p-3" style="max-height: 65vh; overflow-y: auto;">
+                <div class="modal-body p-3" style="max-height: 65vh; overflow-y: auto;" id="modal-body-content">
                     {% for field in form %}
                         <div class="mb-3">
                             <label class="form-label mb-2">
@@ -33,11 +34,13 @@
         </div>
     </div>
 </div>
+
 <style>
     .modal.fade .modal-dialog {
         transition: transform 0.1s ease-out !important;
     }
 </style>
+
 <script>
     (function() {
         const modalElement = document.getElementById('productModal');
@@ -71,6 +74,12 @@
                 document.body.classList.remove('modal-open');
                 document.body.style.overflow = '';
                 document.body.style.paddingRight = '';
+            });
+
+            document.getElementById('productForm').addEventListener('htmx:beforeSwap', function(event) {
+                if (event.detail.xhr.status !== 200) {
+                    event.detail.shouldSwap = false;
+                }
             });
         }
     })();
