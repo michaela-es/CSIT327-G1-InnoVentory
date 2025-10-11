@@ -31,3 +31,10 @@ class ProductForm(forms.ModelForm):
         if stock_quantity and stock_quantity < 0:
             raise forms.ValidationError("Stock quantity must be positive.")
         return stock_quantity
+
+class ExcelUploadForm(forms.Form):
+    excel_file = forms.FileField(
+        label="Select Excel (.xlsx) file",
+        required=True,
+        widget=forms.ClearableFileInput(attrs={"accept": ".xlsx"})
+    )
