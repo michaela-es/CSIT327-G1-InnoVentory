@@ -38,42 +38,70 @@
 </div>
 
 <script>
-    (function() {
-        const modalElement = document.getElementById('excelUploadModal');
-        if (modalElement) {
-            const modal = new bootstrap.Modal(modalElement);
-            modal.show();
+document.getElementById('excelUploadForm').addEventListener('submit', function(e) {
+    e.preventDefault();
 
-            const closeButtons = modalElement.querySelectorAll('[data-bs-dismiss="modal"]');
-            closeButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    modal.hide();
-                });
-            });
+    const form = e.target;
+    const formData = new FormData(form);
+    const submitBtn = document.getElementById('submitBtn');
+    const progress = document.getElementById('uploadProgress');
+    const messages = document.getElementById('uploadMessages');
 
-            modalElement.addEventListener('click', function(e) {
-                if (e.target === modalElement) {
-                    modal.hide();
-                }
-            });
+    progress.style.display = 'block';
+    submitBtn.disabled = true;
+    messages.innerHTML = '';
 
-            modalElement.addEventListener('hidden.bs.modal', function() {
-                const backdrop = document.querySelector('.modal-backdrop');
-                if (backdrop) {
-                    backdrop.remove();
-                }
+    fetch(form.action, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            window.location.reload();
+        } else {
+            messages.innerHTML = `
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <strong>Error!</strong> ${data.message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+        }
+    })
+    .catch(error => {
+        messages.innerHTML = `
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <strong>Error!</strong> An unexpected error occurred.
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        `;
+        console.error('Error:', error);
+    })
+    .finally(() => {
+        progress.style.display = 'none';
+        submitBtn.disabled = false;
+    });
+});
 
+(function() {
+    const modalElement = document.getElementById('excelUploadModal');
+    if (modalElement) {
+        const modal = new bootstrap.Modal(modalElement);
+        modal.show();
+
+        modalElement.addEventListener('hidden.bs.modal', function() {
+            setTimeout(() => {
                 modalElement.remove();
-
-                const modalContainer = document.getElementById('modal-container');
-                if (modalContainer) {
-                    modalContainer.innerHTML = '';
-                }
-
+                const backdrop = document.querySelector('.modal-backdrop');
+                if (backdrop) backdrop.remove();
                 document.body.classList.remove('modal-open');
                 document.body.style.overflow = '';
                 document.body.style.paddingRight = '';
-            });
-        }
-    })();
+            }, 300);
+        });
+    }
+})();
 </script>
