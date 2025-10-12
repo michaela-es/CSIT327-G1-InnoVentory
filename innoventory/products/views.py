@@ -36,7 +36,6 @@ def product_modal(request, pk=None):
     is_post = request.method == 'POST'
     is_htmx = request.headers.get('Hx-Request') == 'true'
 
-    # Edit or Add logic
     if pk:
         product = get_object_or_404(Product, pk=pk)
         form = ProductForm(request.POST if is_post else None, instance=product)
@@ -60,7 +59,6 @@ def product_modal(request, pk=None):
                 </script>
             ''')
 
-        # ❗️HTMX POST = only return form fields partial
         if is_htmx:
             return render(request, "products/partials/product_form_fields.html", {
                 "form": form,
