@@ -20,6 +20,14 @@
                                 {% if field.field.required %}<span class="text-danger">*</span>{% endif %}
                             </label>
                             {{ field }}
+                            {% if field.name == 'category' %}
+                                <input type="text" 
+                                       id="new-category-input" 
+                                       name="new_category_name"
+                                       class="form-control mt-2" 
+                                       placeholder="Enter new category name"
+                                       style="display: none;">
+                            {% endif %}
                             {% for error in field.errors %}
                                 <div class="text-danger small">{{ error }}</div>
                             {% endfor %}
@@ -35,3 +43,24 @@
         </div>
     </div>
 </div>
+
+<script>
+    (function() {
+    const categorySelect = document.getElementById('id_category');
+    const newCategoryInput = document.getElementById('new-category-input');
+    
+    if (categorySelect && newCategoryInput) {
+        categorySelect.addEventListener('change', function() {
+            if (this.value === '__new__') {
+                newCategoryInput.style.display = 'block';
+                newCategoryInput.required = true;
+                newCategoryInput.focus();
+            } else {
+                newCategoryInput.style.display = 'none';
+                newCategoryInput.required = false;
+                newCategoryInput.value = '';
+            }
+        });
+    }
+})();
+</script>

@@ -6,12 +6,37 @@ from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponse
 from .forms import ProductForm
 from .models import Product
+from django.db.models import Q 
+from .models import Product, Category
+
 
 
 @login_required
 def product_list(request):
     products = Product.objects.all()
-    return render(request, 'products/product_list.html', {'products': products})
+    categories = Category.objects.all().order_by('name')
+    
+    search_query = request.GET.get('search', '')
+    category_filter = request.GET.get('category', '')
+    
+    if search_query:
+        products = products.filter(
+            Q(name__icontains=search_query) |
+            Q(description__icontains=search_query) |
+            Q(category__name__icontains=search_query) |
+            Q(supplier__name__icontains=search_query)
+        )
+    
+    if category_filter:
+        products = products.filter(category_id=category_filter)
+    
+    return render(request, 'products/product_list.html', {
+        'products': products,
+        'categories': categories,
+        'search_query': search_query,
+        'selected_category': category_filter,
+    })
+
 
 @login_required
 @require_POST
@@ -40,11 +65,40 @@ def product_modal(request, pk=None):
         form_action = reverse('product_modal')
 
     if request.method == 'POST':
+        new_category_name = request.POST.get('new_category_name', '').strip()
+        
+        post_data = request.POST.copy()
+        if not post_data.get('category') or post_data.get('category') == '__new__':
+            if not new_category_name:
+                if pk:
+                    product = get_object_or_404(Product, pk=pk)
+                    form = ProductForm(post_data, instance=product)
+                else:
+                    form = ProductForm(post_data)
+                form.add_error('category', 'Please select a category or enter a new category name.')
+                
+                return render(request, 'products/partials/product_form_modal.html', {
+                    'form': form,
+                    'modal_title': modal_title,
+                    'submit_text': submit_text,
+                    'form_action': form_action,
+                })
+        
+        if new_category_name:
+            category, created = Category.objects.get_or_create(name=new_category_name)
+            post_data['category'] = category.id
+        elif post_data.get('category') == '__new__':
+            post_data['category'] = ''
+        
         if pk:
             product = get_object_or_404(Product, pk=pk)
-            form = ProductForm(request.POST, instance=product)
+            form = ProductForm(post_data, instance=product)
         else:
-            form = ProductForm(request.POST)
+            form = ProductForm(post_data)
+        
+        category_choices = [('', '---------'), ('__new__', '➕ Add New Category')]
+        category_choices.extend([(cat.id, cat.name) for cat in Category.objects.all().order_by('name')])
+        form.fields['category'].choices = category_choices
 
         if form.is_valid():
             form.save()
