@@ -19,6 +19,7 @@
           <button class="add-button btn me-2"
                   style="background-color: #1D3060; color: white; border: none;"
                   hx-target="#modal-container"
+                   hx-get="{% url 'upload_excel_modal' %}"
                   hx-trigger="click">
             Upload Excel
           </button>
