@@ -1,12 +1,12 @@
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
 from django.http import HttpResponseRedirect, JsonResponse
 from django.urls import reverse
 from django.views.decorators.http import require_POST
 from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponse
-from .forms import ProductForm,  ExcelUploadForm
-from .models import Product
-from django.db.models import Q 
+from .forms import ProductForm
+from django.db.models import Q
 from .models import Product, Category
 from .utils import import_products_from_excel
 
@@ -29,9 +29,12 @@ def product_list(request):
     
     if category_filter:
         products = products.filter(category_id=category_filter)
-    
+    paginator = Paginator(products, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
     return render(request, 'products/product_list.html', {
-        'products': products,
+        'page_obj': page_obj,
         'categories': categories,
         'search_query': search_query,
         'selected_category': category_filter,

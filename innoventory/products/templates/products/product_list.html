@@ -19,7 +19,7 @@
           <button class="add-button btn me-2"
                   style="background-color: #1D3060; color: white; border: none;"
                   hx-target="#modal-container"
-                   hx-get="{% url 'upload_excel_modal' %}"
+                  hx-get="{% url 'upload_excel_modal' %}"
                   hx-trigger="click">
             Upload Excel
           </button>
@@ -52,8 +52,11 @@
                 <option value="">All Dates</option>
             </select>
 
-            <button type="submit" style="padding: 8px 16px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px;">Apply</button>
-            <a href="{% url 'product_list' %}" style="padding: 8px 16px; background-color: #6c757d; color: white; text-decoration: none; border-radius: 4px; font-size: 14px;">Clear</a>
+            <div class="col-12 d-flex justify-content-end flex-wrap gap-2">
+                  <button type="submit" style="padding: 8px 16px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px;">Apply</button>
+                  <a href="{% url 'product_list' %}" style="padding: 8px 16px; background-color: #6c757d; color: white; text-decoration: none; border-radius: 4px; font-size: 14px;">Clear</a>
+            </div>
+
         </form>
     </div>
 
@@ -70,9 +73,9 @@
             </tr>
         </thead>
         <tbody>
-            {% for product in products %}
+            {% for product in page_obj %}
                 <tr data-product-id="{{ product.pk }}">
-                    <td>{{ forloop.counter }}</td>
+                    <td>{{ forloop.counter0|add:page_obj.start_index }}</td>
                     <td>{{ product.name }}</td>
                     <td>{{ product.category.name }}</td>
                     <td>{{ product.price|floatformat:2|intcomma }}</td>
