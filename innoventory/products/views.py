@@ -1,24 +1,45 @@
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponseRedirect
+from django.core.paginator import Paginator
+from django.http import HttpResponseRedirect, JsonResponse
 from django.urls import reverse
 from django.views.decorators.http import require_POST
-from django.shortcuts import get_object_or_404, render, redirect
+from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponse
-from .forms import ProductForm, ExcelUploadForm
-from .models import Product
-from django.core.paginator import Paginator
-from django.http import JsonResponse
+from .forms import ProductForm
+from django.db.models import Q
+from .models import Product, Category
 from .utils import import_products_from_excel
+
+
 
 @login_required
 def product_list(request):
     products = Product.objects.all()
+    categories = Category.objects.all().order_by('name')
+    
+    search_query = request.GET.get('search', '')
+    category_filter = request.GET.get('category', '')
+    
+    if search_query:
+        products = products.filter(
+            Q(name__icontains=search_query) |
+            Q(category__name__icontains=search_query) |
+            Q(supplier__name__icontains=search_query)
+        )
+    
+    if category_filter:
+        products = products.filter(category_id=category_filter)
     paginator = Paginator(products, 10)
-
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
-    return render(request, 'products/product_list.html', {'page_obj': page_obj})
+    return render(request, 'products/product_list.html', {
+        'page_obj': page_obj,
+        'categories': categories,
+        'search_query': search_query,
+        'selected_category': category_filter,
+    })
+
 
 @login_required
 @require_POST
@@ -33,23 +54,55 @@ def delete_product(request, pk):
 
 @login_required
 def product_modal(request, pk=None):
-    is_post = request.method == 'POST'
-    is_htmx = request.headers.get('Hx-Request') == 'true'
-
     if pk:
         product = get_object_or_404(Product, pk=pk)
-        form = ProductForm(request.POST if is_post else None, instance=product)
+        form = ProductForm(instance=product)
         modal_title = 'Edit Product'
         submit_text = 'Save Changes'
-        form_action = reverse('product_edit_modal', args=[pk])
+        form_action = reverse('product_modal', args=[pk])
     else:
         product = None
-        form = ProductForm(request.POST if is_post else None)
+        form = ProductForm()
         modal_title = 'Add Product'
         submit_text = 'Add Product'
-        form_action = reverse('product_add_modal')
+        form_action = reverse('product_modal')
 
-    if is_post:
+    if request.method == 'POST':
+        new_category_name = request.POST.get('new_category_name', '').strip()
+        
+        post_data = request.POST.copy()
+        if not post_data.get('category') or post_data.get('category') == '__new__':
+            if not new_category_name:
+                if pk:
+                    product = get_object_or_404(Product, pk=pk)
+                    form = ProductForm(post_data, instance=product)
+                else:
+                    form = ProductForm(post_data)
+                form.add_error('category', 'Please select a category or enter a new category name.')
+                
+                return render(request, 'products/partials/product_modal.html', {
+                    'form': form,
+                    'modal_title': modal_title,
+                    'submit_text': submit_text,
+                    'form_action': form_action,
+                })
+        
+        if new_category_name:
+            category, created = Category.objects.get_or_create(name=new_category_name)
+            post_data['category'] = category.id
+        elif post_data.get('category') == '__new__':
+            post_data['category'] = ''
+        
+        if pk:
+            product = get_object_or_404(Product, pk=pk)
+            form = ProductForm(post_data, instance=product)
+        else:
+            form = ProductForm(post_data)
+        
+        category_choices = [('', '---------'), ('__new__', '➕ Add New Category')]
+        category_choices.extend([(cat.id, cat.name) for cat in Category.objects.all().order_by('name')])
+        form.fields['category'].choices = category_choices
+
         if form.is_valid():
             form.save()
             return HttpResponse('''
@@ -59,16 +112,11 @@ def product_modal(request, pk=None):
                 </script>
             ''')
 
-        if is_htmx:
-            return render(request, "products/partials/product_form_fields.html", {
-                "form": form,
-            })
-
-    return render(request, "products/partials/product_modal.html", {
-        "form": form,
-        "modal_title": modal_title,
-        "submit_text": submit_text,
-        "form_action": form_action,
+    return render(request, 'products/partials/product_modal.html', {
+        'form': form,
+        'modal_title': modal_title,
+        'submit_text': submit_text,
+        'form_action': form_action,
     })
 
 @login_required

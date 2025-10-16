@@ -1,18 +1,18 @@
-<div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="productModalLabel" aria-hidden="true">
+<div class="modal fade show" style="display: block; background-color: rgba(0,0,0,0.5);">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content">
-            <form id="productForm" method="post"
+            <form method="post"
                   action="{{ form_action }}"
                   hx-post="{{ form_action }}"
-                  hx-target="#modal-body-content"
-                  hx-swap="innerHTML"
-                  hx-boost="false">
+                  hx-target="#modal-container"
+                  hx-swap="innerHTML">
                 {% csrf_token %}
                 <div class="modal-header">
-                    <h5 class="modal-title" id="productModalLabel">{{ modal_title }}</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <h5 class="modal-title">{{ modal_title }}</h5>
+                    <button type="button" class="btn-close" aria-label="Close"
+                            onclick="document.getElementById('modal-container').innerHTML = ''"></button>
                 </div>
-                <div class="modal-body p-3" style="max-height: 65vh; overflow-y: auto;" id="modal-body-content">
+                <div class="modal-body p-3" style="max-height: 65vh; overflow-y: auto;">
                     {% for field in form %}
                         <div class="mb-3">
                             <label class="form-label mb-2">
@@ -20,6 +20,14 @@
                                 {% if field.field.required %}<span class="text-danger">*</span>{% endif %}
                             </label>
                             {{ field }}
+                            {% if field.name == 'category' %}
+                                <input type="text"
+                                       id="new-category-input"
+                                       name="new_category_name"
+                                       class="form-control mt-2"
+                                       placeholder="Enter new category name"
+                                       style="display: none;">
+                            {% endif %}
                             {% for error in field.errors %}
                                 <div class="text-danger small">{{ error }}</div>
                             {% endfor %}
@@ -27,7 +35,8 @@
                     {% endfor %}
                 </div>
                 <div class="modal-footer py-3">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-secondary"
+                            onclick="document.getElementById('modal-container').innerHTML = ''">Cancel</button>
                     <button type="submit" class="btn btn-primary">{{ submit_text }}</button>
                 </div>
             </form>
@@ -35,52 +44,23 @@
     </div>
 </div>
 
-<style>
-    .modal.fade .modal-dialog {
-        transition: transform 0.1s ease-out !important;
-    }
-</style>
-
 <script>
     (function() {
-        const modalElement = document.getElementById('productModal');
-        if (modalElement) {
-            const modal = new bootstrap.Modal(modalElement);
-            modal.show();
+    const categorySelect = document.getElementById('id_category');
+    const newCategoryInput = document.getElementById('new-category-input');
 
-            const closeButtons = modalElement.querySelectorAll('[data-bs-dismiss="modal"]');
-            closeButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    modal.hide();
-                });
-            });
-
-            modalElement.addEventListener('click', function(e) {
-                if (e.target === modalElement) {
-                    modal.hide();
-                }
-            });
-
-            modalElement.addEventListener('hidden.bs.modal', function() {
-                const backdrop = document.querySelector('.modal-backdrop');
-                if (backdrop) {
-                    backdrop.remove();
-                }
-                modalElement.remove();
-                const modalContainer = document.getElementById('modal-container');
-                if (modalContainer) {
-                    modalContainer.innerHTML = '';
-                }
-                document.body.classList.remove('modal-open');
-                document.body.style.overflow = '';
-                document.body.style.paddingRight = '';
-            });
-
-            document.getElementById('productForm').addEventListener('htmx:beforeSwap', function(event) {
-                if (event.detail.xhr.status !== 200) {
-                    event.detail.shouldSwap = false;
-                }
-            });
-        }
-    })();
+    if (categorySelect && newCategoryInput) {
+        categorySelect.addEventListener('change', function() {
+            if (this.value === '__new__') {
+                newCategoryInput.style.display = 'block';
+                newCategoryInput.required = true;
+                newCategoryInput.focus();
+            } else {
+                newCategoryInput.style.display = 'none';
+                newCategoryInput.required = false;
+                newCategoryInput.value = '';
+            }
+        });
+    }
+})();
 </script>
