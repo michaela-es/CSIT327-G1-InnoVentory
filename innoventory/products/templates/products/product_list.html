@@ -17,7 +17,7 @@
           </button>
 
           <button class="add-button btn me-2"
-                  style="background-color: #1D3060; color: white; border: none;"
+                  style="background-color: #008000; color: white; border: none;"
                   hx-target="#modal-container"
                   hx-get="{% url 'upload_excel_modal' %}"
                   hx-trigger="click">
@@ -25,38 +25,53 @@
           </button>
         </div>
     </div>
-    <div style="background-color: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
-        <form method="get" style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
-            <label style="font-weight: 500; margin: 0;">Search:</label>
-            <input
-                type="text"
-                name="search"
-                value="{{ search_query }}"
-                placeholder="Search products..."
-                style="flex: 1; min-width: 250px; padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;"
-            >
 
-            <label style="font-weight: 500; margin: 0;">Filter</label>
-            <label style="font-weight: 500; margin: 0;">Category</label>
-            <select name="category" style="min-width: 200px; padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">
-                <option value="">All Categories</option>
-                {% for category in categories %}
-                    <option value="{{ category.id }}" {% if selected_category == category.id|stringformat:"s" %}selected{% endif %}>
-                    {{ category.name }}
-                    </option>
-                {% endfor %}
-            </select>
 
-            <label style="font-weight: 500; margin: 0;">Date</label>
-            <select name="date" style="min-width: 150px; padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">
-                <option value="">All Dates</option>
-            </select>
+<div style="background-color: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,.05); margin-bottom: 20px;">
+        <h5 class="mb-3" style="font-weight: 500;"><span class="me-2">🔍︎</span>Filters</h5>
 
-            <div class="col-12 d-flex justify-content-end flex-wrap gap-2">
-                  <button type="submit" style="padding: 8px 16px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px;">Apply</button>
-                  <a href="{% url 'product_list' %}" style="padding: 8px 16px; background-color: #6c757d; color: white; text-decoration: none; border-radius: 4px; font-size: 14px;">Clear</a>
+        <form method="get">
+            <div class="mb-3">
+                <input
+                    type="text"
+                    name="search"
+                    value="{{ search_query }}"
+                    placeholder="Search products..."
+                    class="form-control"
+                    style="padding: 10px 15px; border-radius: 4px; font-size: 1rem;"
+                >
             </div>
 
+            <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                    <label class="form-label" style="font-weight: 500;">Category</label>
+                    <select name="category" class="form-select" style="padding: 10px 15px; border-radius: 4px;">
+                        <option value="">All Categories</option>
+                        {% for category in categories %}
+                            <option value="{{ category.id }}" {% if selected_category == category.id|stringformat:"s" %}selected{% endif %}>
+                            {{ category.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label" style="font-weight: 500;">Date</label>
+                    <select name="date" class="form-select" style="padding: 10px 15px; border-radius: 4px;">
+                        <option value="">All Dates</option>
+                        </select>
+                </div>
+            </div>
+
+            <div class="d-flex align-items-center">
+                <button type="submit" class="btn btn-primary me-3" style="padding: 10px 20px; border-radius: 4px; font-size: 1rem;">
+                    Apply Filters
+                </button>
+
+                <a href="{% url 'product_list' %}" class="text-decoration-none" style="color: #6c757d; font-weight: 500; font-size: 1rem;">
+                    <span class="me-1">✕</span> Clear Filters
+                </a>
+            </div>
         </form>
     </div>
 
