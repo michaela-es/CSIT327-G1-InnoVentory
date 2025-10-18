@@ -77,41 +77,68 @@
 
 <table class="table table-striped table-hover">
         <thead>
-            <tr>
-                <th>No.</th>
-                <th>Name</th>
-                <th>Category</th>
-                <th>Price</th>
-                <th>Stock</th>
-                <th>Supplier</th>
-                <th>Actions</th>
+            <tr style="background-color: #f8f9fa;">
+                <th scope="col" style="font-weight: 600;">No.</th>
+                <th scope="col" style="font-weight: 600;">Name</th>
+                <th scope="col" style="font-weight: 600;">Category</th>
+                <th scope="col" style="font-weight: 600;">Price</th>
+                <th scope="col" style="font-weight: 600;">Stock</th>
+                <th scope="col" style="font-weight: 600;">Supplier</th>
+                <th scope="col" style="font-weight: 600;">Actions</th>
             </tr>
         </thead>
         <tbody>
             {% for product in page_obj %}
                 <tr data-product-id="{{ product.pk }}">
-                    <td>{{ forloop.counter0|add:page_obj.start_index }}</td>
+                    <td class="muted-text">{{ forloop.counter0|add:page_obj.start_index }}</td>
                     <td>{{ product.name }}</td>
-                    <td>{{ product.category.name }}</td>
-                    <td>{{ product.price|floatformat:2|intcomma }}</td>
-                    <td>{{ product.stock_quantity|intcomma }}</td>
+
+                    <td>
+                        <span class="badge rounded-pill" style="background-color:#ffc107; color: #333; font-weight: 500; padding: 6px 10px;">
+                            {{ product.category.name }}
+                        </span>
+                    </td>
+
+                    <td>₱{{ product.price|floatformat:2|intcomma }}</td>
+
+                    <td>
+                        {% if product.stock_quantity|add:0 > 50 %}
+                            <span class="badge rounded-pill"
+                                  style="background-color: #e0f7fa; color: #00bcd4; font-weight: 500; padding: 6px 10px;">
+                                {{ product.stock_quantity|intcomma }}
+                            </span>
+                        {% elif product.stock_quantity|add:0 > 10 %}
+                            <span class="badge rounded-pill"
+                                  style="background-color: #fff3e0; color: #ff9800; font-weight: 500; padding: 6px 10px;">
+                                {{ product.stock_quantity|intcomma }}
+                            </span>
+                        {% else %}
+                            <span class="badge rounded-pill"
+                                  style="background-color: #ffe0e0; color: #f44336; font-weight: 500; padding: 6px 10px;">
+                                {{ product.stock_quantity|intcomma }}
+                            </span>
+                        {% endif %}
+                    </td>
+
                     <td>{{ product.supplier.name }}</td>
                     <td>
-                        <button class="btn btn-primary btn-sm edit-btn"
+                        <button class="btn btn-sm"
+                                style="background-color: #0d6efd; color: white; width: 30px; height: 30px; padding: 0;"
                                 hx-get="{% url 'product_modal' product.pk %}"
                                 hx-target="#modal-container"
                                 hx-trigger="click"
                                 title="Edit product">
-                            ✎
+                            <i class="fas fa-pencil-alt"></i>
                         </button>
 
-                        <button class="btn btn-danger btn-sm delete-btn"
+                        <button class="btn btn-sm"
+                            style="background-color: #dc3545; color: white; width: 30px; height: 30px; padding: 0;"
                             data-bs-toggle="modal"
                             data-bs-target="#deleteConfirmModal"
                             data-product-id="{{ product.pk }}"
                             data-product-name="{{ product.name }}"
                             title="Delete product">
-                        ×
+                            <i class="fas fa-trash-alt"></i>
                         </button>
                     </td>
                 </tr>
