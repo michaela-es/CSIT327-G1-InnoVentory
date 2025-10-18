@@ -5,7 +5,7 @@
 
 {% block content %}
 <div class="container mt-3">
-     <div class="d-flex justify-content-between align-items-center mb-3">
+     <div class="d-flex justify-content-between align-items-center mb-2">
         <h1>Product Inventory</h1>
 
         <div>
@@ -17,7 +17,7 @@
           </button>
 
           <button class="add-button btn me-2"
-                  style="background-color: #1D3060; color: white; border: none;"
+                  style="background-color: #008000; color: white; border: none;"
                   hx-target="#modal-container"
                   hx-get="{% url 'upload_excel_modal' %}"
                   hx-trigger="click">
@@ -25,64 +25,114 @@
           </button>
         </div>
     </div>
-    <div style="background-color: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
-        <form method="get" style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
-            <label style="font-weight: 500; margin: 0;">Search:</label>
-            <input
-                type="text"
-                name="search"
-                value="{{ search_query }}"
-                placeholder="Search products..."
-                style="flex: 1; min-width: 250px; padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;"
-            >
 
-            <label style="font-weight: 500; margin: 0;">Filter</label>
-            <label style="font-weight: 500; margin: 0;">Category</label>
-            <select name="category" style="min-width: 200px; padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">
-                <option value="">All Categories</option>
-                {% for category in categories %}
-                    <option value="{{ category.id }}" {% if selected_category == category.id|stringformat:"s" %}selected{% endif %}>
-                    {{ category.name }}
-                    </option>
-                {% endfor %}
-            </select>
 
-            <label style="font-weight: 500; margin: 0;">Date</label>
-            <select name="date" style="min-width: 150px; padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">
-                <option value="">All Dates</option>
-            </select>
+<div style="background-color: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,.05); margin-bottom: 20px;">
+        <h5 class="mb-2" style="font-weight: 500;"><span class="me-2">🔍︎</span>Filters</h5>
 
-            <div class="col-12 d-flex justify-content-end flex-wrap gap-2">
-                  <button type="submit" style="padding: 8px 16px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px;">Apply</button>
-                  <a href="{% url 'product_list' %}" style="padding: 8px 16px; background-color: #6c757d; color: white; text-decoration: none; border-radius: 4px; font-size: 14px;">Clear</a>
+            <form method="get">
+                <div class="mb-2">
+                    <input
+                        type="text"
+                        name="search"
+                        value="{{ search_query }}"
+                        placeholder="Search products..."
+                        class="form-control"
+                        style="padding: 10px 15px; border-radius: 4px; font-size: 1rem;"
+                    >
             </div>
 
+            <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                    <label class="form-label" style="font-weight: 500;">Category</label>
+                    <select name="category" class="form-select" style="padding: 10px 15px; border-radius: 4px;">
+                        <option value="">All Categories</option>
+                        {% for category in categories %}
+                            <option value="{{ category.id }}" {% if selected_category == category.id|stringformat:"s" %}selected{% endif %}>
+                            {{ category.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label" style="font-weight: 500;">Date</label>
+                    <select name="date" class="form-select" style="padding: 8px 12px; border-radius: 4px;">
+                        <option value="">All Dates</option>
+                        </select>
+                </div>
+            </div>
+
+
+            <div class="d-flex align-items-center">
+                <button type="submit" class="btn btn-primary me-3" style="padding: 8px 16px; border-radius: 4px; font-size: 1rem;">
+                    Apply Filters
+                </button>
+
+                <a href="{% url 'product_list' %}" class="text-decoration-none" style="color: #6c757d; font-weight: 500; font-size: 0.95rem;">
+                    <span class="me-1">✕</span> Clear Filters
+                </a>
+            </div>
         </form>
     </div>
 
-<table class="table table-striped table-hover">
+<div class="d-flex justify-content-between align-items-center mb-2 mt-4">
+    <h5 style="font-weight: 600; color: #333;">Inventory List</h5>
+    <span class="text-muted small">
+        Showing {{ page_obj|length }} of {{ page_obj.paginator.count }} items
+    </span>
+</div>
+
+<div style="background-color: white; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.08); overflow-x: auto;">
+    <table class="table align-middle mb-0">
         <thead>
-            <tr>
-                <th>No.</th>
-                <th>Name</th>
-                <th>Category</th>
-                <th>Price</th>
-                <th>Stock</th>
-                <th>Supplier</th>
-                <th>Actions</th>
+            <tr style="background-color: #f8f9fa;">
+                <th scope="col" style="font-weight: 600; padding-left: 25px">No.</th>
+                <th scope="col" style="font-weight: 600;">Name</th>
+                <th scope="col" style="font-weight: 600;">Category</th>
+                <th scope="col" style="font-weight: 600;">Price</th>
+                <th scope="col" style="font-weight: 600;">Stock</th>
+                <th scope="col" style="font-weight: 600;">Supplier</th>
+                <th scope="col" style="font-weight: 600;">Actions</th>
             </tr>
         </thead>
         <tbody>
             {% for product in page_obj %}
                 <tr data-product-id="{{ product.pk }}">
-                    <td>{{ forloop.counter0|add:page_obj.start_index }}</td>
+                    <td class="text-muted" style="padding-left:30px;">{{ forloop.counter0|add:page_obj.start_index }}</td>
                     <td>{{ product.name }}</td>
-                    <td>{{ product.category.name }}</td>
-                    <td>{{ product.price|floatformat:2|intcomma }}</td>
-                    <td>{{ product.stock_quantity|intcomma }}</td>
+
+                    <td>
+                        <span class="badge rounded-pill" style="background-color:#ffc107; color: #333; font-weight: 500; padding: 6px 10px;">
+                            {{ product.category.name }}
+                        </span>
+                    </td>
+
+                    <td>₱{{ product.price|floatformat:2|intcomma }}</td>
+
+                    <td>
+                        {% if product.stock_quantity|add:0 > 50 %}
+                            <span class="badge rounded-pill"
+                                  style="background-color: #e0f7fa; color: #00bcd4; font-weight: 500; padding: 6px 10px;">
+                                {{ product.stock_quantity|intcomma }}
+                            </span>
+                        {% elif product.stock_quantity|add:0 > 10 %}
+                            <span class="badge rounded-pill"
+                                  style="background-color: #fff3e0; color: #ff9800; font-weight: 500; padding: 6px 10px;">
+                                {{ product.stock_quantity|intcomma }}
+                            </span>
+                        {% else %}
+                            <span class="badge rounded-pill"
+                                  style="background-color: #ffe0e0; color: #f44336; font-weight: 500; padding: 6px 10px;">
+                                {{ product.stock_quantity|intcomma }}
+                            </span>
+                        {% endif %}
+                    </td>
+
                     <td>{{ product.supplier.name }}</td>
                     <td>
-                        <button class="btn btn-primary btn-sm edit-btn"
+                        <button class="btn btn-sm"
+                                style="background-color: #0d6efd; color: white; width: 30px; height: 30px; padding: 0; font-size: 0.9rem; line-height: 30px;"
                                 hx-get="{% url 'product_modal' product.pk %}"
                                 hx-target="#modal-container"
                                 hx-trigger="click"
@@ -90,7 +140,8 @@
                             ✎
                         </button>
 
-                        <button class="btn btn-danger btn-sm delete-btn"
+                        <button class="btn btn-sm"
+                            style="background-color: #dc3545; color: white; width: 30px; height: 30px; padding: 0; font-size: 1.1rem; line-height: 30px;"
                             data-bs-toggle="modal"
                             data-bs-target="#deleteConfirmModal"
                             data-product-id="{{ product.pk }}"
@@ -102,7 +153,7 @@
                 </tr>
             {% empty %}
                 <tr>
-                    <td colspan="8">No products found.</td>
+                    <td colspan="7">No products found.</td>
                 </tr>
             {% endfor %}
         </tbody>
