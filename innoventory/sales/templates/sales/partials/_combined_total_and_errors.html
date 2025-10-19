@@ -1,0 +1,16 @@
+<div id="combined-container">
+  <div class="mb-3">
+    <label for="id_price" class="form-label">Price:</label>
+    <input type="number" name="price" value="{{ price }}" step="0.01" class="form-control" id="id_price" disabled>
+  </div>
+  <div class="mb-3">
+    <label for="id_total" class="form-label">Total:</label>
+    <input type="number" name="total" value="{{ total }}" step="0.01" class="form-control" id="id_total" disabled>
+  </div>
+
+  {% if form.quantity.errors %}
+    {% for error in form.quantity.errors %}
+      <div class="text-danger small mt-1">{{ error }}</div>
+    {% endfor %}
+  {% endif %}
+</div>

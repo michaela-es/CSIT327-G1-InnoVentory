@@ -21,28 +21,49 @@ class Stocks(models.Model):
         self.product.save(update_fields=['stock_quantity'])
         self.product.refresh_from_db(fields=['stock_quantity'])
 
+    # def save(self, *args, **kwargs):
+    #     with transaction.atomic():
+    #         if self.pk:
+    #             old = Stocks.objects.get(pk=self.pk)
+    #             if old.type == self.IN:
+    #                 self._adjust_product_stock(-old.qty)
+    #             else:
+    #                 self._adjust_product_stock(old.qty)
+    #
+    #             super().save(*args, **kwargs)
+    #
+    #             if self.type == self.IN:
+    #                 self._adjust_product_stock(self.qty)
+    #             else:
+    #                 self._adjust_product_stock(-self.qty)
+    #
+    #         else:
+    #             super().save(*args, **kwargs)
+    #             if self.type == self.IN:
+    #                 self._adjust_product_stock(self.qty)
+    #             else:
+    #                 self._adjust_product_stock(-self.qty)
+
     def save(self, *args, **kwargs):
         with transaction.atomic():
             if self.pk:
-                old = Stocks.objects.get(pk=self.pk)
-                if old.type == self.IN:
-                    self._adjust_product_stock(-old.qty)
+                old_stock = Stocks.objects.get(pk=self.pk)
+
+                if old_stock.type == self.IN:
+                    adjustment = -old_stock.qty
                 else:
-                    self._adjust_product_stock(old.qty)
+                    adjustment = old_stock.qty
 
-                super().save(*args, **kwargs)
+                self._adjust_product_stock(adjustment)
 
-                if self.type == self.IN:
-                    self._adjust_product_stock(self.qty)
-                else:
-                    self._adjust_product_stock(-self.qty)
+            super().save(*args, **kwargs)
 
+            if self.type == self.IN:
+                adjustment = self.qty
             else:
-                super().save(*args, **kwargs)
-                if self.type == self.IN:
-                    self._adjust_product_stock(self.qty)
-                else:
-                    self._adjust_product_stock(-self.qty)
+                adjustment = -self.qty
+
+            self._adjust_product_stock(adjustment)
 
     def delete(self, *args, **kwargs):
         with transaction.atomic():
