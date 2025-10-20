@@ -1,0 +1,36 @@
+<aside class="sidebar">
+    <div class="user-profile">
+        <div class="user-avatar">
+            <i class="fa-solid fa-circle-user"></i>
+        </div>
+        <div class="user-name">{{ request.user.username }}</div>
+        <div class="user-role">{{ request.user.get_role_display }}</div>
+    </div>
+
+    <nav class="nav-menu">
+        <a href="#" class="nav-item">
+            <i class="fa-solid fa-house" style="padding-right:10px"></i>
+            Home
+        </a>
+
+        <a href="{% url 'product_list' %}" class="nav-item {% if request.resolver_match.url_name == 'product_list' %}active{% endif %}">
+            <i class="fa-solid fa-boxes-stacked" style="padding-right:10px"></i>
+            Inventory Management
+        </a>
+
+        <a href="#" class="nav-item">
+            <i class="fa-solid fa-money-bill-transfer" style="padding-right:10px"></i>
+            Transactions
+        </a>
+
+        <a href="#" class="nav-item">
+            <i class="fa-solid fa-chart-bar" style="padding-right:10px"></i>
+            Reports & Analytics
+        </a>
+
+        <a href="#" class="nav-item">
+            <i class="fa-solid fa-gear" style="padding-right:10px"></i>
+            Settings
+        </a>
+    </nav>
+</aside>

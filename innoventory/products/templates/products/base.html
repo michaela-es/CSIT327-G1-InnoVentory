@@ -324,7 +324,10 @@
     {% block extra_css %}{% endblock %}
 </head>
 <body>
-        {% include "partials/sidebar.html" %}
+    {% if request.user.role == 'admin' %}
+        {% include "partials/admin_sidebar.html" %}
+    {% elif request.user.role == 'staff' %}
+        {% include "partials/staff_sidebar.html" %}
     <main class="main-content">
         {% include 'partials/top_header.html' %}
 
