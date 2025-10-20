@@ -32,5 +32,22 @@
             <i class="fa-solid fa-gear" style="padding-right:10px"></i>
             Settings
         </a>
+
+        <a href="#" id="logout-link" class="nav-item">
+            <i class="fa-solid fa-right-from-bracket" style="padding-right:10px"></i>
+            Log Out
+        </a>
+
+        <form id="logout-form" method="post" action="{% url 'logout' %}" style="display: none;">
+            {% csrf_token %}
+        </form>
+
+        <script>
+            document.getElementById('logout-link').addEventListener('click', function(e) {
+                e.preventDefault();
+                document.getElementById('logout-form').submit();
+            });
+        </script>
+
     </nav>
 </aside>

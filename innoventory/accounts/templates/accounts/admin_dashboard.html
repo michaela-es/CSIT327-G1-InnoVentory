@@ -1,3 +1,4 @@
+{% extends 'products/base.html' %}
 <div style="padding: 20px; background: #f0f8ff; border-radius: 10px;">
     <h2>🛠️ Admin Dashboard (Test)</h2>
     <p>You have admin privileges!</p>
@@ -7,9 +8,4 @@
         <li>System Settings</li>
         <li>View Reports</li>
     </ul>
-
-    <form method="post" action="{% url 'logout' %}">
-        {% csrf_token %}
-        <button type="submit">Log Out</button>
-    </form>
 </div>

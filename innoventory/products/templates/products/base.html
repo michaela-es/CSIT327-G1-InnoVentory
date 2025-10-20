@@ -328,6 +328,7 @@
         {% include "partials/admin_sidebar.html" %}
     {% elif request.user.role == 'staff' %}
         {% include "partials/staff_sidebar.html" %}
+    {% endif %}
     <main class="main-content">
         {% include 'partials/top_header.html' %}
 
