@@ -39,6 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'accounts',
     'products',
+    'stocks',
+    'sales',
     'django.contrib.humanize'
 ]
 
