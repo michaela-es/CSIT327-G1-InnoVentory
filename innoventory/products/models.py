@@ -29,6 +29,7 @@ class Product(models.Model):
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, related_name='products')
     price = models.FloatField()
     stock_quantity = models.IntegerField()
+    date_modified = models.DateTimeField(auto_now=True)
     supplier = models.ForeignKey(Supplier, on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):

@@ -1,7 +1,7 @@
 
 {% block content %}
 <div class="dashboard">
-    <h1>Welcome, {{ request.user.username }}! ({{ request.user.get_role_display }})</h1>
+<!--    <h1>Welcome, {{ request.user.username }}! ({{ request.user.get_role_display }})</h1>-->
     
     {% if request.user.role == 'admin' %}
         {% include 'accounts/admin_dashboard.html' %}

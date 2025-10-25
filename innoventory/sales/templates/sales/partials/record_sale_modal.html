@@ -1,0 +1,72 @@
+
+<div class="modal fade show" style="display: block; background-color: rgba(0,0,0,0.5);">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <form method="post" action="{{ form_action }}">
+        {% csrf_token %}
+        <div class="modal-header">
+          <h5 class="modal-title">{{ modal_title }}</h5>
+          <button type="button" class="btn-close" aria-label="Close" onclick="closeModal()"></button>
+        </div>
+
+        <div class="modal-body p-3" style="max-height: 65vh; overflow-y: auto;">
+
+        <div class="mb-3">
+          <label for="id_product" class="form-label">Product:</label>
+          <select name="product" id="id_product" class="form-control"
+                  hx-post="{% url 'calculate_total' %}"
+                  hx-trigger="change"
+                  hx-target="#combined-container"
+                  hx-swap="outerHTML"
+                  hx-include="[name='product'], [name='quantity']">
+            <option value="">---------</option>
+            {% for product in form.product.field.queryset %}
+              <option value="{{ product.pk }}">{{ product.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <label for="id_quantity" class="form-label">Quantity:</label>
+          <input type="number" name="quantity" id="id_quantity"
+                 class="form-control" min="1" value="1"
+                 hx-post="{% url 'calculate_total' %}"
+                 hx-trigger="input changed delay:300ms"
+                 hx-target="#combined-container"
+                 hx-swap="outerHTML"
+                 hx-include="[name='product'], [name='quantity']">
+        </div>
+
+        <div class="mb-3">
+          {{ form.sales_type.label_tag }}
+          {{ form.sales_type }}
+        </div>
+
+        <div id="combined-container">
+          <div class="mb-3">
+            <label for="id_price" class="form-label">Price:</label>
+            <input type="number" name="price" value="0" step="0.01" class="form-control" id="id_price" disabled>
+          </div>
+          <div class="mb-3">
+            <label for="id_total" class="form-label">Total:</label>
+            <input type="number" name="total" value="0" step="0.01" class="form-control" id="id_total" disabled>
+          </div>
+
+        </div>
+
+        </div>
+
+        <div class="modal-footer py-3">
+          <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary">{{ submit_text }}</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+function closeModal() {
+    document.getElementById('modal-container').innerHTML = '';
+}
+</script>

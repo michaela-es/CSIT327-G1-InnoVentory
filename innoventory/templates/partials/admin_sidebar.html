@@ -8,7 +8,7 @@
     </div>
 
     <nav class="nav-menu">
-        <a href="#" class="nav-item">
+        <a href="{% url 'dashboard' %}" class="nav-item {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
             <i class="fa-solid fa-house" style="padding-right:10px"></i>
             Home
         </a>
@@ -25,7 +25,12 @@
 
         <a href="{% url 'stock_transactions' %}" class="nav-item {% if active_page == 'stock_transactions' %}active{% endif %}">
             <i class="fa-solid fa-money-bill-transfer" style="padding-right:10px"></i>
-            Transactions
+            Stock Transactions
+        </a>
+        
+        <a href="{% url 'sales_record' %}" class="nav-item">
+            <i class="fa-solid fa-money-bill-transfer" style="padding-right:10px"></i>
+            Sales Record
         </a>
 
         <a href="#" class="nav-item">
@@ -42,5 +47,22 @@
             <i class="fa-solid fa-gear" style="padding-right:10px"></i>
             Settings
         </a>
+
+        <a href="#" id="logout-link" class="nav-item">
+            <i class="fa-solid fa-right-from-bracket" style="padding-right:10px"></i>
+            Log Out
+        </a>
+
+        <form id="logout-form" method="post" action="{% url 'logout' %}" style="display: none;">
+            {% csrf_token %}
+        </form>
+
+        <script>
+            document.getElementById('logout-link').addEventListener('click', function(e) {
+                e.preventDefault();
+                document.getElementById('logout-form').submit();
+            });
+        </script>
+
     </nav>
 </aside>
