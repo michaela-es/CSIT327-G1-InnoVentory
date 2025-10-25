@@ -7,8 +7,11 @@ from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponse
 from .forms import ProductForm
 from django.db.models import Q
-from .models import Product, Category
+from .models import Product, Category, StockTransaction
 from .utils import import_products_from_excel
+from .forms import StockTransactionForm
+from django.contrib import messages
+from django.shortcuts import render, redirect, get_object_or_404
 
 
 
@@ -155,3 +158,80 @@ def upload_excel_modal(request):
 
     else:
         return render(request, "products/partials/excel_upload_modal.html")
+    
+
+def stock_transactions(request):
+    if request.method == 'POST':
+        form = StockTransactionForm(request.POST)
+        if form.is_valid():
+            try:
+                transaction = form.save()
+                messages.success(
+                    request, 
+                    f'Stock {transaction.get_transaction_type_display().lower()} recorded successfully for {transaction.product.name}!'
+                )
+                return redirect('stock_transactions')
+            except ValueError as e:
+                messages.error(request, str(e))
+    else:
+        form = StockTransactionForm()
+    
+    search_query = request.GET.get('search', '')
+    transaction_type = request.GET.get('type', '')
+    
+    transactions = StockTransaction.objects.all()
+    
+    if search_query:
+        transactions = transactions.filter(
+            Q(product__name__icontains=search_query) |
+            Q(remarks__icontains=search_query)
+        )
+    
+    if transaction_type:
+        transactions = transactions.filter(transaction_type=transaction_type)
+    
+    recent_transactions = transactions[:50] 
+    
+    context = {
+        'form': form,
+        'recent_transactions': recent_transactions,
+        'search_query': search_query,
+        'selected_type': transaction_type,
+        'active_page': 'stock_transactions'
+    }
+    return render(request, 'products/stock_transactions.html', context)
+
+def delete_transaction(request, transaction_id):
+    transaction = get_object_or_404(StockTransaction, id=transaction_id) 
+    if request.method == 'POST':
+        product_name = transaction.product.name
+        transaction.delete()
+        messages.success(request, f'Transaction for {product_name} deleted successfully!')
+        return redirect('stock_transactions')
+    messages.error(request, 'Invalid request method.')
+    return redirect('stock_transactions')
+
+@login_required
+def edit_transaction_modal(request, transaction_id):
+    transaction = get_object_or_404(StockTransaction, id=transaction_id)
+    if request.method == 'POST':
+        form = StockTransactionForm(request.POST, instance=transaction)
+        if form.is_valid():
+            form.save()
+            return HttpResponse('''
+                <script>
+                    document.getElementById("modal-container").innerHTML = "";
+                    window.location.reload();
+                </script>
+            ''')
+    else:
+        form = StockTransactionForm(instance=transaction)
+    
+    context = {
+        'form': form,
+        'transaction': transaction,
+        'modal_title': 'Edit Transaction',
+        'form_action': f'/products/transactions/edit/{transaction.id}/',
+        'submit_text': 'Update Transaction'
+    }
+    return render(request, 'products/partials/transaction_edit_modal.html', context)
