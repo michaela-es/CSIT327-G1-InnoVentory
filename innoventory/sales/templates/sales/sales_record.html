@@ -7,7 +7,56 @@
 
 <div class="container mt-3">
     <div style="background-color: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+        <h5>Current Stock</h5>
+        <table class="table align-middle mb-0">
+            <thead>
+            <tr style="background-color: #e9ecef;">
+                <th scope="col" style="font-weight: 600; padding-left: 15px;">No.</th>
+                <th scope="col" style="font-weight: 600;">Name</th>
+                <th scope="col" style="font-weight: 600;">Category</th>
+                <th scope="col" style="font-weight: 600;">Price</th>
+                <th scope="col" style="font-weight: 600;">Stock</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for product in products %}
+            <tr>
+                <td class="text-muted" style="padding-left:15px;">{{ forloop.counter }}</td>
+                <td><span class="fw-bold">{{ product.name }}</span></td>
+                <td>
+                    <span class="badge rounded-pill" style="background-color:#ffc107; color: #333; font-weight: 500; padding: 6px 10px;">
+                        {{ product.category.name }}
+                    </span>
+                </td>
+                <td>₱{{ product.price|floatformat:2|intcomma }}</td>
+                <td>
+                    {% if product.stock_quantity|add:0 > 50 %}
+                    <span class="badge rounded-pill"
+                          style="background-color: #e0f7fa; color: #00bcd4; font-weight: 500; padding: 6px 10px;">
+                        {{ product.stock_quantity|intcomma }}
+                    </span>
+                    {% elif product.stock_quantity|add:0 > 10 %}
+                    <span class="badge rounded-pill"
+                          style="background-color: #fff3e0; color: #ff9800; font-weight: 500; padding: 6px 10px;">
+                        {{ product.stock_quantity|intcomma }}
+                    </span>
+                    {% else %}
+                    <span class="badge rounded-pill"
+                          style="background-color: #ffe0e0; color: #f44336; font-weight: 500; padding: 6px 10px;">
+                        {{ product.stock_quantity|intcomma }}
+                    </span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" class="text-center py-3 text-muted">No products available in inventory.</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
     </div>
+
     <h3> Sales & Transactions </h3>
     <button style="margin-bottom: 16px;"
             class="add-button btn btn-primary me-2"
