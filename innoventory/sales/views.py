@@ -52,7 +52,7 @@ def sales_record(request):
     context = {
         'sales': sales,
         'products': products,
-        'page_title': 'Sales Record',
+        'page_title': 'Transactions',
     }
     return render(request, 'sales/sales_record.html', context)
 
