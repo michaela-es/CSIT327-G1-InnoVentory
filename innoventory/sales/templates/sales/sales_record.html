@@ -93,9 +93,9 @@
         {% for sale in sales %}
         <tr data-sale-id="{{ sale.sale_id }}">
             <td class="text-muted">{{ sale.sale_id }}</td>
-            <td class="fw-bold">{{ sale.product_sold.name }}</td>
+            <td>{{ sale.product_sold.name }}</td>
             <td class="text-center">{{ sale.product_qty|intcomma }}</td>
-            <td class="text-end text-success fw-bold">₱{{ sale.total|floatformat:2|intcomma }}</td>
+            <td class="text-end text-success">₱{{ sale.total|floatformat:2|intcomma }}</td>
             <td>
                 <span class="badge {% if sale.sales_type == 'CASH' %}bg-primary{% else %}bg-info{% endif %}">{{ sale.get_sales_type_display }}</span>
             </td>
