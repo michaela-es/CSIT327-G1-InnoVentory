@@ -4,53 +4,118 @@
 {% block title %}Sales & Transactions{% endblock %}
 
 {% block content %}
+
 <div class="container mt-3">
     <div style="background-color: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+        <h5>Current Stock</h5>
+        <table class="table align-middle mb-0">
+            <thead>
+            <tr style="background-color: #e9ecef;">
+                <th scope="col" style="font-weight: 600; padding-left: 15px;">No.</th>
+                <th scope="col" style="font-weight: 600;">Name</th>
+                <th scope="col" style="font-weight: 600;">Category</th>
+                <th scope="col" style="font-weight: 600;">Price</th>
+                <th scope="col" style="font-weight: 600;">Stock</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for product in products %}
+            <tr>
+                <td class="text-muted" style="padding-left:15px;">{{ forloop.counter }}</td>
+                <td><span class="fw-bold">{{ product.name }}</span></td>
+                <td>
+                    <span class="badge rounded-pill" style="background-color:#ffc107; color: #333; font-weight: 500; padding: 6px 10px;">
+                        {{ product.category.name }}
+                    </span>
+                </td>
+                <td>₱{{ product.price|floatformat:2|intcomma }}</td>
+                <td>
+                    {% if product.stock_quantity|add:0 > 50 %}
+                    <span class="badge rounded-pill"
+                          style="background-color: #e0f7fa; color: #00bcd4; font-weight: 500; padding: 6px 10px;">
+                        {{ product.stock_quantity|intcomma }}
+                    </span>
+                    {% elif product.stock_quantity|add:0 > 10 %}
+                    <span class="badge rounded-pill"
+                          style="background-color: #fff3e0; color: #ff9800; font-weight: 500; padding: 6px 10px;">
+                        {{ product.stock_quantity|intcomma }}
+                    </span>
+                    {% else %}
+                    <span class="badge rounded-pill"
+                          style="background-color: #ffe0e0; color: #f44336; font-weight: 500; padding: 6px 10px;">
+                        {{ product.stock_quantity|intcomma }}
+                    </span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" class="text-center py-3 text-muted">No products available in inventory.</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
     </div>
-    <h3> Recent Activity </h3>
 
-    <button class="add-button btn btn-primary me-2"
+    <h3> Sales & Transactions </h3>
+    <button style="margin-bottom: 16px;"
+            class="add-button btn btn-primary me-2"
             hx-get="{% url 'record_sale_modal' %}"
             hx-target="#modal-container"
             hx-trigger="click"
             onclick="console.log('Button clicked')">
-        Record New Sale
+        <i class="fas fa-plus-circle me-2"></i>
+            Record New Sale
+    </button>
+    <!--static button for now-->
+    <button class="btn btn-secondary shadow-sm"
+            hx-get="#"
+            hx-target="#modal-container"
+            hx-trigger="click"
+            onclick="console.log('Manage Credits clicked')">
+        <i class="fas fa-handshake me-2"></i>
+        Manage Credits
     </button>
 
-    <table class="table table-striped table-hover">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Product</th>
-                <th>Qty</th>
-                <th>Total</th>
-                <th>Type</th>
-                <th>Date</th>
-                <th>Sold By</th>
-            </tr>
+    <table class="table table-striped table-hover align-middle mb-0">
+        <thead class="table-light">
+        <tr>
+            <th scope="col" style="width: 5%;">ID</th>
+            <th scope="col" style="width: 25%;">Product</th>
+            <th scope="col" class="text-center" style="width: 10%;">Quantity</th>
+            <th scope="col" class="text-end" style="width: 15%;">Total</th>
+            <th scope="col" style="width: 10%;">Type</th>
+            <th scope="col" style="width: 15%;">Date</th>
+            <th scope="col" style="width: 20%;">Sold By</th>
+        </tr>
         </thead>
         <tbody>
-            {% for sale in sales %}
-                <tr data-sale-id="{{ sale.sale_id }}">
-                    <td>{{ sale.sale_id }}</td>
-                    <td>{{ sale.product_sold.name }}</td>
-                    <td>{{ sale.product_qty }}</td>
-                    <td>{{ sale.total|floatformat:2|intcomma }}</td>
-                    <td>{{ sale.get_sales_type_display }}</td>
-                    <td>{{ sale.sales_date|date:"n/j/Y" }}</td>
-                    <td>
-                        {% if sale.sold_by %}
-                            {{ sale.sold_by.username }}
-                        {% else %}
-                            Unknown
-                        {% endif %}
-                    </td>
-                </tr>
-            {% empty %}
-                <tr>
-                    <td colspan="7">No sales found.</td>
-                </tr>
-            {% endfor %}
+        {% for sale in sales %}
+        <tr data-sale-id="{{ sale.sale_id }}">
+            <td class="text-muted">{{ sale.sale_id }}</td>
+            <td>{{ sale.product_sold.name }}</td>
+            <td class="text-center">{{ sale.product_qty|intcomma }}</td>
+            <td class="text-end text-success">₱{{ sale.total|floatformat:2|intcomma }}</td>
+            <td>
+                <span class="badge {% if sale.sales_type == 'CASH' %}bg-primary{% else %}bg-info{% endif %}">{{ sale.get_sales_type_display }}</span>
+            </td>
+            <td>{{ sale.sales_date|date:"M j, Y" }}</td>
+            <td>
+                {% if sale.sold_by %}
+                <i class="fas fa-user me-1"></i> {{ sale.sold_by.username }}
+                {% else %}
+                <span class="text-danger">Unknown</span>
+                {% endif %}
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="7" class="text-center py-4 text-muted">
+                <i class="fas fa-file-invoice-dollar fa-2x mb-2"></i><br>
+                No sales found. Record your first sale to start tracking activity.
+            </td>
+        </tr>
+        {% endfor %}
         </tbody>
     </table>
 </div>

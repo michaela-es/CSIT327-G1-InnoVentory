@@ -23,7 +23,7 @@
             Categories / Suppliers
         </a>
 
-        <a href="{% url 'sales_record' %}" class="nav-item">
+        <a href="{% url 'sales_record' %}" class="nav-item {% if request.resolver_match.url_name == 'sales_record' %}active{% endif %}">
             <i class="fa-solid fa-money-bill-transfer" style="padding-right:10px"></i>
             Transactions
         </a>

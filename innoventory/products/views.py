@@ -33,12 +33,15 @@ def product_list(request):
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
-    return render(request, 'products/product_list.html', {
+    context = {
+        'page_title': 'Inventory Management',
         'page_obj': page_obj,
         'categories': categories,
         'search_query': search_query,
         'selected_category': category_filter,
-    })
+    }
+
+    return render(request, 'products/product_list.html', context)
 
 
 @login_required
