@@ -9,23 +9,19 @@ https://docs.djangoproject.com/en/5.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
-import os
 from pathlib import Path
+import os
+import dj_database_url
 from dotenv import load_dotenv
-DEBUG = os.getenv("DEBUG") == "True"
-SECRET_KEY = os.getenv("SECRET_KEY")
-ALLOWED_HOSTS = os.getenv['localhost','127.0.0.1','.onrender.com']
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
+load_dotenv()
+BASE_DIR = Path(__file__).resolve().parent.parent
 
-# SECURITY WARNING: keep the secret key used in production secret
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DATABASE_URL = os.environ.get("DATABASE_URL")
+SECRET_KEY = os.environ.get("SECRET_KEY")
+DEBUG = os.environ.get("DEBUG") == "True"
 
 ALLOWED_HOSTS = []
-
 
 # Application definition
 
@@ -77,7 +73,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'innoventory.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
@@ -87,15 +82,24 @@ PASSWORD_HASHERS = [
 ]
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'innoventory',
-        'USER': 'root',
-        'PASSWORD': '',
-        'HOST': 'localhost',
-        'PORT': '3306',
-    }
+    "default": dj_database_url.config(
+        default="sqlite:///db.sqlite3",
+        env="DATABASE_URL",
+        conn_max_age=600,  # persistent connections
+        ssl_require=True  # enforce SSL
+    )
 }
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'innoventory',
+#         'USER': 'root',
+#         'PASSWORD': '',
+#         'HOST': 'localhost',
+#         'PORT': '3306',
+#     }
+# }
 
 
 # Password validation
@@ -117,7 +121,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
@@ -128,7 +131,6 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
