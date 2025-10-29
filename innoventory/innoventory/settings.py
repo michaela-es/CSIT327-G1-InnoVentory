@@ -19,9 +19,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 DATABASE_URL = os.environ.get("DATABASE_URL")
 SECRET_KEY = os.environ.get("SECRET_KEY")
-DEBUG = os.environ.get("DEBUG") == "True"
+DEBUG = os.environ.get("DEBUG")
 
-ALLOWED_HOSTS = ["innoventory.onrender.com"]
+ALLOWED_HOSTS = [".onrender.com"]
 
 # Application definition
 
