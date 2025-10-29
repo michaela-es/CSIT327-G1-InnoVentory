@@ -1,6 +1,5 @@
 from django import forms
-from django.core.validators import MinValueValidator
-from .models import Product, Category
+from .models import Product, Category, StockTransaction
 
 
 class ProductForm(forms.ModelForm):
@@ -35,3 +34,40 @@ class ProductForm(forms.ModelForm):
         if stock_quantity and stock_quantity < 0:
             raise forms.ValidationError("Stock quantity must be positive.")
         return stock_quantity
+
+class StockTransactionForm(forms.ModelForm):
+    class Meta:
+        model = StockTransaction
+        fields = ['product', 'transaction_type', 'quantity', 'remarks', 'date']
+        widgets = {
+            'transaction_type': forms.HiddenInput(),
+            'quantity': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'style': 'margin-top: 15px;',
+                'placeholder': 'Enter quantity',
+                'min': 1
+            }),
+            'remarks': forms.Textarea(attrs={
+                'class': 'form-control',
+                'style': 'resize: vertical;',
+                'rows': 3,
+                'placeholder': 'EX. Damaged item removed'
+            }),
+            'date': forms.DateInput(attrs={
+                'class': 'form-control',
+                'type': 'date'
+            }),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.widget.attrs.update({'class': 'form-control'})    
+        if self.instance and self.instance.pk:
+            self.fields['product'].disabled = True
+
+    def clean_quantity(self):
+        quantity = self.cleaned_data.get('quantity')
+        if quantity and quantity <= 0:
+            raise forms.ValidationError("Quantity must be positive.")
+        return quantity

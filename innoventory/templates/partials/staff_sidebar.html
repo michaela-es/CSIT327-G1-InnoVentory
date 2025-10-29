@@ -18,9 +18,14 @@
             Inventory Management
         </a>
 
+        <a href="{% url 'stock_transactions' %}" class="nav-item {% if active_page == 'stock_transactions' %}active{% endif %}">
+            <i class="fa-solid fa-money-bill-transfer" style="padding-right:10px"></i>
+            Stock Transactions
+        </a>
+
         <a href="{% url 'sales_record' %}" class="nav-item">
             <i class="fa-solid fa-money-bill-transfer" style="padding-right:10px"></i>
-            Transactions
+            Sales
         </a>
 
         <a href="#" class="nav-item">
