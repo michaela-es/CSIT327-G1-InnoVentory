@@ -44,10 +44,17 @@ def create_sale(request):
         'submit_text': 'Submit',
     }
     return render(request, 'sales/partials/record_sale_modal.html', context)
+
 @login_required
 def sales_record(request):
     sales = Sale.objects.order_by('-sales_date')[:5]
-    return render(request, 'sales/sales_record.html', {'sales': sales})
+    products = Product.objects.all().order_by('name')
+    context = {
+        'sales': sales,
+        'products': products,
+        'page_title': 'Transactions',
+    }
+    return render(request, 'sales/sales_record.html', context)
 
 @login_required
 def record_sale_modal(request):
