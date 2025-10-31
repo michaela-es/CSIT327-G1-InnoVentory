@@ -21,14 +21,12 @@ DATABASE_URL = os.environ.get("DATABASE_URL")
 SECRET_KEY = os.environ.get("SECRET_KEY")
 DEBUG = os.environ.get("DEBUG", "False") == "True"
 
-ALLOWED_HOSTS = [h.strip() for h in
-os.environ.get("DJANGO_ALLOWED_HOSTS", "").split(",") if
-h.strip()]
+ALLOWED_HOSTS = [
+    h.strip() for h in os.environ.get("DJANGO_ALLOWED_HOSTS", "").split(",") if h.strip()
+]
 
 CSRF_TRUSTED_ORIGINS = [
-    o.strip()
-    for o in os.environ.get("DJANGO_CSRF_TRUSTED_ORIGINS", "").split(",")
-    if o.strip()
+    o.strip() for o in os.environ.get("DJANGO_CSRF_TRUSTED_ORIGINS", "").split(",") if o.strip()
 ]
 
 # Application definition
@@ -94,21 +92,13 @@ PASSWORD_HASHERS = [
     'django.contrib.auth.hashers.PBKDF2PasswordHasher',
 ]
 
-if DATABASE_URL:
-    DATABASES = {
-        "default": dj_database_url.config(
-            default=DATABASE_URL,
-            conn_max_age=600,
-            ssl_require=True
-        )
-    }
-else:
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.sqlite3",
-            "NAME": BASE_DIR / "db.sqlite3",
-        }
-    }
+DATABASES = {
+ "default": dj_database_url.config(
+ default=DATABASE_URL,
+ conn_max_age=600,
+ ssl_require=True
+ )
+}
 
 # DATABASES = {
 #     'default': {
