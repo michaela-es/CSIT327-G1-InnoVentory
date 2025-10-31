@@ -10,7 +10,12 @@ class Stocks(models.Model):
     ]
 
     stock_id = models.AutoField(primary_key=True)
-    product = models.ForeignKey('products.Product', on_delete=models.CASCADE, related_name='stocks')
+    product = models.ForeignKey(
+        'products.Product',
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name='stocks'
+    )
     qty = models.IntegerField()
     type = models.CharField(max_length=3, choices=STOCK_TYPE_CHOICES)
     date = models.DateTimeField(auto_now=True)
