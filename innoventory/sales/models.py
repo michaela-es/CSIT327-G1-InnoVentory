@@ -9,7 +9,12 @@ class Sale(models.Model):
     ]
 
     sale_id = models.AutoField(primary_key=True)
-    product_sold = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='sales')
+    product_sold = models.ForeignKey(
+        Product,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name='sales'
+    )
     product_qty = models.PositiveIntegerField(default=0)
     total = models.FloatField()
     sales_type = models.CharField(max_length=20, choices=SALES_TYPE_CHOICES)
