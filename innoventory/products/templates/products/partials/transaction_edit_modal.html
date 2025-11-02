@@ -1,0 +1,90 @@
+<div class="modal fade show" style="display: block; background-color: rgba(0,0,0,0.5);">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <form method="post"
+                  action="{{ form_action }}"
+                  hx-post="{{ form_action }}"
+                  hx-target="#modal-container"
+                  hx-swap="innerHTML">
+                {% csrf_token %}
+                <div class="modal-header">
+                    <h5 class="modal-title">{{ modal_title }}</h5>
+                    <button type="button" class="btn-close" aria-label="Close"
+                            onclick="document.getElementById('modal-container').innerHTML = ''"></button>
+                </div>
+                <div class="modal-body p-3" style="max-height: 65vh; overflow-y: auto;">
+                    <div class="mb-3">
+                        <label class="form-label mb-2">Product</label>
+                        <input type="text" class="form-control" value="{{ transaction.product.name }}" readonly>
+                        <div class="form-text">Product cannot be changed</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label mb-2">Transaction Type</label>
+                        <div class="d-flex gap-2 mb-2">
+                            <button type="button" 
+                                    class="btn {% if form.instance.transaction_type == 'IN' %}btn-primary{% else %}btn-outline-primary{% endif %} flex-fill transaction-type-btn"
+                                    data-type="IN">
+                                Stock In
+                            </button>
+                            <button type="button" 
+                                    class="btn {% if form.instance.transaction_type == 'OUT' %}btn-danger{% else %}btn-outline-danger{% endif %} flex-fill transaction-type-btn"
+                                    data-type="OUT">
+                                Stock Out
+                            </button>
+                        </div>
+                        <input type="hidden" name="transaction_type" id="id_transaction_type" value="{{ form.instance.transaction_type }}">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label mb-2">Quantity</label>
+                        {{ form.quantity }}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label mb-2">Remarks</label>
+                        {{ form.remarks }}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label mb-2">Date</label>
+                        {{ form.date }}
+                    </div>
+                </div>
+                <div class="modal-footer py-3">
+                    <button type="button" class="btn btn-secondary"
+                            onclick="document.getElementById('modal-container').innerHTML = ''">Cancel</button>
+                    <button type="submit" class="btn btn-primary">{{ submit_text }}</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('click', function(event) {
+    if (event.target.classList.contains('transaction-type-btn')) {
+        const type = event.target.getAttribute('data-type');
+        setTransactionType(type);
+    }
+});
+
+function setTransactionType(type) {
+    const typeField = document.getElementById('id_transaction_type');
+    if (typeField) {
+        typeField.value = type;
+    }
+    
+    const buttons = document.querySelectorAll('.transaction-type-btn');
+    buttons.forEach(btn => {
+        const btnType = btn.getAttribute('data-type');
+        if (btnType === 'IN') {
+            btn.classList.remove('btn-primary', 'btn-outline-primary');
+            btn.classList.add(type === 'IN' ? 'btn-primary' : 'btn-outline-primary');
+        } else {
+            btn.classList.remove('btn-danger', 'btn-outline-danger');
+            btn.classList.add(type === 'OUT' ? 'btn-danger' : 'btn-outline-danger');
+        }
+    });
+}
+</script>
