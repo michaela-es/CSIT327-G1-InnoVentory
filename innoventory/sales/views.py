@@ -5,7 +5,7 @@ from django.views.decorators.http import require_POST
 from products.models import Product
 from .forms import SaleForm
 from .models import Sale
-from stocks.models import Stocks
+from products.models import StockTransaction
 
 
 @login_required
@@ -26,11 +26,11 @@ def create_sale(request):
                 sold_by=request.user
             )
 
-            Stocks.objects.create(
+            StockTransaction.objects.create(
                 product=product,
-                qty=qty,
-                type=Stocks.OUT,
-                remarks=f"SOLD"
+                quantity=qty,
+                transaction_type='OUT',
+                remarks="SOLD"
             )
 
             return redirect('sales_record')
