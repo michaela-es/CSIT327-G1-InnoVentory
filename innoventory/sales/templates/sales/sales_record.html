@@ -58,20 +58,19 @@
     </div>
 
     <h3> Sales & Transactions </h3>
-    <button style="margin-bottom: 16px;"
-            class="add-button btn btn-primary me-2"
-            hx-get="{% url 'record_sale_modal' %}"
-            hx-target="#modal-container"
-            hx-trigger="click"
-            onclick="console.log('Button clicked')">
-        <i class="fas fa-plus-circle me-2"></i>
-            Record New Sale
-    </button>
-    <!--static button for now-->
-    <button class="btn btn-secondary shadow-sm">
+<button style="margin-bottom: 16px;"
+        class="add-button btn btn-primary me-2"
+        hx-get="{% url 'record_sale_modal' %}"
+        hx-target="#modal-container"
+        hx-trigger="click">
+    <i class="fas fa-plus-circle me-2"></i>
+    Record New Sale
+</button>
+
+    <a href="{% url 'creditors_list' %}" class="btn btn-secondary shadow-sm">
         <i class="fas fa-handshake me-2"></i>
         Manage Credits
-    </button>
+    </a>
 
 
     <table class="table table-striped table-hover align-middle mb-0">

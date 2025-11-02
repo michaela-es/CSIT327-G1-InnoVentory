@@ -1,0 +1,95 @@
+<!-- credit/templates/credit/partials/payment_modal.html -->
+{% load humanize %}
+<div class="modal fade show" style="display: block; background-color: rgba(0,0,0,0.5);">
+    <div class="modal-dialog modal-md modal-dialog-centered">
+        <div class="modal-content">
+            <form method="post" action="{% url 'make_payment' credit.credit_id %}">
+                {% csrf_token %}
+                <div class="modal-header">
+                    <h5 class="modal-title">Make Payment</h5>
+                    <button type="button" class="btn-close" aria-label="Close"
+                            onclick="closePaymentModal()"></button>
+                </div>
+
+                <div class="modal-body p-3">
+                    <!-- Credit Info -->
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <h6 class="card-title">Credit Details</h6>
+                            <p><strong>Creditor:</strong> {{ credit.creditor.name }}</p>
+                            <p><strong>Sale #:</strong> {{ credit.original_sale.sale_id }}</p>
+                            <p><strong>Original Amount:</strong> ₱{{ credit.original_amount|floatformat:2|intcomma }}</p>
+                            <p><strong>Amount Paid:</strong> ₱{{ credit.amount_paid|floatformat:2|intcomma }}</p>
+                            <p><strong>Remaining Balance:</strong>
+                               <span class="text-primary fw-bold">₱{{ credit.remaining_balance|floatformat:2|intcomma }}</span>
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Payment Input -->
+                    <div class="mb-3">
+                        <label class="form-label">Payment Amount <span class="text-danger">*</span></label>
+                        <input type="number"
+                               name="payment_amount"
+                               class="form-control"
+                               placeholder="0.00"
+                               min="1"
+                               max="{{ credit.remaining_balance|floatformat:2 }}"
+                               step="0.01"
+                               required
+                               oninput="window.paymentModalUpdateRemaining(this.value)">
+                        <div class="form-text">
+                            Enter an amount between ₱1 and ₱{{ credit.remaining_balance|floatformat:2|intcomma }}
+                        </div>
+                    </div>
+
+                    <!-- Remaining Balance Preview -->
+                    <div id="remaining-preview-{{ credit.credit_id }}" class="alert alert-info" style="display: none;">
+                        <strong>After payment:</strong>
+                        <span id="new-balance-{{ credit.credit_id }}">₱0.00</span> remaining
+                    </div>
+                </div>
+
+                <div class="modal-footer py-3">
+                    <button type="button" class="btn btn-secondary" onclick="closePaymentModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Process Payment</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+(function() {
+    const modalId = {{ credit.credit_id }};
+    const currentBalance = parseFloat("{{ credit.remaining_balance|default:0 }}");
+
+    if (typeof window.closePaymentModal !== 'function') {
+        window.closePaymentModal = function() {
+            document.getElementById('modal-container').innerHTML = '';
+        };
+    }
+
+    window.paymentModalUpdateRemaining = function(amount) {
+        const remainingElement = document.getElementById('remaining-preview-' + modalId);
+        const newBalanceElement = document.getElementById('new-balance-' + modalId);
+        const payment = parseFloat(amount);
+
+        if (!isNaN(payment) && payment >= 1) {
+            const newBalance = Math.max(0, currentBalance - payment);
+            newBalanceElement.textContent = '₱' + newBalance.toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+            remainingElement.style.display = 'block';
+        } else {
+            remainingElement.style.display = 'none';
+        }
+    };
+
+    const paymentInput = document.querySelector('input[name="payment_amount"]');
+    if (paymentInput) {
+        setTimeout(() => paymentInput.focus(), 100);
+    }
+})();
+</script>

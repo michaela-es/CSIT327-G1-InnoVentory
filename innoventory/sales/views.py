@@ -1,3 +1,4 @@
+from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
@@ -8,35 +9,31 @@ from .models import Sale
 from products.models import StockTransaction
 
 
+@require_POST
 @login_required
 def create_sale(request):
-    if request.method == "POST":
-        form = SaleForm(request.POST)
-        if form.is_valid():
-            product = form.cleaned_data['product']
-            qty = form.cleaned_data['quantity']
-            sales_type = form.cleaned_data['sales_type']
-            total = product.price * qty
+    form = SaleForm(request.POST)
+    if form.is_valid():
+        product = form.cleaned_data['product']
+        qty = form.cleaned_data['quantity']
+        sales_type = form.cleaned_data['sales_type']
+        total = product.price * qty
 
-            sale = Sale.objects.create(
-                product_sold=product,
-                product_qty=qty,
-                total=total,
-                sales_type=sales_type,
-                sold_by=request.user
-            )
+        sale = Sale.objects.create(
+            product_sold=product,
+            product_qty=qty,
+            total=total,
+            sales_type=sales_type,
+            sold_by=request.user
+        )
 
-            StockTransaction.objects.create(
-                product=product,
-                quantity=qty,
-                transaction_type='OUT',
-                remarks="SOLD"
-            )
-
-            return redirect('sales_record')
-    else:
-        form = SaleForm()
-
+        StockTransaction.objects.create(
+            product=product,
+            quantity=qty,
+            transaction_type='OUT',
+            remarks="SOLD"
+        )
+        return HttpResponse('<script>window.location.reload();</script>')
     context = {
         'form': form,
         'modal_title': 'Record New Sale - Fix Errors',

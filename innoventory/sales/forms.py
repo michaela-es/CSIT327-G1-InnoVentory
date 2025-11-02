@@ -15,7 +15,7 @@ class SaleForm(forms.Form):
         product = self.cleaned_data.get('product')
 
         if product and quantity > product.stock_quantity:
-            raise forms.ValidationError(f"Only {product.stock_quantity} items available in stock")
+            raise forms.ValidationError(f"Only {product.stock_quantity} item(s) available in stock")
 
         return quantity
 

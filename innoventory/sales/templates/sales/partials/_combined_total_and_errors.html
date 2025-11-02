@@ -14,3 +14,7 @@
     {% endfor %}
   {% endif %}
 </div>
+
+{% if form.quantity.errors %}
+<div id="has-errors" style="display: none;"></div>
+{% endif %}

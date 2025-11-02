@@ -1,0 +1,49 @@
+{% load humanize %}
+
+<div class="modal fade show" style="display: block; background-color: rgba(0,0,0,0.5);">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <form method="post" action="{% url 'link_sale_to_creditor' sale.sale_id %}">
+                {% csrf_token %}
+                <div class="modal-header">
+                    <h5 class="modal-title">Link Sale to Creditor</h5>
+                    <button type="button" class="btn-close" aria-label="Close"
+                            onclick="document.getElementById('modal-container').innerHTML = ''"></button>
+                </div>
+                <div class="modal-body p-3">
+                    <div class="mb-3">
+                        <h6>Sale Details</h6>
+                        <div class="card">
+                            <div class="card-body">
+                                <p class="mb-1"><strong>Sale ID:</strong> {{ sale.sale_id }}</p>
+                                <p class="mb-1"><strong>Product:</strong> {{ sale.product_sold.name }}</p>
+                                <p class="mb-1"><strong>Quantity:</strong> {{ sale.product_qty }}</p>
+                                <p class="mb-0"><strong>Total Amount:</strong> ₱{{ sale.total|floatformat:2|intcomma }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="creditor_id" class="form-label">Select Creditor:</label>
+                        <select name="creditor_id" id="creditor_id" class="form-select" required>
+                            <option value="">Choose a creditor...</option>
+                            {% for creditor in creditors %}
+                            <option value="{{ creditor.creditor_id }}">{{ creditor.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="due_date" class="form-label">Due Date:</label>
+                        <input type="date" name="due_date" id="due_date" class="form-control" required
+                               value="{{ default_due_date }}">
+                    </div>
+                </div>
+                <div class="modal-footer py-3">
+                    <button type="button" class="btn btn-secondary"
+                            onclick="document.getElementById('modal-container').innerHTML = ''">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Link to Creditor</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

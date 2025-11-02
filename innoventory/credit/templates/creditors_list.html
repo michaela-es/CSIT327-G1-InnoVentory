@@ -1,0 +1,121 @@
+{% extends 'products/base.html' %}
+{% load static %}
+{% load humanize %}
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+{% block content %}
+<div class="container mt-5">
+    <h2>Creditors</h2>
+
+    {% if unlinked_credit_sales %}
+    <div class="card mb-4">
+        <div class="card-header bg-warning">
+            <h5>Unlinked Credit Sales ({{ unlinked_credit_sales.count }})</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                {% for sale in unlinked_credit_sales %}
+                <div class="col-md-6 mb-3">
+                    <div class="card">
+                        <div class="card-body">
+                            <h6>Sale #{{ sale.sale_id }}</h6>
+                            <p class="mb-1"><strong>Product:</strong> {{ sale.product_sold.name }}</p>
+                            <p class="mb-1"><strong>Amount:</strong> ₱{{ sale.total|floatformat:2|intcomma }}</p>
+                            <p class="mb-2"><strong>Date:</strong> {{ sale.sales_date|date:"M j, Y" }}</p>
+
+                            <button class="btn btn-sm btn-primary"
+                                    hx-get="{% url 'link_sale_modal' sale.sale_id %}"
+                                    hx-target="#modal-container"
+                                    hx-trigger="click">
+                                Link to Creditor
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="row">
+        {% for creditor in creditors %}
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5>{{ creditor.name }}</h5>
+                    <small>Total Balance: ₱{{ creditor.total_balance|floatformat:2|intcomma }}</small>
+                </div>
+                <div class="card-body">
+                    <p><strong>Contact:</strong> {{ creditor.contact_info|default:"N/A" }}</p>
+                    <p><strong>Address:</strong> {{ creditor.address|default:"N/A" }}</p>
+
+                    <h6>Active Credits:</h6>
+                    <ul class="list-group">
+                        {% for credit in creditor.active_credits %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center
+                            {% if credit.is_overdue %}list-group-item-danger{% elif credit.credit_status == 'partial' %}list-group-item-warning{% else %}list-group-item-success{% endif %}">
+                            <div class="flex-grow-1 me-3">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <strong>Sale #{{ credit.original_sale.sale_id }}</strong>: ₱{{ credit.original_amount|floatformat:2|intcomma }}
+                                        <br>
+                                        <small class="text-muted">Due: {{ credit.due_date|date:"M j, Y" }}</small>
+                                        {% if credit.is_overdue %}
+                                        <span class="badge bg-danger ms-2">OVERDUE</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                {% if credit.credit_status == 'partial' %}
+                                <div class="mt-2">
+                                    <div class="progress" style="height: 8px;">
+                                        <div class="progress-bar bg-warning"
+                                             style="width: {% widthratio credit.amount_paid credit.original_amount 100 %}%">
+                                        </div>
+                                    </div>
+                                    <small class="text-muted">₱{{ credit.amount_paid|floatformat:2|intcomma }} paid of ₱{{ credit.original_amount|floatformat:2|intcomma }}</small>
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="text-end d-flex flex-column align-items-end">
+                                <div class="fw-bold text-primary mb-2">₱{{ credit.remaining_balance|floatformat:2|intcomma }} remaining</div>
+
+                                {% if not credit.is_settled %}
+                                <div class="mb-2">
+                                    <button class="btn btn-warning btn-sm"
+                                            hx-get="{% url 'payment_modal' credit.credit_id %}"
+                                            hx-target="#modal-container"
+                                            hx-trigger="click">
+                                        Make Payment
+                                    </button>
+                                </div>
+                                {% endif %}
+
+                                {% if not credit.is_settled %}
+                                <form method="post" action="{% url 'mark_credit_paid' credit.credit_id %}" class="d-inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-success btn-sm"
+                                            onclick="return confirm('Mark this credit as paid? This will convert it to cash sale.')"
+                                            title="Mark as Paid">
+                                        ✓ Mark Paid
+                                    </button>
+                                </form>
+                                {% else %}
+                                <span class="badge bg-success">Paid</span>
+                                {% endif %}
+                            </div>
+                        </li>
+                        {% empty %}
+                        <li class="list-group-item text-center text-muted">No active credits</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<div id="modal-container"></div>
+ {% endblock %}
