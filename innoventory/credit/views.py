@@ -99,20 +99,21 @@ def payment_modal(request, credit_id):
 
     return render(request, "partials/payment_modal.html", {'credit': credit})
 
-
 @login_required
 def link_sale_modal(request, sale_id):
     try:
         sale = get_object_or_404(Sale, pk=sale_id, sales_type='credit')
         creditors = Creditor.objects.all()
-        default_due_date = (timezone.now() + timedelta(days=30)).strftime('%Y-%d-%m')
+        default_due_date = (timezone.now() + timedelta(days=30)).strftime('%Y-%m-%d')
+
+        creditor_choices = [('', '---------'), ('__new__', 'Add New Creditor')]
+        creditor_choices.extend([(cred.creditor_id, cred.name) for cred in creditors.order_by('name')])
 
         return render(request, 'partials/link_sale_modal.html', {
             'sale': sale,
-            'creditors': creditors,
+            'creditors': creditor_choices,
             'default_due_date': default_due_date,
         })
     except Exception as e:
-        # Return the actual error message
         from django.http import HttpResponse
         return HttpResponse(f'Error: {str(e)}', status=500)
