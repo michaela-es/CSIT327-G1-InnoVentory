@@ -23,16 +23,12 @@
             Categories / Suppliers
         </a>
 
-<<<<<<< HEAD
-        <a href="{% url 'stock_transactions' %}" class="nav-item {% if active_page == 'stock_transactions' %}active{% endif %}">
+        <a href="{% url 'stock_transactions' %}" class="nav-item {% if request.resolver_match.url_name == 'stock_transactions' %}active{% endif %}">
             <i class="fa-solid fa-money-bill-transfer" style="padding-right:10px"></i>
             Stock Transactions
         </a>
-        
-        <a href="{% url 'sales_record' %}" class="nav-item">
-=======
+
         <a href="{% url 'sales_record' %}" class="nav-item {% if request.resolver_match.url_name == 'sales_record' %}active{% endif %}">
->>>>>>> ee5894387fd215336e55886ea7ae0588d6b18b39
             <i class="fa-solid fa-money-bill-transfer" style="padding-right:10px"></i>
             Sales Record
         </a>
