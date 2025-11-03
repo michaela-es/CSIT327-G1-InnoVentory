@@ -1,15 +1,15 @@
 {% if page_obj.has_other_pages %}
-<nav aria-label="Page navigation">
+<nav aria-label="Page navigation" style="margin-top: 12px;">
   <ul class="pagination justify-content-center">
 
     <li class="page-item {% if not page_obj.has_previous %}disabled{% endif %}">
-      <a class="page-link" href="?{% if request.GET %}{{ request.GET.urlencode|safe }}&{% endif %}page=1" aria-label="First">
+      <a class="page-link" href="?{% if request.GET %}{{ request.GET.urlencode|safe }}&{% endif %}page=1" aria-label="First" style="color: #3a4f63; border-color: #ccc;">
         &laquo;&laquo;
       </a>
     </li>
 
     <li class="page-item {% if not page_obj.has_previous %}disabled{% endif %}">
-      <a class="page-link" href="?{% if request.GET %}{{ request.GET.urlencode|safe }}&{% endif %}page={% if page_obj.has_previous %}{{ page_obj.previous_page_number }}{% else %}#{% endif %}" aria-label="Previous">
+      <a class="page-link" href="?{% if request.GET %}{{ request.GET.urlencode|safe }}&{% endif %}page={% if page_obj.has_previous %}{{ page_obj.previous_page_number }}{% else %}#{% endif %}" aria-label="Previous" style="color: #3a4f63; border-color: #ccc;">
         &laquo;
       </a>
     </li>
@@ -18,30 +18,36 @@
     {% for i in page_obj.paginator.page_range %}
       {% if i == 1 or i == page_obj.paginator.num_pages or i >= start_page and i <= end_page %}
         {% if page_obj.number == i %}
-          <li class="page-item active">
-            <span class="page-link">{{ i }}</span>
-          </li>
+            <li class="page-item active rounded">
+                <span class="page-link"
+                      style="background-color: #3a4f63; border-color: #3a4f63; color: white;">
+                    {{ i }}
+                </span>
+            </li>
         {% else %}
-          <li class="page-item">
-            <a class="page-link" href="?{% if request.GET %}{{ request.GET.urlencode|safe }}&{% endif %}page={{ i }}">{{ i }}</a>
+          <li class="page-item rounded">
+            <a class="page-link" href="?{% if request.GET %}{{ request.GET.urlencode|safe }}&{% endif %}page={{ i }}"
+               style="color: #3a4f63; border-color: #ccc;">{{ i }}</a>
           </li>
         {% endif %}
       {% elif i == start_page|add:"-1" or i == end_page|add:"1" %}
         <li class="page-item disabled">
-          <span class="page-link">...</span>
+          <span class="page-link" style="border-color: #ccc;">...</span>
         </li>
       {% endif %}
-    {% endfor %}
-    {% endwith %}
+      {% endfor %}
+      {% endwith %}
 
-    <li class="page-item {% if not page_obj.has_next %}disabled{% endif %}">
-      <a class="page-link" href="?{% if request.GET %}{{ request.GET.urlencode|safe }}&{% endif %}page={% if page_obj.has_next %}{{ page_obj.next_page_number }}{% else %}#{% endif %}" aria-label="Next">
+      <li class="page-item rounded {% if not page_obj.has_next %}disabled{% endif %}">
+      <a class="page-link" href="?{% if request.GET %}{{ request.GET.urlencode|safe }}&{% endif %}page={% if page_obj.has_next %}{{ page_obj.next_page_number }}{% else %}#{% endif %}" aria-label="Next"
+         style="color: #3a4f63; border-color: #ccc;">
         &raquo;
       </a>
     </li>
 
     <li class="page-item {% if not page_obj.has_next %}disabled{% endif %}">
-      <a class="page-link" href="?{% if request.GET %}{{ request.GET.urlencode|safe }}&{% endif %}page={{ page_obj.paginator.num_pages }}" aria-label="Last">
+      <a class="page-link" href="?{% if request.GET %}{{ request.GET.urlencode|safe }}&{% endif %}page={{ page_obj.paginator.num_pages }}" aria-label="Last"
+         style="color: #3a4f63; border-color: #ccc;">
         &raquo;&raquo;
       </a>
     </li>
