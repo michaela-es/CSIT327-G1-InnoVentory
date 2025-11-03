@@ -3,7 +3,7 @@
 {% if page_obj.has_other_pages %}
 <nav aria-label="Page navigation" class="mt-3">
     <ul class="pagination justify-content-center">
-        
+
         {# First, determine what the other paginator's context should be #}
         {% if page_param == 'prod_page' %}
             {# We're in products pagination, so the other is sales #}
@@ -12,7 +12,8 @@
                 <li class="page-item">
                     <a class="page-link"
                        href="?{{ page_param }}={{ page_obj.previous_page_number }}&{{ other_page_param }}={{ other_page_number }}"
-                       aria-label="Previous">
+                       aria-label="Previous"
+                       style="color: #3a4f63; border-color: #ccc;"> {# <-- Applied style here #}
                         <span aria-hidden="true">&laquo;</span>
                     </a>
                 </li>
@@ -24,11 +25,19 @@
 
                 {% for i in page_obj.paginator.page_range %}
                     {% if page_obj.number == i %}
-                    <li class="page-item active" aria-current="page"><span class="page-link">{{ i }}</span></li>
+                    <li class="page-item active" aria-current="page">
+                        {# ACTIVE PAGE BUTTON STYLES #}
+                        <span class="page-link"
+                              style="background-color: #3a4f63; border-color: #3a4f63; color: white;">
+                            {{ i }}
+                        </span>
+                    </li>
                     {% else %}
                     <li class="page-item">
                         <a class="page-link"
-                           href="?{{ page_param }}={{ i }}&{{ other_page_param }}={{ other_page_number }}">
+                           href="?{{ page_param }}={{ i }}&{{ other_page_param }}={{ other_page_number }}"
+                           {# INACTIVE PAGE BUTTON STYLES #}
+                           style="color: #3a4f63; border-color: #ccc;">
                            {{ i }}
                         </a>
                     </li>
@@ -39,7 +48,8 @@
                 <li class="page-item">
                     <a class="page-link"
                        href="?{{ page_param }}={{ page_obj.next_page_number }}&{{ other_page_param }}={{ other_page_number }}"
-                       aria-label="Next">
+                       aria-label="Next"
+                       style="color: #3a4f63; border-color: #ccc;"> {# <-- Applied style here #}
                         <span aria-hidden="true">&raquo;</span>
                     </a>
                 </li>
@@ -57,7 +67,8 @@
                 <li class="page-item">
                     <a class="page-link"
                        href="?{{ page_param }}={{ page_obj.previous_page_number }}&{{ other_page_param }}={{ other_page_number }}"
-                       aria-label="Previous">
+                       aria-label="Previous"
+                       style="color: #3a4f63; border-color: #ccc;"> {# <-- Applied style here #}
                         <span aria-hidden="true">&laquo;</span>
                     </a>
                 </li>
@@ -69,11 +80,19 @@
 
                 {% for i in page_obj.paginator.page_range %}
                     {% if page_obj.number == i %}
-                    <li class="page-item active" aria-current="page"><span class="page-link">{{ i }}</span></li>
+                    <li class="page-item active" aria-current="page">
+                        {# ACTIVE PAGE BUTTON STYLES #}
+                        <span class="page-link"
+                              style="background-color: #3a4f63; border-color: #3a4f63; color: white;">
+                            {{ i }}
+                        </span>
+                    </li>
                     {% else %}
                     <li class="page-item">
                         <a class="page-link"
-                           href="?{{ page_param }}={{ i }}&{{ other_page_param }}={{ other_page_number }}">
+                           href="?{{ page_param }}={{ i }}&{{ other_page_param }}={{ other_page_number }}"
+                           {# INACTIVE PAGE BUTTON STYLES #}
+                           style="color: #3a4f63; border-color: #ccc;">
                            {{ i }}
                         </a>
                     </li>
@@ -84,7 +103,8 @@
                 <li class="page-item">
                     <a class="page-link"
                        href="?{{ page_param }}={{ page_obj.next_page_number }}&{{ other_page_param }}={{ other_page_number }}"
-                       aria-label="Next">
+                       aria-label="Next"
+                       style="color: #3a4f63; border-color: #ccc;"> {# <-- Applied style here #}
                         <span aria-hidden="true">&raquo;</span>
                     </a>
                 </li>
