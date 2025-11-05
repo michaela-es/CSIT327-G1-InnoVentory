@@ -66,7 +66,7 @@ def admin_dashboard(request):
 
 
 def staff_dashboard(request):
-    return render(request, 'accounts/staff_dashboard')
+    return render(request, 'accounts/staff_dashboard.html')
 
 def custom_login(request):
     if request.user.is_authenticated:
