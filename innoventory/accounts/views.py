@@ -50,7 +50,7 @@ def admin_dashboard(request):
     top_selling = (
         Sale.objects.values('product_sold__name')
         .annotate(total_qty=Sum('product_qty'))
-        .order_by('-total_qty')[:5]
+        .order_by('-total_qty')[:3]
     )
 
     sales_data = (

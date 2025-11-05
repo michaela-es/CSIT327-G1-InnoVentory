@@ -98,11 +98,24 @@
             <div class="card bg-teal-card text-white shadow-sm h-100 p-4">
                 <h3 class="fw-bold mb-3 text-center">Top-Selling Products</h3>
 
-                {% if top_selling %}
-
-                {% else %}
-                    <p class="text-center opacity-75">No sales data available.</p>
-                {% endif %}
+                    {% if top_selling %}
+                        <div class="row">
+                            {% for item in top_selling %}
+                                <div class="col-md-4 mb-3">
+                                    <div class="card bg-dark-blue text-white shadow-sm p-3 h-100">
+                                        <h5 class="fw-bold text-center">
+                                            {{ item.product_sold__name }}
+                                        </h5>
+                                        <p class="text-center mb-0 opacity-75">
+                                            {{ item.total_qty|intcomma }} sold
+                                        </p>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-center opacity-75">No sales data available.</p>
+                    {% endif %}
 
             </div>
         </div>
