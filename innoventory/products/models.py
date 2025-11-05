@@ -1,5 +1,5 @@
 from django.db import models
-from django.core.validators import MinValueValidator
+from django.core.validators import MinValueValidator, MinLengthValidator
 from django.utils import timezone
 
 class Supplier(models.Model):
@@ -30,7 +30,8 @@ class Product(models.Model):
     price = models.FloatField()
     stock_quantity = models.IntegerField()
     date_modified = models.DateTimeField(auto_now=True)
-    supplier = models.ForeignKey(Supplier, on_delete=models.CASCADE, null=True, blank=True)
+    # supplier = models.ForeignKey(Supplier, on_delete=models.CASCADE, null=True, blank=True)
+    supplier = models.ForeignKey('suppliers.Supplier', on_delete=models.CASCADE, related_name='products')
 
     def __str__(self):
         return self.name
