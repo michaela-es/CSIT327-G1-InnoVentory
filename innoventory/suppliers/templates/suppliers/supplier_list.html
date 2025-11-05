@@ -13,7 +13,14 @@
                     hx-get="{% url 'supplier_modal' %}"
                     hx-target="#modal-container"
                     hx-trigger="click">
-                + Add Supplier
+                Add Supplier
+            </button>
+            <button class="add-button btn me-2"
+                    style="background-color: #008000; color: white; border: none;"
+                    hx-target="#modal-container"
+                    hx-get="{% url 'upload_excel_modal' %}?type=supplier"
+                    hx-trigger="click">
+                Upload Excel
             </button>
         </div>
     </div>

@@ -127,7 +127,10 @@ def product_modal(request, pk=None):
 
 @login_required
 def upload_excel_modal(request):
+    upload_type = request.GET.get('type', 'product')
+    
     if request.method == "POST":
+        upload_type = request.POST.get('type', 'product')
 
         if 'excel_file' not in request.FILES:
             return JsonResponse({
@@ -144,10 +147,17 @@ def upload_excel_modal(request):
             })
 
         try:
-            result = import_products_from_excel(excel_file)
-            message = (f"Imported {result['created']} new products, "
-                       f"updated {result['updated']} products, "
-                       f"total processed {result['total']}.")
+            if upload_type == 'supplier':
+                result = import_suppliers_from_excel(excel_file)
+                message = (f"Imported {result['created']} new suppliers, "
+                           f"updated {result['updated']} suppliers, "
+                           f"total processed {result['total']}.")
+            else:
+                result = import_products_from_excel(excel_file)
+                message = (f"Imported {result['created']} new products, "
+                           f"updated {result['updated']} products, "
+                           f"total processed {result['total']}.")
+            
             return JsonResponse({
                 'success': True,
                 'message': message,
@@ -160,7 +170,14 @@ def upload_excel_modal(request):
             })
 
     else:
-        return render(request, "products/partials/excel_upload_modal.html")
+        # to track upload type
+        context = {
+            'upload_type': upload_type,
+            'modal_title': 'Upload Suppliers Excel' if upload_type == 'supplier' else 'Upload Products Excel',
+            'required_columns': 'name' if upload_type == 'supplier' else 'name, price, quantity',
+            'optional_columns': 'contact, email, address, notes' if upload_type == 'supplier' else 'category, description',
+        }
+        return render(request, "products/partials/excel_upload_modal.html", context)
     
 
 def stock_transactions(request):
@@ -240,84 +257,3 @@ def edit_transaction_modal(request, transaction_id):
     return render(request, 'products/partials/transaction_edit_modal.html', context)
 
 
-def supplier_list(request):
-    suppliers = Supplier.objects.annotate(products_count=Count('products'))
-    
-    # Search functionality
-    search_query = request.GET.get('search', '')
-    if search_query:
-        suppliers = suppliers.filter(
-            Q(name__icontains=search_query) |
-            Q(contact__icontains=search_query) |
-            Q(email__icontains=search_query)
-        )
-    
-    # Products range filter
-    products_range = request.GET.get('products_range', '')
-    if products_range == '0-5':
-        suppliers = suppliers.filter(products_count__range=(0, 5))
-    elif products_range == '6-10':
-        suppliers = suppliers.filter(products_count__range=(6, 10))
-    elif products_range == '11+':
-        suppliers = suppliers.filter(products_count__gte=11)
-    
-    # Date filter (simplified - you might want to implement proper date filtering)
-    date_filter = request.GET.get('date', '')
-    # Add date filtering logic here based on your needs
-    
-    suppliers = suppliers.order_by('name')
-    
-    paginator = Paginator(suppliers, 10) 
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
-    
-    context = {
-        'page_obj': page_obj,
-        'search_query': search_query,
-        'selected_products_range': products_range,
-        'selected_date': date_filter,
-    }
-    
-    return render(request, 'suppliers/supplier_list.html', context)
-
-def supplier_modal(request, supplier_id=None):
-    supplier = None
-    if supplier_id:
-        supplier = get_object_or_404(Supplier, id=supplier_id)
-    
-    if request.method == 'POST':
-        form = SupplierForm(request.POST, instance=supplier)
-        if form.is_valid():
-            form.save()
-            return HttpResponse(
-                status=204,
-                headers={
-                    'HX-Trigger': json.dumps({
-                        "supplierListChanged": None,
-                        "showMessage": f"Supplier {'updated' if supplier else 'added'} successfully."
-                    })
-                }
-            )
-    else:
-        form = SupplierForm(instance=supplier)
-    
-    return render(request, 'suppliers/partials/supplier_modal.html', {
-        'form': form,
-        'supplier': supplier
-    })
-
-def delete_supplier(request, supplier_id):
-    supplier = get_object_or_404(Supplier, id=supplier_id)
-    if request.method == 'POST':
-        supplier_name = supplier.name
-        supplier.delete()
-        return HttpResponse(
-            status=204,
-            headers={
-                'HX-Trigger': json.dumps({
-                    "supplierListChanged": None,
-                    "showMessage": f"Supplier {supplier_name} deleted successfully."
-                })
-            }
-        )
-    return redirect('supplier_list')
