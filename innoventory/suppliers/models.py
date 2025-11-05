@@ -2,7 +2,7 @@ from django.db import models
 
 class Supplier(models.Model):
     name = models.CharField(max_length=255)
-    contact = models.CharField(max_length=255)  # This is the correct field name
+    contact = models.CharField(max_length=255)
     email = models.EmailField()
     address = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)

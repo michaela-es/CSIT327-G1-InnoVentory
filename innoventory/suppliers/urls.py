@@ -1,8 +1,6 @@
 from django.urls import path
 from . import views
 
-# app_name = 'suppliers'  # This line is important!
-
 urlpatterns = [
     path('', views.supplier_list, name='supplier_list'),
     path('modal/', views.supplier_modal, name='supplier_modal'),

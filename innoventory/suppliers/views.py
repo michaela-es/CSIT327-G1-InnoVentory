@@ -8,10 +8,8 @@ from .forms import SupplierForm
 import json
 
 def supplier_list(request):
-    # Use annotation to add products_count to each supplier
     suppliers = Supplier.objects.annotate(products_count_annotation=Count('products'))
     
-    # Search functionality
     search_query = request.GET.get('search', '')
     if search_query:
         suppliers = suppliers.filter(
@@ -20,7 +18,6 @@ def supplier_list(request):
             Q(email__icontains=search_query)
         )
     
-    # Products range filter
     products_range = request.GET.get('products_range', '')
     if products_range == '0-5':
         suppliers = suppliers.filter(products_count_annotation__range=(0, 5))
@@ -31,7 +28,6 @@ def supplier_list(request):
     
     suppliers = suppliers.order_by('name')
     
-    # Pagination
     paginator = Paginator(suppliers, 10)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
@@ -53,7 +49,6 @@ def supplier_modal(request, supplier_id=None):
         form = SupplierForm(request.POST, instance=supplier)
         if form.is_valid():
             form.save()
-            # Return a script that closes modal and refreshes page
             return HttpResponse(
                 '<script>'
                 'document.getElementById("modal-container").innerHTML = "";'
