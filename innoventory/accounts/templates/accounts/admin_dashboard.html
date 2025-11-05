@@ -5,10 +5,7 @@
 
 <div class="container-fluid py-4">
 
-    <!-- ===== CARDS ROW 1 ===== -->
     <div class="row mb-4 d-flex align-items-stretch">
-
-        <!-- Total Revenue -->
         <div class="col-md-3 mb-3">
             <div class="card text-white bg-dark-blue shadow-sm h-100 p-3">
                 <div class="card-body text-center">
@@ -18,7 +15,6 @@
             </div>
         </div>
 
-        <!-- Low Stock Alerts -->
         <div class="col-md-3 mb-3">
             <div class="card text-white bg-dark-blue shadow-sm h-100 p-3">
                 <div class="card-body text-center">
@@ -29,7 +25,6 @@
             </div>
         </div>
 
-        <!-- Number of Sales -->
         <div class="col-md-3 mb-3">
             <div class="card text-white bg-dark-blue shadow-sm h-100 p-3">
                 <div class="card-body text-center">
@@ -39,7 +34,6 @@
             </div>
         </div>
 
-        <!-- Pending Credits -->
         <div class="col-md-3 mb-3">
             <div class="card text-white bg-dark-blue shadow-sm h-100 p-3">
                 <div class="card-body text-center">
@@ -51,30 +45,51 @@
 
     </div>
 
-    <!-- ===== CARDS ROW 2 ===== -->
     <div class="row mb-4 d-flex align-items-stretch">
-
-        <!-- Sales Trends -->
         <div class="col-md-6 mb-3">
             <div class="card text-white bg-orange-card shadow-sm h-100 p-4">
-                <div class="card-body d-flex justify-content-center align-items-center">
+                <div class="d-flex justify-content-between align-items-center">
                     <div class="h3 fw-bold mb-0">Sales Trends</div>
+
+                    <div class="dropdown">
+                        <button class="btn btn-light btn-sm dropdown-toggle" data-bs-toggle="dropdown">
+                            Filter
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item chart-filter" data-target="salesChart" data-range="7">Last 7 Days</a></li>
+                            <li><a class="dropdown-item chart-filter" data-target="salesChart" data-range="30">Last 30 Days</a></li>
+                            <li><a class="dropdown-item chart-filter" data-target="salesChart" data-range="365">Last 1 Year</a></li>
+                        </ul>
+                    </div>
                 </div>
+
+                <canvas id="salesChart" height="150" class="mt-3"></canvas>
             </div>
         </div>
 
-        <!-- Stock Movement -->
         <div class="col-md-6 mb-3">
             <div class="card text-white bg-orange-card shadow-sm h-100 p-4">
-                <div class="card-body d-flex justify-content-center align-items-center">
+                <div class="d-flex justify-content-between align-items-center">
                     <div class="h3 fw-bold mb-0">Stock Movement</div>
+
+                    <div class="dropdown">
+                        <button class="btn btn-light btn-sm dropdown-toggle" data-bs-toggle="dropdown">
+                            Filter
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item chart-filter" data-target="stockChart" data-range="7">Last 7 Days</a></li>
+                            <li><a class="dropdown-item chart-filter" data-target="stockChart" data-range="30">Last 30 Days</a></li>
+                            <li><a class="dropdown-item chart-filter" data-target="stockChart" data-range="365">Last 1 Year</a></li>
+                        </ul>
+                    </div>
                 </div>
+
+                <canvas id="stockChart" height="150" class="mt-3"></canvas>
             </div>
         </div>
 
     </div>
 
-    <!-- ===== TOP SELLING PRODUCTS ===== -->
     <div class="row mb-4">
 
         <div class="col-12 mb-3">
@@ -99,5 +114,7 @@
     .bg-orange-card { background-color: #f4b740 !important; }
     .bg-teal-card { background-color: #5d8a9b !important; }
 </style>
+
+
 
 {% endblock content %}

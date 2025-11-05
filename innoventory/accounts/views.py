@@ -7,6 +7,7 @@ from products.models import Product
 from sales.models import Sale
 
 
+
 def root_redirect(request):
     if request.user.is_authenticated:
         return redirect('dashboard')
