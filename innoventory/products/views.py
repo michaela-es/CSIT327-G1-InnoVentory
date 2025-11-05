@@ -7,7 +7,7 @@ from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponse
 from .forms import ProductForm
 from django.db.models import Q
-from .models import Product, Category, StockTransaction
+from .models import Product, Category, StockTransaction, Supplier
 from .utils import import_products_from_excel
 from .forms import StockTransactionForm
 from django.contrib import messages
@@ -127,7 +127,10 @@ def product_modal(request, pk=None):
 
 @login_required
 def upload_excel_modal(request):
+    upload_type = request.GET.get('type', 'product')
+    
     if request.method == "POST":
+        upload_type = request.POST.get('type', 'product')
 
         if 'excel_file' not in request.FILES:
             return JsonResponse({
@@ -144,10 +147,17 @@ def upload_excel_modal(request):
             })
 
         try:
-            result = import_products_from_excel(excel_file)
-            message = (f"Imported {result['created']} new products, "
-                       f"updated {result['updated']} products, "
-                       f"total processed {result['total']}.")
+            if upload_type == 'supplier':
+                result = import_suppliers_from_excel(excel_file)
+                message = (f"Imported {result['created']} new suppliers, "
+                           f"updated {result['updated']} suppliers, "
+                           f"total processed {result['total']}.")
+            else:
+                result = import_products_from_excel(excel_file)
+                message = (f"Imported {result['created']} new products, "
+                           f"updated {result['updated']} products, "
+                           f"total processed {result['total']}.")
+            
             return JsonResponse({
                 'success': True,
                 'message': message,
@@ -160,7 +170,14 @@ def upload_excel_modal(request):
             })
 
     else:
-        return render(request, "products/partials/excel_upload_modal.html")
+        # to track upload type
+        context = {
+            'upload_type': upload_type,
+            'modal_title': 'Upload Suppliers Excel' if upload_type == 'supplier' else 'Upload Products Excel',
+            'required_columns': 'name' if upload_type == 'supplier' else 'name, price, quantity',
+            'optional_columns': 'contact, email, address, notes' if upload_type == 'supplier' else 'category, description',
+        }
+        return render(request, "products/partials/excel_upload_modal.html", context)
     
 
 def stock_transactions(request):
@@ -238,3 +255,5 @@ def edit_transaction_modal(request, transaction_id):
         'submit_text': 'Update Transaction'
     }
     return render(request, 'products/partials/transaction_edit_modal.html', context)
+
+
