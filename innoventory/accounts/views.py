@@ -5,7 +5,8 @@ from .forms import RegisterForm
 from django.db.models import Sum, Count, Q
 from products.models import Product
 from sales.models import Sale
-
+from django.db.models.functions import TruncDate
+from stocks.models import Stocks
 
 
 def root_redirect(request):
@@ -34,7 +35,6 @@ def admin_dashboard(request):
         total=Sum('total')
     )['total'] or 0
 
-    # Low stock alerts
     low_stock_count = Product.objects.filter(stock_quantity__lte=10).count()
 
     # Total sales
@@ -53,12 +53,40 @@ def admin_dashboard(request):
         .order_by('-total_qty')[:5]
     )
 
+    sales_data = (
+        Sale.objects
+        .annotate(sales_day=TruncDate('sales_date'))
+        .values('sales_date')
+        .annotate(total_sales=Sum('total'))
+        .order_by('sales_date')
+    )
+
+    sales_dates = [item['sales_date'].strftime('%Y-%m-%d') for item in sales_data]
+    sales_totals = [float(item['total_sales']) for item in sales_data]
+
+    stock_data = (
+        Stocks.objects
+        .filter(type=Stocks.OUT)
+        .annotate(stock_day=TruncDate('date'))
+        .values('stock_day')
+        .annotate(total_qty=Sum('qty'))
+        .order_by('stock_day')
+    )
+
+    stock_dates = [item['stock_day'].strftime('%Y-%m-%d') for item in stock_data]
+    stock_totals = [item['total_qty'] for item in stock_data]
+
     context = {
         'total_revenue': total_revenue,
         'low_stock_count': low_stock_count,
         'total_sales_count': total_sales_count,
         'pending_credits': pending_credits,
         'top_selling': top_selling,
+
+        'sales_dates': sales_dates,
+        'sales_totals': sales_totals,
+        'stock_dates': stock_dates,
+        'stock_totals': stock_totals,
     }
     return render(request, 'accounts/admin_dashboard.html', context)
 

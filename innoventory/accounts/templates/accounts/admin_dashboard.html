@@ -62,7 +62,8 @@
                     </div>
                 </div>
 
-                <canvas id="salesChart" height="150" class="mt-3"></canvas>
+                <div id="salesChart" class="mt-3" style="height:300px;"></div>
+
             </div>
         </div>
 
@@ -84,7 +85,8 @@
                     </div>
                 </div>
 
-                <canvas id="stockChart" height="150" class="mt-3"></canvas>
+                <div id="stockChart" class="mt-3" style="height:300px;"></div>
+
             </div>
         </div>
 
@@ -115,3 +117,76 @@
     .bg-teal-card { background-color: #5d8a9b !important; }
 </style>
 {% endblock content %}
+
+{% block extra_js %}
+<script src="https://www.gstatic.com/charts/loader.js"></script>
+
+{{ sales_dates|json_script:"sales-dates" }}
+{{ sales_totals|json_script:"sales-totals" }}
+{{ stock_dates|json_script:"stock-dates" }}
+{{ stock_totals|json_script:"stock-totals" }}
+<script>
+google.charts.load('current', {'packages':['corechart']});
+google.charts.setOnLoadCallback(drawSalesChart);
+
+function drawSalesChart() {
+    const labels = JSON.parse(document.getElementById("sales-dates").textContent);
+    const values = JSON.parse(document.getElementById("sales-totals").textContent);
+
+    var data = new google.visualization.DataTable();
+    data.addColumn('string', 'Date');
+    data.addColumn('number', 'Sales');
+
+    for (let i = 0; i < labels.length; i++) {
+        data.addRow([labels[i], Number(values[i])]);
+    }
+
+    var options = {
+        title: 'Sales Trends',
+        curveType: 'function',
+        legend: { position: 'bottom' },
+        height: 300,
+        backgroundColor: 'transparent',
+        titleTextStyle: { color: '#fff' },
+        legendTextStyle: { color: '#fff' },
+        hAxis: { textStyle: { color: '#fff' } },
+        vAxis: { textStyle: { color: '#fff' } }
+    };
+
+    new google.visualization.LineChart(
+        document.getElementById('salesChart')
+    ).draw(data, options);
+}
+
+google.charts.setOnLoadCallback(drawStockChart);
+
+function drawStockChart() {
+    const labels = JSON.parse(document.getElementById("stock-dates").textContent);
+    const values = JSON.parse(document.getElementById("stock-totals").textContent);
+
+    var data = new google.visualization.DataTable();
+    data.addColumn('string', 'Date');
+    data.addColumn('number', 'Stock Out');
+
+    for (let i = 0; i < labels.length; i++) {
+        data.addRow([labels[i], Number(values[i])]);
+    }
+
+    var options = {
+        title: 'Stock Movement',
+        curveType: 'function',
+        legend: { position: 'bottom' },
+        height: 300,
+        backgroundColor: 'transparent',
+        titleTextStyle: { color: '#fff' },
+        legendTextStyle: { color: '#fff' },
+        hAxis: { textStyle: { color: '#fff' } },
+        vAxis: { textStyle: { color: '#fff' } }
+    };
+
+    new google.visualization.LineChart(
+        document.getElementById('stockChart')
+    ).draw(data, options);
+}
+</script>
+{% endblock extra_js %}
