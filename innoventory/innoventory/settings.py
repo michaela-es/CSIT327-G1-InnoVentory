@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'products',
     'stocks',
     'sales',
+    'suppliers',
     'django.contrib.humanize'
 ]
 

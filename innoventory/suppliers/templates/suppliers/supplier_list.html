@@ -1,0 +1,138 @@
+{% extends 'products/base.html' %}
+{% load humanize %}
+
+{% block title %}Supplier Management{% endblock %}
+
+{% block content %}
+<div class="container mt-3">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <h1>Supplier Management</h1>
+
+        <div>
+            <button class="add-button btn btn-primary me-2"
+                    hx-get="{% url 'supplier_modal' %}"
+                    hx-target="#modal-container"
+                    hx-trigger="click">
+                + Add Supplier
+            </button>
+        </div>
+    </div>
+
+    <div style="background-color: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,.05); margin-bottom: 20px;">
+        <h5 class="mb-2" style="font-weight: 500;"><span class="me-2">🔍︎</span>Filters</h5>
+
+        <form method="get">
+            <div class="mb-2">
+                <input
+                    type="text"
+                    name="search"
+                    value="{{ search_query }}"
+                    placeholder="Search suppliers..."
+                    class="form-control"
+                    style="padding: 10px 15px; border-radius: 4px; font-size: 1rem;"
+                >
+            </div>
+
+            <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                    <label class="form-label" style="font-weight: 500;">Products Range</label>
+                    <select name="products_range" class="form-select" style="padding: 10px 15px; border-radius: 4px;">
+                        <option value="">All Ranges</option>
+                        <option value="0-5" {% if selected_products_range == "0-5" %}selected{% endif %}>0-5 Products</option>
+                        <option value="6-10" {% if selected_products_range == "6-10" %}selected{% endif %}>6-10 Products</option>
+                        <option value="11+" {% if selected_products_range == "11+" %}selected{% endif %}>11+ Products</option>
+                    </select>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label" style="font-weight: 500;">Date Added</label>
+                    <select name="date" class="form-select" style="padding: 8px 12px; border-radius: 4px;">
+                        <option value="">All Dates</option>
+                        <option value="today" {% if selected_date == "today" %}selected{% endif %}>Today</option>
+                        <option value="week" {% if selected_date == "week" %}selected{% endif %}>This Week</option>
+                        <option value="month" {% if selected_date == "month" %}selected{% endif %}>This Month</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="d-flex align-items-center">
+                <button type="submit" class="btn btn-primary me-3" style="padding: 8px 16px; border-radius: 4px; font-size: 1rem;">
+                    Apply Filters
+                </button>
+
+                <a href="{% url 'supplier_list' %}" class="text-decoration-none" style="color: #6c757d; font-weight: 500; font-size: 0.95rem;">
+                    <span class="me-1">✕</span> Clear Filters
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mb-2 mt-4">
+        <h5 style="font-weight: 600; color: #333;">Supplier List</h5>
+        <span class="text-muted small">
+            Showing {{ page_obj|length }} of {{ page_obj.paginator.count }} suppliers
+        </span>
+    </div>
+
+    <div style="background-color: white; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.08); overflow-x: auto;">
+        <table class="table align-middle mb-0">
+            <thead>
+                <tr style="background-color: #f8f9fa;">
+                    <th scope="col" style="font-weight: 600; padding-left: 25px">ID</th>
+                    <th scope="col" style="font-weight: 600;">Supplier Name</th>
+                    <th scope="col" style="font-weight: 600;">Contact</th>
+                    <th scope="col" style="font-weight: 600;">Email</th>
+                    <th scope="col" style="font-weight: 600;">Products</th>
+                    <th scope="col" style="font-weight: 600;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for supplier in page_obj %}
+                    <tr data-supplier-id="{{ supplier.pk }}">
+                        <td class="text-muted" style="padding-left:30px;">{{ supplier.id }}</td>
+                        <td>{{ supplier.name }}</td>
+                        <td>{{ supplier.contact }}</td>
+                        <td>{{ supplier.email }}</td>
+                        <td>
+                            <span class="badge rounded-pill" 
+                                  style="background-color: #e0f7fa; color: #00bcd4; font-weight: 500; padding: 6px 10px;">
+                                {{ supplier.products_count_annotation|intcomma }}
+                            </span>
+                        </td>
+                        <td>
+                            <button class="btn btn-sm"
+                                    style="background-color: #0d6efd; color: white; width: 30px; height: 30px; padding: 0; font-size: 0.9rem; line-height: 30px;"
+                                    hx-get="{% url 'supplier_modal' supplier.pk %}"
+                                    hx-target="#modal-container"
+                                    hx-trigger="click"
+                                    title="Edit supplier">
+                                ✎
+                            </button>
+
+                            <button class="btn btn-sm"
+                                style="background-color: #dc3545; color: white; width: 30px; height: 30px; padding: 0; font-size: 1.1rem; line-height: 30px;"
+                                data-bs-toggle="modal"
+                                data-bs-target="#deleteConfirmModal"
+                                data-item-type="supplier"
+                                data-supplier-id="{{ supplier.pk }}"
+                                data-item-name="{{ supplier.name }}"
+                                title="Delete supplier">
+                            ×
+                            </button>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center py-4">No suppliers found.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div id="modal-container"></div>
+
+    {% include 'products/partials/delete_confirm_modal.html' %}
+    {% include 'partials/pagination.html' %}
+</div>
+{% endblock %}

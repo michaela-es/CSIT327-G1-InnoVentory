@@ -7,7 +7,7 @@ from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponse
 from .forms import ProductForm
 from django.db.models import Q
-from .models import Product, Category, StockTransaction
+from .models import Product, Category, StockTransaction, Supplier
 from .utils import import_products_from_excel
 from .forms import StockTransactionForm
 from django.contrib import messages
@@ -238,3 +238,86 @@ def edit_transaction_modal(request, transaction_id):
         'submit_text': 'Update Transaction'
     }
     return render(request, 'products/partials/transaction_edit_modal.html', context)
+
+
+def supplier_list(request):
+    suppliers = Supplier.objects.annotate(products_count=Count('products'))
+    
+    # Search functionality
+    search_query = request.GET.get('search', '')
+    if search_query:
+        suppliers = suppliers.filter(
+            Q(name__icontains=search_query) |
+            Q(contact__icontains=search_query) |
+            Q(email__icontains=search_query)
+        )
+    
+    # Products range filter
+    products_range = request.GET.get('products_range', '')
+    if products_range == '0-5':
+        suppliers = suppliers.filter(products_count__range=(0, 5))
+    elif products_range == '6-10':
+        suppliers = suppliers.filter(products_count__range=(6, 10))
+    elif products_range == '11+':
+        suppliers = suppliers.filter(products_count__gte=11)
+    
+    # Date filter (simplified - you might want to implement proper date filtering)
+    date_filter = request.GET.get('date', '')
+    # Add date filtering logic here based on your needs
+    
+    suppliers = suppliers.order_by('name')
+    
+    paginator = Paginator(suppliers, 10) 
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    context = {
+        'page_obj': page_obj,
+        'search_query': search_query,
+        'selected_products_range': products_range,
+        'selected_date': date_filter,
+    }
+    
+    return render(request, 'suppliers/supplier_list.html', context)
+
+def supplier_modal(request, supplier_id=None):
+    supplier = None
+    if supplier_id:
+        supplier = get_object_or_404(Supplier, id=supplier_id)
+    
+    if request.method == 'POST':
+        form = SupplierForm(request.POST, instance=supplier)
+        if form.is_valid():
+            form.save()
+            return HttpResponse(
+                status=204,
+                headers={
+                    'HX-Trigger': json.dumps({
+                        "supplierListChanged": None,
+                        "showMessage": f"Supplier {'updated' if supplier else 'added'} successfully."
+                    })
+                }
+            )
+    else:
+        form = SupplierForm(instance=supplier)
+    
+    return render(request, 'suppliers/partials/supplier_modal.html', {
+        'form': form,
+        'supplier': supplier
+    })
+
+def delete_supplier(request, supplier_id):
+    supplier = get_object_or_404(Supplier, id=supplier_id)
+    if request.method == 'POST':
+        supplier_name = supplier.name
+        supplier.delete()
+        return HttpResponse(
+            status=204,
+            headers={
+                'HX-Trigger': json.dumps({
+                    "supplierListChanged": None,
+                    "showMessage": f"Supplier {supplier_name} deleted successfully."
+                })
+            }
+        )
+    return redirect('supplier_list')
