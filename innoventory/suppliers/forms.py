@@ -4,7 +4,7 @@ from .models import Supplier
 class SupplierForm(forms.ModelForm):
     class Meta:
         model = Supplier
-        fields = ['name', 'contact', 'email', 'address']  # Use 'contact' not 'contact_info'
+        fields = ['name', 'contact', 'email', 'address'] 
         widgets = {
             'name': forms.TextInput(attrs={
                 'class': 'form-control',

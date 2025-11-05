@@ -53,21 +53,22 @@ def supplier_modal(request, supplier_id=None):
         form = SupplierForm(request.POST, instance=supplier)
         if form.is_valid():
             form.save()
+            # Return a script that closes modal and refreshes page
             return HttpResponse(
-                status=204,
-                headers={
-                    'HX-Trigger': json.dumps({
-                        "supplierListChanged": None,
-                        "showMessage": f"Supplier {'updated' if supplier else 'added'} successfully."
-                    })
-                }
+                '<script>'
+                'document.getElementById("modal-container").innerHTML = "";'
+                'window.location.reload();'
+                '</script>'
             )
     else:
         form = SupplierForm(instance=supplier)
     
     return render(request, 'suppliers/partials/supplier_modal.html', {
         'form': form,
-        'supplier': supplier
+        'supplier': supplier,
+        'modal_title': 'Edit Supplier' if supplier else 'Add Supplier',
+        'submit_text': 'Update Supplier' if supplier else 'Save Supplier',
+        'form_action': request.path,
     })
 
 def delete_supplier(request, supplier_id):
