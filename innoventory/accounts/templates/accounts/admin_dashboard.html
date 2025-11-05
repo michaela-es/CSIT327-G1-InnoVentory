@@ -129,6 +129,7 @@
     .bg-orange-card { background-color: #f4b740 !important; }
     .bg-teal-card { background-color: #5d8a9b !important; }
 </style>
+
 {% endblock content %}
 
 {% block extra_js %}
@@ -138,22 +139,27 @@
 {{ sales_totals|json_script:"sales-totals" }}
 {{ stock_dates|json_script:"stock-dates" }}
 {{ stock_totals|json_script:"stock-totals" }}
+
 <script>
-google.charts.load('current', {'packages':['corechart']});
-google.charts.setOnLoadCallback(drawSalesChart);
+google.charts.load('current', {'packages':['corechart']}); // load google charts library
+
+google.charts.setOnLoadCallback(drawSalesChart); // draw the chart for sales
 
 function drawSalesChart() {
+    // retrieve JSON data embedded in the HTML via json_script
     const labels = JSON.parse(document.getElementById("sales-dates").textContent);
     const values = JSON.parse(document.getElementById("sales-totals").textContent);
 
     var data = new google.visualization.DataTable();
-    data.addColumn('string', 'Date');
-    data.addColumn('number', 'Sales');
+    data.addColumn('string', 'Date'); // x axis label
+    data.addColumn('number', 'Sales'); // y axis sales data
 
+    // populate chart data rows
     for (let i = 0; i < labels.length; i++) {
         data.addRow([labels[i], Number(values[i])]);
     }
 
+    // chart display options
     var options = {
         title: 'Sales Trends',
         curveType: 'function',
@@ -166,6 +172,7 @@ function drawSalesChart() {
         vAxis: { textStyle: { color: '#fff' } }
     };
 
+    // draw the chart inside salesChart div
     new google.visualization.LineChart(
         document.getElementById('salesChart')
     ).draw(data, options);
