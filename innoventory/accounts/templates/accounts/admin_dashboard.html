@@ -1,8 +1,103 @@
 {% extends 'products/base.html' %}
+{% load humanize %}
 
 {% block content %}
 
-<div>
+<div class="container-fluid py-4">
+
+    <!-- ===== CARDS ROW 1 ===== -->
+    <div class="row mb-4 d-flex align-items-stretch">
+
+        <!-- Total Revenue -->
+        <div class="col-md-3 mb-3">
+            <div class="card text-white bg-dark-blue shadow-sm h-100 p-3">
+                <div class="card-body text-center">
+                    <div class="text-uppercase mb-1 fw-bold opacity-75">Total Revenue</div>
+                    <div class="h2 mb-0 fw-bold">₱{{ total_revenue|floatformat:2|intcomma }}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Low Stock Alerts -->
+        <div class="col-md-3 mb-3">
+            <div class="card text-white bg-dark-blue shadow-sm h-100 p-3">
+                <div class="card-body text-center">
+                    <div class="text-uppercase mb-1 fw-bold opacity-75">Low Stocks Alerts</div>
+                    <div class="h2 mb-0 fw-bold text-danger">{{ low_stock_count }}</div>
+                    <small class="opacity-75">products</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Number of Sales -->
+        <div class="col-md-3 mb-3">
+            <div class="card text-white bg-dark-blue shadow-sm h-100 p-3">
+                <div class="card-body text-center">
+                    <div class="text-uppercase mb-1 fw-bold opacity-75">Number of Sales</div>
+                    <div class="h2 mb-0 fw-bold">{{ total_sales_count|intcomma }}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pending Credits -->
+        <div class="col-md-3 mb-3">
+            <div class="card text-white bg-dark-blue shadow-sm h-100 p-3">
+                <div class="card-body text-center">
+                    <div class="text-uppercase mb-1 fw-bold opacity-75">Pending Credits</div>
+                    <div class="h2 mb-0 fw-bold text-warning">{{ pending_credits }}</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ===== CARDS ROW 2 ===== -->
+    <div class="row mb-4 d-flex align-items-stretch">
+
+        <!-- Sales Trends -->
+        <div class="col-md-6 mb-3">
+            <div class="card text-white bg-orange-card shadow-sm h-100 p-4">
+                <div class="card-body d-flex justify-content-center align-items-center">
+                    <div class="h3 fw-bold mb-0">Sales Trends</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stock Movement -->
+        <div class="col-md-6 mb-3">
+            <div class="card text-white bg-orange-card shadow-sm h-100 p-4">
+                <div class="card-body d-flex justify-content-center align-items-center">
+                    <div class="h3 fw-bold mb-0">Stock Movement</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ===== TOP SELLING PRODUCTS ===== -->
+    <div class="row mb-4">
+
+        <div class="col-12 mb-3">
+            <div class="card bg-teal-card text-white shadow-sm h-100 p-4">
+                <h3 class="fw-bold mb-3 text-center">Top-Selling Products</h3>
+
+                {% if top_selling %}
+
+                {% else %}
+                    <p class="text-center opacity-75">No sales data available.</p>
+                {% endif %}
+
+            </div>
+        </div>
+
+    </div>
 
 </div>
+
+<style>
+    .bg-dark-blue { background-color: #3a4f63 !important; }
+    .bg-orange-card { background-color: #f4b740 !important; }
+    .bg-teal-card { background-color: #5d8a9b !important; }
+</style>
+
 {% endblock content %}

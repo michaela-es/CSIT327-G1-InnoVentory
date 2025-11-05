@@ -7,6 +7,7 @@ from .forms import SaleForm
 from .models import Sale
 from stocks.models import Stocks
 from django.core.paginator import Paginator
+from django.db.models import Sum, Avg, Count, F
 
 
 @login_required
