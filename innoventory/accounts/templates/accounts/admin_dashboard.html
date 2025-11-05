@@ -143,7 +143,22 @@
 <script>
 google.charts.load('current', {'packages':['corechart']}); // load google charts library
 
-google.charts.setOnLoadCallback(drawSalesChart); // draw the chart for sales
+let salesChartObj = null;
+let stockChartObj = null;
+
+google.charts.setOnLoadCallback(() => {
+    drawSalesChart();
+    drawStockChart();
+});
+
+let resizeTimeout;
+window.addEventListener('resize', () => {
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(() => {
+        drawSalesChart();
+        drawStockChart();
+    }, 200);
+});
 
 function drawSalesChart() {
     // retrieve JSON data embedded in the HTML via json_script
@@ -169,7 +184,8 @@ function drawSalesChart() {
         titleTextStyle: { color: '#fff' },
         legendTextStyle: { color: '#fff' },
         hAxis: { textStyle: { color: '#fff' } },
-        vAxis: { textStyle: { color: '#fff' } }
+        vAxis: { textStyle: { color: '#fff' } },
+        chartArea: { width: '85%', height: '70%' }
     };
 
     // draw the chart inside salesChart div
@@ -177,8 +193,6 @@ function drawSalesChart() {
         document.getElementById('salesChart')
     ).draw(data, options);
 }
-
-google.charts.setOnLoadCallback(drawStockChart);
 
 function drawStockChart() {
     const labels = JSON.parse(document.getElementById("stock-dates").textContent);
