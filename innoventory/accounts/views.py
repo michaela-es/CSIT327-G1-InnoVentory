@@ -10,7 +10,25 @@ def root_redirect(request):
         return redirect('register')
 
 def dashboard(request):
-    return render(request, 'accounts/dashboard.html')
+    if not request.user.is_authenticated:
+        return redirect('login')
+
+    role = request.user.role
+
+    if role == 'admin':
+        return redirect('admin_dashboard')
+    elif role == 'staff':
+        return redirect('staff_dashboard')
+
+    else:
+        # Fallback for general users or unassigned roles
+        return render(request, 'accounts/generic_user_dashboard.html', {})
+
+def admin_dashboard(request):
+    return render(request, 'accounts/admin_dashboard.html')
+
+def staff_dashboard(request):
+    return render(request, 'accounts/staff_dashboard.html')
 
 def custom_login(request):
     if request.user.is_authenticated:
