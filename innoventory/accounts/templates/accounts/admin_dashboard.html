@@ -1,11 +1,226 @@
 {% extends 'products/base.html' %}
-<div style="padding: 20px; background: #f0f8ff; border-radius: 10px;">
-<!--    <h2>🛠️ Admin Dashboard (Test)</h2>-->
-<!--    <p>You have admin privileges!</p>-->
-<!--    <ul>-->
-<!--        <a href="{% url 'product_list' %}">Manage Inventory</a>-->
-<!--        <li>Manage Users</li>-->
-<!--        <li>System Settings</li>-->
-<!--        <li>View Reports</li>-->
-<!--    </ul>-->
+{% load humanize %}
+
+{% block content %}
+
+<div class="container-fluid py-4">
+
+    <div class="row mb-4 d-flex align-items-stretch">
+        <div class="col-md-3 mb-3">
+            <div class="card text-white bg-dark-blue shadow-sm h-100 p-3">
+                <div class="card-body text-center">
+                    <div class="text-uppercase mb-1 fw-bold opacity-75">Total Revenue</div>
+                    <div class="h2 mb-0 fw-bold">₱{{ total_revenue|floatformat:2|intcomma }}</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card text-white bg-dark-blue shadow-sm h-100 p-3">
+                <div class="card-body text-center">
+                    <div class="text-uppercase mb-1 fw-bold opacity-75">Low Stocks Alerts</div>
+                    <div class="h2 mb-0 fw-bold text-danger">{{ low_stock_count }}</div>
+                    <small class="opacity-75">products</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card text-white bg-dark-blue shadow-sm h-100 p-3">
+                <div class="card-body text-center">
+                    <div class="text-uppercase mb-1 fw-bold opacity-75">Number of Sales</div>
+                    <div class="h2 mb-0 fw-bold">{{ total_sales_count|intcomma }}</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card text-white bg-dark-blue shadow-sm h-100 p-3">
+                <div class="card-body text-center">
+                    <div class="text-uppercase mb-1 fw-bold opacity-75">Pending Credits</div>
+                    <div class="h2 mb-0 fw-bold text-warning">{{ pending_credits }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4 d-flex align-items-stretch">
+        <div class="col-md-6 mb-3">
+            <div class="card text-white bg-dark-blue shadow-sm h-100 p-4">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="h3 fw-bold mb-0">Sales Trends</div>
+
+                    <div class="dropdown">
+                        <button class="btn btn-light btn-sm dropdown-toggle" data-bs-toggle="dropdown">
+                            Filter
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item chart-filter" data-target="salesChart" data-range="7">Last 7 Days</a></li>
+                            <li><a class="dropdown-item chart-filter" data-target="salesChart" data-range="30">Last 30 Days</a></li>
+                            <li><a class="dropdown-item chart-filter" data-target="salesChart" data-range="365">Last 1 Year</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div id="salesChart" class="mt-3" style="height:300px;"></div>
+
+            </div>
+        </div>
+
+
+        <div class="col-md-6 mb-3">
+            <div class="card text-white bg-dark-blue shadow-sm h-100 p-4">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="h3 fw-bold mb-0">Stock Movement</div>
+
+                    <div class="dropdown">
+                        <button class="btn btn-light btn-sm dropdown-toggle" data-bs-toggle="dropdown">
+                            Filter
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item chart-filter" data-target="stockChart" data-range="7">Last 7 Days</a></li>
+                            <li><a class="dropdown-item chart-filter" data-target="stockChart" data-range="30">Last 30 Days</a></li>
+                            <li><a class="dropdown-item chart-filter" data-target="stockChart" data-range="365">Last 1 Year</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div id="stockChart" class="mt-3" style="height:300px;"></div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <div class="row mb-4">
+
+        <div class="col-12 mb-3">
+            <div class="card bg-teal-card text-white shadow-sm h-100 p-4">
+                <h3 class="fw-bold mb-3 text-center">Top-Selling Products</h3>
+
+                    {% if top_selling %}
+                        <div class="row">
+                            {% for item in top_selling %}
+                                <div class="col-md-4 mb-3">
+                                    <div class="card bg-dark-blue text-white shadow-sm p-3 h-100">
+                                        <h5 class="fw-bold text-center">
+                                            {{ item.product_sold__name }}
+                                        </h5>
+                                        <p class="text-center mb-0 opacity-75">
+                                            {{ item.total_qty|intcomma }} sold
+                                        </p>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-center opacity-75">No sales data available.</p>
+                    {% endif %}
+
+            </div>
+        </div>
+
+    </div>
+
 </div>
+
+<style>
+    .bg-dark-blue { background-color: #3a4f63 !important; }
+    .bg-orange-card { background-color: #f4b740 !important; }
+    .bg-teal-card { background-color: #5d8a9b !important; }
+</style>
+
+{% endblock content %}
+
+{% block extra_js %}
+<script src="https://www.gstatic.com/charts/loader.js"></script>
+
+{{ sales_dates|json_script:"sales-dates" }}
+{{ sales_totals|json_script:"sales-totals" }}
+{{ stock_dates|json_script:"stock-dates" }}
+{{ stock_totals|json_script:"stock-totals" }}
+
+<script>
+google.charts.load('current', {'packages':['corechart']}); // load google charts library
+
+let salesChartObj = null;
+let stockChartObj = null;
+
+google.charts.setOnLoadCallback(() => {
+    drawSalesChart();
+    drawStockChart();
+});
+
+let resizeTimeout;
+window.addEventListener('resize', () => {
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(() => {
+        drawSalesChart();
+        drawStockChart();
+    }, 200);
+});
+
+function drawSalesChart() {
+    // retrieve JSON data embedded in the HTML via json_script
+    const labels = JSON.parse(document.getElementById("sales-dates").textContent);
+    const values = JSON.parse(document.getElementById("sales-totals").textContent);
+
+    var data = new google.visualization.DataTable();
+    data.addColumn('string', 'Date'); // x axis label
+    data.addColumn('number', 'Sales'); // y axis sales data
+
+    // populate chart data rows
+    for (let i = 0; i < labels.length; i++) {
+        data.addRow([labels[i], Number(values[i])]);
+    }
+
+    // chart display options
+    var options = {
+        title: 'Sales Trends',
+        curveType: 'function',
+        legend: { position: 'bottom' },
+        height: 300,
+        backgroundColor: 'transparent',
+        titleTextStyle: { color: '#fff' },
+        legendTextStyle: { color: '#fff' },
+        hAxis: { textStyle: { color: '#fff' } },
+        vAxis: { textStyle: { color: '#fff' } },
+        chartArea: { width: '85%', height: '70%' }
+    };
+
+    // draw the chart inside salesChart div
+    new google.visualization.LineChart(
+        document.getElementById('salesChart')
+    ).draw(data, options);
+}
+
+function drawStockChart() {
+    const labels = JSON.parse(document.getElementById("stock-dates").textContent);
+    const values = JSON.parse(document.getElementById("stock-totals").textContent);
+
+    var data = new google.visualization.DataTable();
+    data.addColumn('string', 'Date');
+    data.addColumn('number', 'Stock Out');
+
+    for (let i = 0; i < labels.length; i++) {
+        data.addRow([labels[i], Number(values[i])]);
+    }
+
+    var options = {
+        title: 'Stock Movement',
+        curveType: 'function',
+        legend: { position: 'bottom' },
+        height: 300,
+        backgroundColor: 'transparent',
+        titleTextStyle: { color: '#fff' },
+        legendTextStyle: { color: '#fff' },
+        hAxis: { textStyle: { color: '#fff' } },
+        vAxis: { textStyle: { color: '#fff' } }
+    };
+
+    new google.visualization.LineChart(
+        document.getElementById('stockChart')
+    ).draw(data, options);
+}
+</script>
+{% endblock extra_js %}
