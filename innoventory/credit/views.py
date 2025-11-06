@@ -4,7 +4,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.utils import timezone
 from datetime import timedelta
-from .forms CreditModelForm
+from .forms import CreditModelForm
 from .models import Creditor, Credit
 from sales.models import Sale
 
