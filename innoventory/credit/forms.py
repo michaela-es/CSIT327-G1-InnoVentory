@@ -1,26 +1,28 @@
 from django import forms
-from .models import Creditor
+from .models import Creditor, Credit
 
-class LinkSaleForm(forms.Form):
-    creditor = forms.ModelChoiceField(
-        queryset=Creditor.objects.none(),
-        empty_label="Select a creditor...",
-        required=True,
-        widget=forms.Select(attrs={
-            'class': 'form-select',
-            'style': 'color: inherit;'
-        })
-    )
+
+class CreditModelForm(forms.ModelForm):
     due_date = forms.DateField(
         widget=forms.DateInput(attrs={
             'type': 'date',
             'class': 'form-control',
-            'style': 'color: inherit;'
         }),
         required=True,
         label="Due Date"
     )
 
+    class Meta:
+        model = Credit
+        fields = ['creditor', 'due_date']
+        widgets = {
+            'creditor': forms.Select(attrs={
+                'class': 'form-select',
+                'style': 'color: inherit;'
+            }),
+        }
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['creditor'].queryset = Creditor.objects.all().order_by('name')
+        self.fields['creditor'].queryset = Creditor.objects.only('creditor_id', 'name').order_by('name')
+        self.fields['creditor'].empty_label = "Select a creditor..."

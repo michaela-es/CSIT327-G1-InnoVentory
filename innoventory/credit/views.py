@@ -4,7 +4,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.utils import timezone
 from datetime import timedelta
-from .forms import LinkSaleForm
+from .forms import LinkSaleForm, CreditModelForm
 from .models import Creditor, Credit
 from sales.models import Sale
 
@@ -22,7 +22,6 @@ def creditors_list(request):
         'unlinked_credit_sales': unlinked_credit_sales
     })
 
-
 @login_required
 def link_sale_modal(request, sale_id):
     sale = get_object_or_404(Sale, pk=sale_id, sales_type='credit')
@@ -33,13 +32,12 @@ def link_sale_modal(request, sale_id):
         })
 
     default_due_date = (timezone.now() + timedelta(days=30)).strftime('%Y-%m-%d')
-    form = LinkSaleForm(initial={'due_date': default_due_date})
+    form = CreditModelForm(initial={'due_date': default_due_date})  # Use ModelForm
 
     return render(request, 'partials/link_sale_modal.html', {
         'sale': sale,
         'form': form
     })
-
 
 @require_POST
 @login_required
@@ -50,19 +48,14 @@ def link_sale_to_creditor(request, sale_id):
         messages.error(request, 'This sale is already linked to a creditor')
         return redirect('creditors_list')
 
-    form = LinkSaleForm(request.POST)
+    form = CreditModelForm(request.POST)
     if form.is_valid():
-        creditor = form.cleaned_data['creditor']
-        due_date = form.cleaned_data['due_date']
+        credit = form.save(commit=False)
+        credit.original_sale = sale
+        credit.original_amount = sale.total
+        credit.save()
 
-        Credit.objects.create(
-            creditor=creditor,
-            original_sale=sale,
-            original_amount=sale.total,
-            due_date=due_date
-        )
-
-        messages.success(request, f'Sale #{sale.sale_id} linked to {creditor.name}')
+        messages.success(request, f'Sale #{sale.sale_id} linked to {credit.creditor.name}')
         return redirect('creditors_list')
 
     for field, errors in form.errors.items():
@@ -70,7 +63,6 @@ def link_sale_to_creditor(request, sale_id):
             messages.error(request, f"{form.fields[field].label}: {error}")
 
     return redirect('creditors_list')
-
 
 @require_POST
 @login_required
