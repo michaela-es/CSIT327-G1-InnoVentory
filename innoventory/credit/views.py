@@ -1,4 +1,5 @@
 from django.contrib.auth.decorators import login_required
+from django.http import HttpResponse
 from django.views.decorators.http import require_POST
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
@@ -56,7 +57,7 @@ def link_sale_to_creditor(request, sale_id):
         credit.save()
 
         messages.success(request, f'Sale #{sale.sale_id} linked to {credit.creditor.name}')
-        return redirect('creditors_list')
+        return HttpResponse('<script>window.location.reload();</script>')
 
     for field, errors in form.errors.items():
         for error in errors:
