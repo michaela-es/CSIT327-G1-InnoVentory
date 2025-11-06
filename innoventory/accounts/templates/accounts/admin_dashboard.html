@@ -138,49 +138,69 @@
 {{ sales_dates|json_script:"sales-dates" }}
 {{ sales_totals|json_script:"sales-totals" }}
 
-
-{{ stock_in_dates|json_script:"stock-in-dates" }}
+{{ stock_dates|json_script:"stock-dates" }}
 {{ stock_in_totals|json_script:"stock-in-totals" }}
-
-{{ stock_out_dates|json_script:"stock-out-dates" }}
 {{ stock_out_totals|json_script:"stock-out-totals" }}
 
 <script>
-google.charts.load('current', {'packages':['corechart']}); // load google charts library
+google.charts.load('current', {'packages':['corechart']});
+google.charts.setOnLoadCallback(drawCharts);
 
-let salesChartObj = null;
-let stockChartObj = null;
+function drawCharts() {
+    drawSalesChart();
+    drawStockChart();
+}
 
-google.charts.setOnLoadCallback(() => {
+window.addEventListener('resize', () => {
     drawSalesChart();
     drawStockChart();
 });
 
-let resizeTimeout;
-window.addEventListener('resize', () => {
-    clearTimeout(resizeTimeout);
-    resizeTimeout = setTimeout(() => {
-        drawSalesChart();
-        drawStockChart();
-    }, 200);
-});
+
+function drawStockChart() {
+    const labels = JSON.parse(document.getElementById("stock-dates").textContent);
+    const inValues = JSON.parse(document.getElementById("stock-in-totals").textContent);
+    const outValues = JSON.parse(document.getElementById("stock-out-totals").textContent);
+
+    const data = new google.visualization.DataTable();
+    data.addColumn('string', 'Date');
+    data.addColumn('number', 'Stock In');
+    data.addColumn('number', 'Stock Out');
+
+    labels.forEach((label, i) => {
+        data.addRow([label, Number(inValues[i]), Number(outValues[i])]);
+    });
+
+    const options = {
+        title: 'Stock Movement (In vs Out)',
+        curveType: 'function',
+        legend: { position: 'bottom' },
+        height: 300,
+        backgroundColor: 'transparent',
+        titleTextStyle: { color: '#fff' },
+        legendTextStyle: { color: '#fff' },
+        hAxis: { textStyle: { color: '#fff' } },
+        vAxis: { textStyle: { color: '#fff' } },
+        chartArea: { width: '85%', height: '70%' }
+    };
+
+    new google.visualization.LineChart(document.getElementById('stockChart')).draw(data, options);
+}
+
 
 function drawSalesChart() {
-    // retrieve JSON data embedded in the HTML via json_script
     const labels = JSON.parse(document.getElementById("sales-dates").textContent);
     const values = JSON.parse(document.getElementById("sales-totals").textContent);
 
-    var data = new google.visualization.DataTable();
-    data.addColumn('string', 'Date'); // x axis label
-    data.addColumn('number', 'Sales'); // y axis sales data
+    const data = new google.visualization.DataTable();
+    data.addColumn('string', 'Date');
+    data.addColumn('number', 'Sales');
 
-    // populate chart data rows
-    for (let i = 0; i < labels.length; i++) {
-        data.addRow([labels[i], Number(values[i])]);
-    }
+    labels.forEach((label, i) => {
+        data.addRow([label, Number(values[i])]);
+    });
 
-    // chart display options
-    var options = {
+    const options = {
         title: 'Sales Trends',
         curveType: 'function',
         legend: { position: 'bottom' },
@@ -193,56 +213,9 @@ function drawSalesChart() {
         chartArea: { width: '85%', height: '70%' }
     };
 
-    // draw the chart inside salesChart div
-    new google.visualization.LineChart(
-        document.getElementById('salesChart')
-    ).draw(data, options);
+    new google.visualization.LineChart(document.getElementById('salesChart')).draw(data, options);
 }
 
-google.charts.setOnLoadCallback(drawStockChart);
-
-function drawStockChart() {
-    // Get IN data
-    const in_dates = JSON.parse(document.getElementById("stock-in-dates").textContent);
-    const in_totals = JSON.parse(document.getElementById("stock-in-totals").textContent);
-
-    // Get OUT data
-    const out_dates = JSON.parse(document.getElementById("stock-out-dates").textContent);
-    const out_totals = JSON.parse(document.getElementById("stock-out-totals").textContent);
-
-    var data = new google.visualization.DataTable();
-    data.addColumn('string', 'Date');
-    data.addColumn('number', 'Stock In');
-    data.addColumn('number', 'Stock Out');
-
-    // Merge both IN and OUT data into one date range
-    let allDates = [...new Set([...in_dates, ...out_dates])].sort();
-
-    allDates.forEach(date => {
-        const inIndex = in_dates.indexOf(date);
-        const outIndex = out_dates.indexOf(date);
-
-        const inValue = inIndex !== -1 ? Number(in_totals[inIndex]) : 0;
-        const outValue = outIndex !== -1 ? Number(out_totals[outIndex]) : 0;
-
-        data.addRow([date, inValue, outValue]);
-    });
-
-    var options = {
-        title: 'Stock Movement (In vs Out)',
-        curveType: 'function',
-        legend: { position: 'bottom' },
-        height: 300,
-        backgroundColor: 'transparent',
-        titleTextStyle: { color: '#fff' },
-        legendTextStyle: { color: '#fff' },
-        hAxis: { textStyle: { color: '#fff' } },
-        vAxis: { textStyle: { color: '#fff' } }
-    };
-
-    new google.visualization.LineChart(
-        document.getElementById('stockChart')
-    ).draw(data, options);
-}
 </script>
+
 {% endblock extra_js %}
