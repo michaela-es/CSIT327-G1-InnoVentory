@@ -1,5 +1,5 @@
 from django import forms
-from innoventory.credit.models import Creditor
+from .models import Creditor
 
 
 class LinkSaleForm(forms.Form):
