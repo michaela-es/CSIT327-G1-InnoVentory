@@ -1,0 +1,37 @@
+<div class="modal fade show" style="display: block; background-color: rgba(0,0,0,0.5);">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <form method="post"
+                  action="{{ form_action }}"
+                  hx-post="{{ form_action }}"
+                  hx-target="#modal-container"
+                  hx-swap="innerHTML">
+                {% csrf_token %}
+                <div class="modal-header">
+                    <h5 class="modal-title">{{ modal_title }}</h5>
+                    <button type="button" class="btn-close" aria-label="Close"
+                            onclick="document.getElementById('modal-container').innerHTML = ''"></button>
+                </div>
+                <div class="modal-body p-3" style="max-height: 65vh; overflow-y: auto;">
+                    {% for field in form %}
+                        <div class="mb-3">
+                            <label class="form-label mb-2">
+                                {{ field.label }}
+                                {% if field.field.required %}<span class="text-danger">*</span>{% endif %}
+                            </label>
+                            {{ field }}
+                            {% for error in field.errors %}
+                                <div class="text-danger small">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
+                </div>
+                <div class="modal-footer py-3">
+                    <button type="button" class="btn btn-secondary"
+                            onclick="document.getElementById('modal-container').innerHTML = ''">Cancel</button>
+                    <button type="submit" class="btn btn-primary">{{ submit_text }}</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

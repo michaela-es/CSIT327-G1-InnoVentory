@@ -1,4 +1,3 @@
-from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
@@ -7,6 +6,8 @@ from products.models import Product
 from .forms import SaleForm
 from .models import Sale
 from products.models import StockTransaction
+from django.core.paginator import Paginator
+from django.db.models import Sum, Avg, Count, F
 
 
 @require_POST
@@ -44,13 +45,24 @@ def create_sale(request):
 
 @login_required
 def sales_record(request):
-    sales = Sale.objects.order_by('-sales_date')[:5]
-    products = Product.objects.all().order_by('name')
+    sales_list = Sale.objects.order_by('-sales_date')
+    products_list = Product.objects.all().order_by('name')
+
+    prod_page_number = request.GET.get('prod_page', 1)
+    sale_page_number = request.GET.get('sale_page', 1)
+
+    product_paginator = Paginator(products_list, 10)
+    products_page_obj = product_paginator.get_page(prod_page_number)
+
+    sales_paginator = Paginator(sales_list, 10)  # 10 items per page
+    sales_page_obj = sales_paginator.get_page(sale_page_number)
+
     context = {
-        'sales': sales,
-        'products': products,
+        'products_page_obj': products_page_obj,
+        'sales_page_obj': sales_page_obj,
         'page_title': 'Transactions',
     }
+
     return render(request, 'sales/sales_record.html', context)
 
 @login_required

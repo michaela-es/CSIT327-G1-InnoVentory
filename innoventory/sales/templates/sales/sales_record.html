@@ -19,9 +19,9 @@
             </tr>
             </thead>
             <tbody>
-            {% for product in products %}
+            {% for product in products_page_obj %}
             <tr>
-                <td class="text-muted" style="padding-left:15px;">{{ forloop.counter }}</td>
+                <td class="text-muted" style="padding-left:15px;">{{ forloop.counter|add:products_page_obj.start_index|add:-1 }}</td>
                 <td><span class="fw-bold">{{ product.name }}</span></td>
                 <td>
                     <span class="badge rounded-pill" style="background-color:#ffc107; color: #333; font-weight: 500; padding: 6px 10px;">
@@ -55,6 +55,7 @@
             {% endfor %}
             </tbody>
         </table>
+        {% include 'sales/partials/sales_pagination.html' with page_obj=products_page_obj page_param='prod_page' products_page_obj=sales_page_obj %}
     </div>
 
     <h3> Sales & Transactions </h3>
@@ -86,7 +87,7 @@
         </tr>
         </thead>
         <tbody>
-        {% for sale in sales %}
+        {% for sale in sales_page_obj %}
         <tr data-sale-id="{{ sale.sale_id }}">
             <td class="text-muted">{{ sale.sale_id }}</td>
             <td>{{ sale.product_sold.name }}</td>
@@ -114,6 +115,7 @@
         {% endfor %}
         </tbody>
     </table>
+    {% include 'sales/partials/sales_pagination.html' with page_obj=sales_page_obj page_param='sale_page' sales_page_obj=sales_page_obj %}
 </div>
 
 <div id="modal-container"></div>

@@ -8,7 +8,7 @@
     </div>
 
     <nav class="nav-menu">
-        <a href="{% url 'dashboard' %}" class="nav-item {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+        <a href="{% url 'dashboard' %}" class="nav-item {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}">
             <i class="fa-solid fa-house" style="padding-right:10px"></i>
             Home
         </a>
@@ -18,8 +18,8 @@
             Inventory Management
         </a>
 
-        <a href="#" class="nav-item">
-            <i class="fa-solid fa-folder" style="padding-right:10px"></i>
+        <a href="/suppliers/" class="nav-item {% if request.resolver_match.url_name == 'supplier_list' %}active{% endif %}">
+            <i class="fa-solid fa-truck" style="padding-right:10px"></i>
             Categories / Suppliers
         </a>
 
