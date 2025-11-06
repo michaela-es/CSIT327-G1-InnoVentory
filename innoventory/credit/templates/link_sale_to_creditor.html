@@ -1,3 +1,5 @@
+    {% load humanize %}
+
 <div class="modal fade show" style="display: block; background-color: rgba(0,0,0,0.5);">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content">
@@ -21,9 +23,8 @@
                         </div>
                     </div>
 
-                    <!-- FORM FIELDS -->
                     <div class="mb-3">
-                        <label for="{{ form.creditor.id_for_label }}" class="form-label">Select Creditor:</label>
+                        {{ form.creditor.label_tag }}
                         {{ form.creditor }}
                         {% if form.creditor.errors %}
                             <div class="text-danger small">
@@ -33,9 +34,9 @@
                             </div>
                         {% endif %}
                     </div>
-                    
+
                     <div class="mb-3">
-                        <label for="{{ form.due_date.id_for_label }}" class="form-label">Due Date:</label>
+                        {{ form.due_date.label_tag }}
                         {{ form.due_date }}
                         {% if form.due_date.errors %}
                             <div class="text-danger small">
@@ -45,6 +46,7 @@
                             </div>
                         {% endif %}
                     </div>
+
                 </div>
                 <div class="modal-footer py-3">
                     <button type="button" class="btn btn-secondary"
