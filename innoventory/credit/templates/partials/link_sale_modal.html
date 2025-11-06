@@ -24,7 +24,7 @@
                     </div>
 
                     <div class="mb-3">
-                        <label for="creditor_id" class="form-label">Select Creditor:</label>
+                        <div class="form-label">Select Creditor:</div>
                         <select name="creditor_id" id="creditor_id" class="form-select" required>
                             <option value="">Choose a creditor...</option>
                             {% for creditor in creditors %}
@@ -33,7 +33,7 @@
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label for="due_date" class="form-label">Due Date:</label>
+                        <div class="form-label">Due Date:</div>
                         <input type="date" name="due_date" id="due_date" class="form-control" required
                                value="{{ default_due_date }}">
                     </div>

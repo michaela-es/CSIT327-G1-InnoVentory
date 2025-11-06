@@ -1,10 +1,10 @@
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
-from sales.models import Sale
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.utils import timezone
 from datetime import timedelta
+from .forms import LinkSaleForm
 from .models import Creditor, Credit
 from sales.models import Sale
 
@@ -12,13 +12,11 @@ from sales.models import Sale
 @login_required
 def creditors_list(request):
     creditors = Creditor.objects.all().prefetch_related('credits')
-
     unlinked_credit_sales = Sale.objects.filter(
         sales_type='credit'
     ).exclude(
         credit_record__isnull=False
     )
-
     return render(request, 'creditors_list.html', {
         'creditors': creditors,
         'unlinked_credit_sales': unlinked_credit_sales
@@ -26,20 +24,38 @@ def creditors_list(request):
 
 
 @login_required
+def link_sale_modal(request, sale_id):
+    sale = get_object_or_404(Sale, pk=sale_id, sales_type='credit')
+
+    if hasattr(sale, 'credit_record'):
+        return render(request, 'partials/error_modal.html', {
+            'error_message': 'This sale is already linked to a creditor'
+        })
+
+    default_due_date = (timezone.now() + timedelta(days=30)).strftime('%Y-%m-%d')
+    form = LinkSaleForm(initial={'due_date': default_due_date})
+
+    return render(request, 'partials/link_sale_modal.html', {
+        'sale': sale,
+        'form': form
+    })
+
+
+@require_POST
+@login_required
 def link_sale_to_creditor(request, sale_id):
     sale = get_object_or_404(Sale, pk=sale_id, sales_type='credit')
 
-    if request.method == 'POST':
-        creditor_id = request.POST.get('creditor_id')
-        due_date = request.POST.get('due_date')
+    if hasattr(sale, 'credit_record'):
+        messages.error(request, 'This sale is already linked to a creditor')
+        return redirect('creditors_list')
 
-        creditor = get_object_or_404(Creditor, pk=creditor_id)
+    form = LinkSaleForm(request.POST)
+    if form.is_valid():
+        creditor = form.cleaned_data['creditor']
+        due_date = form.cleaned_data['due_date']
 
-        if hasattr(sale, 'credit_record'):
-            messages.error(request, 'This sale is already linked to a creditor')
-            return redirect('creditors_list')
-
-        credit = Credit.objects.create(
+        Credit.objects.create(
             creditor=creditor,
             original_sale=sale,
             original_amount=sale.total,
@@ -49,17 +65,15 @@ def link_sale_to_creditor(request, sale_id):
         messages.success(request, f'Sale #{sale.sale_id} linked to {creditor.name}')
         return redirect('creditors_list')
 
-    creditors = Creditor.objects.all()
-    default_due_date = (timezone.now() + timedelta(days=30)).strftime('%Y-%m-%d')
+    for field, errors in form.errors.items():
+        for error in errors:
+            messages.error(request, f"{form.fields[field].label}: {error}")
 
-    return render(request, 'link_sale_to_creditor.html', {
-        'sale': sale,
-        'creditors': creditors,
-        'default_due_date': default_due_date
-    })
+    return redirect('creditors_list')
 
 
 @require_POST
+@login_required
 def mark_credit_paid(request, credit_id):
     credit = get_object_or_404(Credit, pk=credit_id)
 
@@ -70,7 +84,9 @@ def mark_credit_paid(request, credit_id):
 
     return redirect('creditors_list')
 
+
 @require_POST
+@login_required
 def make_payment(request, credit_id):
     credit = get_object_or_404(Credit, pk=credit_id)
 
@@ -93,27 +109,8 @@ def make_payment(request, credit_id):
 
     return redirect('creditors_list')
 
+
 @login_required
 def payment_modal(request, credit_id):
     credit = get_object_or_404(Credit, pk=credit_id)
-
     return render(request, "partials/payment_modal.html", {'credit': credit})
-
-@login_required
-def link_sale_modal(request, sale_id):
-    try:
-        sale = get_object_or_404(Sale, pk=sale_id, sales_type='credit')
-        creditors = Creditor.objects.all()
-        default_due_date = (timezone.now() + timedelta(days=30)).strftime('%Y-%m-%d')
-
-        creditor_choices = [('', '---------'), ('__new__', 'Add New Creditor')]
-        creditor_choices.extend([(cred.creditor_id, cred.name) for cred in creditors.order_by('name')])
-
-        return render(request, 'partials/link_sale_modal.html', {
-            'sale': sale,
-            'creditors': creditor_choices,
-            'default_due_date': default_due_date,
-        })
-    except Exception as e:
-        from django.http import HttpResponse
-        return HttpResponse(f'Error: {str(e)}', status=500)
