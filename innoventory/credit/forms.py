@@ -1,10 +1,9 @@
 from django import forms
 from .models import Creditor
 
-
 class LinkSaleForm(forms.Form):
     creditor = forms.ModelChoiceField(
-        queryset=Creditor.objects.all(),
+        queryset=Creditor.objects.none(),
         empty_label="Select a creditor...",
         required=True,
         widget=forms.Select(attrs={
@@ -21,3 +20,7 @@ class LinkSaleForm(forms.Form):
         required=True,
         label="Due Date"
     )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['creditor'].queryset = Creditor.objects.all().order_by('name')
