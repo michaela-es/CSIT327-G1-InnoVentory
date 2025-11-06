@@ -64,17 +64,28 @@ def admin_dashboard(request):
     sales_dates = [item['sales_date'].strftime('%Y-%m-%d') for item in sales_data]
     sales_totals = [float(item['total_sales']) for item in sales_data]
 
-    stock_data = (
+    stock_in_data = (
+        Stocks.objects
+        .filter(type=Stocks.IN)
+        .annotate(stock_day=TruncDate('date'))
+        .values('stock_day')
+        .annotate(total_in=Sum('qty'))
+        .order_by('stock_day')
+    )
+    stock_in_dates = [item['stock_day'].strftime('%Y-%m-%d') for item in stock_in_data]
+    stock_in_totals = [item['total_in'] for item in stock_in_data]
+
+    stock_out_data = (
         Stocks.objects
         .filter(type=Stocks.OUT)
         .annotate(stock_day=TruncDate('date'))
         .values('stock_day')
-        .annotate(total_qty=Sum('qty'))
+        .annotate(total_out=Sum('qty'))
         .order_by('stock_day')
     )
 
-    stock_dates = [item['stock_day'].strftime('%Y-%m-%d') for item in stock_data]
-    stock_totals = [item['total_qty'] for item in stock_data]
+    stock_out_dates = [item['stock_day'].strftime('%Y-%m-%d') for item in stock_out_data]
+    stock_out_totals = [item['total_out'] for item in stock_out_data]
 
     context = {
         'total_revenue': total_revenue,
@@ -85,8 +96,10 @@ def admin_dashboard(request):
 
         'sales_dates': sales_dates,
         'sales_totals': sales_totals,
-        'stock_dates': stock_dates,
-        'stock_totals': stock_totals,
+        'stock_in_dates': stock_in_dates,
+        'stock_in_totals': stock_in_totals,
+        'stock_out_dates': stock_out_dates,
+        'stock_out_totals': stock_out_totals,
     }
     return render(request, 'accounts/admin_dashboard.html', context)
 
