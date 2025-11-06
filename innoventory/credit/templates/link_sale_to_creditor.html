@@ -1,42 +1,57 @@
-{% extends 'products/base.html' %}
-
-{% block content %}
-<div class="container mt-4">
-    <div class="card">
-        <div class="card-header bg-primary text-white">
-            <h4>Link Sale to Creditor</h4>
-        </div>
-        <div class="card-body">
-            <div class="mb-3">
-                <h5>Sale Details</h5>
-                <p><strong>Sale ID:</strong> {{ sale.sale_id }}</p>
-                <p><strong>Product:</strong> {{ sale.product_sold.name }}</p>
-                <p><strong>Quantity:</strong> {{ sale.product_qty }}</p>
-                <p><strong>Total Amount:</strong> ₱{{ sale.total }}</p>
-            </div>
-
-            <form method="post">
+<div class="modal fade show" style="display: block; background-color: rgba(0,0,0,0.5);">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <form method="post" action="{% url 'link_sale_to_creditor' sale.sale_id %}">
                 {% csrf_token %}
-                <div class="mb-3">
-                    <label for="creditor_id" class="form-label">Select Creditor:</label>
-                    <select name="creditor_id" id="creditor_id" class="form-select" required>
-                        <option value="">Choose a creditor...</option>
-                        {% for creditor in creditors %}
-                        <option value="{{ creditor.creditor_id }}">{{ creditor.name }}</option>
-                        {% endfor %}
-                    </select>
+                <div class="modal-header">
+                    <h5 class="modal-title">Link Sale to Creditor</h5>
+                    <button type="button" class="btn-close" aria-label="Close"
+                            onclick="document.getElementById('modal-container').innerHTML = ''"></button>
                 </div>
-                <div class="mb-3">
-                    <label for="due_date" class="form-label">Due Date:</label>
-                    <input type="date" name="due_date" id="due_date" class="form-control" required
-                           value="{{ default_due_date }}">
+                <div class="modal-body p-3">
+                    <div class="mb-3">
+                        <h6>Sale Details</h6>
+                        <div class="card">
+                            <div class="card-body">
+                                <p class="mb-1"><strong>Sale ID:</strong> {{ sale.sale_id }}</p>
+                                <p class="mb-1"><strong>Product:</strong> {{ sale.product_sold.name }}</p>
+                                <p class="mb-1"><strong>Quantity:</strong> {{ sale.product_qty }}</p>
+                                <p class="mb-0"><strong>Total Amount:</strong> ₱{{ sale.total|floatformat:2|intcomma }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- FORM FIELDS -->
+                    <div class="mb-3">
+                        <label for="{{ form.creditor.id_for_label }}" class="form-label">Select Creditor:</label>
+                        {{ form.creditor }}
+                        {% if form.creditor.errors %}
+                            <div class="text-danger small">
+                                {% for error in form.creditor.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.due_date.id_for_label }}" class="form-label">Due Date:</label>
+                        {{ form.due_date }}
+                        {% if form.due_date.errors %}
+                            <div class="text-danger small">
+                                {% for error in form.due_date.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
                 </div>
-                <div class="d-flex gap-2">
+                <div class="modal-footer py-3">
+                    <button type="button" class="btn btn-secondary"
+                            onclick="document.getElementById('modal-container').innerHTML = ''">Cancel</button>
                     <button type="submit" class="btn btn-primary">Link to Creditor</button>
-                    <a href="{% url 'creditors_list' %}" class="btn btn-secondary">Cancel</a>
                 </div>
             </form>
         </div>
     </div>
 </div>
-{% endblock %}
