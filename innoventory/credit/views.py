@@ -46,8 +46,13 @@ def link_sale_to_creditor(request, sale_id):
     sale = get_object_or_404(Sale, pk=sale_id, sales_type='credit')
 
     if hasattr(sale, 'credit_record'):
-        messages.error(request, 'This sale is already linked to a creditor')
-        return redirect('creditors_list')
+        return HttpResponse('''
+            <script>
+                alert('This sale is already linked to a creditor');
+                document.getElementById('modal-container').innerHTML = '';
+                window.location.reload();
+            </script>
+        ''')
 
     form = CreditModelForm(request.POST)
     if form.is_valid():
@@ -56,14 +61,12 @@ def link_sale_to_creditor(request, sale_id):
         credit.original_amount = sale.total
         credit.save()
 
-        messages.success(request, f'Sale #{sale.sale_id} linked to {credit.creditor.name}')
         return HttpResponse('<script>window.location.reload();</script>')
 
-    for field, errors in form.errors.items():
-        for error in errors:
-            messages.error(request, f"{form.fields[field].label}: {error}")
-
-    return redirect('creditors_list')
+    return render(request, 'partials/link_sale_modal.html', {
+        'sale': sale,
+        'form': form
+    })
 
 @require_POST
 @login_required
