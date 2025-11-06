@@ -5,8 +5,9 @@ from .forms import RegisterForm
 from django.db.models import Sum, Count, Q
 from products.models import Product
 from sales.models import Sale
-from django.db.models.functions import TruncDate
 from stocks.models import Stocks
+from django.db.models.functions import TruncDate
+
 
 
 def root_redirect(request):
@@ -30,51 +31,66 @@ def dashboard(request):
         # Fallback for general users or unassigned roles
         return render(request, 'accounts/generic_user_dashboard.html', {})
 
-def admin_dashboard(request):
-    total_revenue = Sale.objects.aggregate(
-        total=Sum('total')
-    )['total'] or 0
 
+def admin_dashboard(request):
+    # Total Revenue
+    total_revenue = Sale.objects.aggregate(total=Sum('total'))['total'] or 0
+
+    # Low Stock Alerts
     low_stock_count = Product.objects.filter(stock_quantity__lte=10).count()
 
-    # Total sales
-    # unsure how to implement this (from ChatGPT)
+    # Total Sales
     total_sales_count = Sale.objects.count()
 
-    # Pending credits
-    pending_credits = Sale.objects.filter(
-        sales_type="CREDIT"
-    ).count()
+    # Pending Credits
+    pending_credits = Sale.objects.filter(sales_type="CREDIT").count()
 
-    # Top-selling products
+    # Top Selling Products
     top_selling = (
         Sale.objects.values('product_sold__name')
         .annotate(total_qty=Sum('product_qty'))
         .order_by('-total_qty')[:3]
     )
 
+    # --- Sales Chart Data ---
     sales_data = (
         Sale.objects
-        .annotate(sales_day=TruncDate('sales_date'))
-        .values('sales_date')
+        .annotate(day=TruncDate('sales_date'))
+        .values('day')
         .annotate(total_sales=Sum('total'))
-        .order_by('sales_date')
+        .order_by('day')
     )
-
-    sales_dates = [item['sales_date'].strftime('%Y-%m-%d') for item in sales_data]
+    sales_dates = [item['day'].strftime('%Y-%m-%d') for item in sales_data]
     sales_totals = [float(item['total_sales']) for item in sales_data]
 
-    stock_data = (
-        Stocks.objects
-        .filter(type=Stocks.OUT)
-        .annotate(stock_day=TruncDate('date'))
-        .values('stock_day')
-        .annotate(total_qty=Sum('qty'))
-        .order_by('stock_day')
+    stock_in_data = (
+        Stocks.objects.filter(type=Stocks.IN)
+        .annotate(day=TruncDate('date'))
+        .values('day')
+        .annotate(total_in=Sum('qty'))
+        .order_by('day')
     )
 
-    stock_dates = [item['stock_day'].strftime('%Y-%m-%d') for item in stock_data]
-    stock_totals = [item['total_qty'] for item in stock_data]
+    stock_out_data = (
+        Stocks.objects.filter(type=Stocks.OUT)
+        .annotate(day=TruncDate('date'))
+        .values('day')
+        .annotate(total_out=Sum('qty'))
+        .order_by('day')
+    )
+
+    # Merge dates for chart
+    all_dates = sorted(list(set(
+        [item['day'] for item in stock_in_data] +
+        [item['day'] for item in stock_out_data]
+    )))
+
+    stock_in_totals_dict = {item['day']: item['total_in'] for item in stock_in_data}
+    stock_out_totals_dict = {item['day']: item['total_out'] for item in stock_out_data}
+
+    stock_dates = [d.strftime('%Y-%m-%d') for d in all_dates]
+    stock_in_totals = [stock_in_totals_dict.get(d, 0) for d in all_dates]
+    stock_out_totals = [stock_out_totals_dict.get(d, 0) for d in all_dates]
 
     context = {
         'total_revenue': total_revenue,
@@ -82,16 +98,14 @@ def admin_dashboard(request):
         'total_sales_count': total_sales_count,
         'pending_credits': pending_credits,
         'top_selling': top_selling,
-
         'sales_dates': sales_dates,
         'sales_totals': sales_totals,
         'stock_dates': stock_dates,
-        'stock_totals': stock_totals,
+        'stock_in_totals': stock_in_totals,
+        'stock_out_totals': stock_out_totals,
     }
+
     return render(request, 'accounts/admin_dashboard.html', context)
-
-
-
 
 def staff_dashboard(request):
     return render(request, 'accounts/staff_dashboard.html')

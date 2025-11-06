@@ -18,7 +18,7 @@
             Inventory Management
         </a>
 
-        <a href="/suppliers/" class="nav-item">
+        <a href="/suppliers/" class="nav-item {% if request.resolver_match.url_name == 'supplier_list' %}active{% endif %}">
             <i class="fa-solid fa-truck" style="padding-right:10px"></i>
             Categories / Suppliers
         </a>
