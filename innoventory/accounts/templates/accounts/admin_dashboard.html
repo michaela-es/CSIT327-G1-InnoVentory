@@ -130,7 +130,7 @@
                     <h5 class="card-title mb-0">Sales Trend</h5>
                 </div>
                 <div class="card-body">
-                    <div id="salesTrendChart" style="height: 300px;"></div>
+                    <canvas id="salesTrendChart"></canvas>
                 </div>
             </div>
         </div>
@@ -141,7 +141,7 @@
                     <h5 class="card-title mb-0">Revenue Trend</h5>
                 </div>
                 <div class="card-body">
-                    <div id="revenueTrendChart" style="height: 300px;"></div>
+                    <canvas id="revenueTrendChart"></canvas>
                 </div>
             </div>
         </div>
@@ -215,84 +215,114 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- Load Chart.js from CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+<!-- Add FontAwesome for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+<!-- Data from context -->
 {{ chart_dates|json_script:"chart-dates" }}
 {{ sales_data|json_script:"sales-data" }}
 {{ revenue_data|json_script:"revenue-data" }}
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const dates = JSON.parse(document.getElementById('chart-dates').textContent);
-    const salesData = JSON.parse(document.getElementById('sales-data').textContent);
-    const revenueData = JSON.parse(document.getElementById('revenue-data').textContent);
+    try {
+        // Get data from template
+        const dates = JSON.parse(document.getElementById('chart-dates').textContent);
+        const salesData = JSON.parse(document.getElementById('sales-data').textContent);
+        const revenueData = JSON.parse(document.getElementById('revenue-data').textContent);
+        
+        // Debug data
+        console.log('Chart Data:', {
+            dates: dates,
+            salesData: salesData,
+            revenueData: revenueData
+        });
 
-    // Sales Trend Chart
-    new Chart(document.getElementById('salesTrendChart'), {
-        type: 'line',
-        data: {
-            labels: dates,
-            datasets: [{
-                label: 'Number of Sales',
-                data: salesData,
-                borderColor: '#0d6efd',
-                backgroundColor: '#0d6efd20',
-                fill: true,
-                tension: 0.4
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    display: false
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: {
-                        precision: 0
-                    }
-                }
-            }
-        }
-    });
-
-    // Revenue Trend Chart
-    new Chart(document.getElementById('revenueTrendChart'), {
-        type: 'line',
-        data: {
-            labels: dates,
-            datasets: [{
-                label: 'Revenue',
-                data: revenueData,
-                borderColor: '#198754',
-                backgroundColor: '#19875420',
-                fill: true,
-                tension: 0.4
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    display: false
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: {
-                        callback: function(value) {
-                            return '₱' + value.toLocaleString();
+        // Sales Trend Chart
+        const salesCtx = document.getElementById('salesTrendChart');
+        if (salesCtx) {
+            // Set canvas height
+            salesCtx.style.height = '300px';
+            
+            new Chart(salesCtx, {
+                type: 'line',
+                data: {
+                    labels: dates,
+                    datasets: [{
+                        label: 'Number of Sales',
+                        data: salesData,
+                        borderColor: '#0d6efd',
+                        backgroundColor: '#0d6efd20',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                precision: 0
+                            }
                         }
                     }
                 }
-            }
+            });
         }
-    });
+
+        // Revenue Trend Chart
+        const revenueCtx = document.getElementById('revenueTrendChart');
+        if (revenueCtx) {
+            // Set canvas height
+            revenueCtx.style.height = '300px';
+            
+            new Chart(revenueCtx, {
+                type: 'line',
+                data: {
+                    labels: dates,
+                    datasets: [{
+                        label: 'Revenue',
+                        data: revenueData,
+                        borderColor: '#198754',
+                        backgroundColor: '#19875420',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '₱' + value.toLocaleString();
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    } catch (error) {
+        console.error('Error initializing charts:', error);
+    }
 });
 </script>
 {% endblock %}
