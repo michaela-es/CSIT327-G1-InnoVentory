@@ -23,14 +23,10 @@
             Stock Transactions
         </a>
 
-        <a href="{% url 'sales_record' %}" class="nav-item">
+        <a href="{% url 'sales_record' %}" 
+        class="nav-item {% if request.resolver_match.url_name == 'sales_record' %}active{% endif %}">
             <i class="fa-solid fa-money-bill-transfer" style="padding-right:10px"></i>
             Sales
-        </a>
-
-        <a href="{% url 'reports:dashboard' %}" class="nav-item {% if request.resolver_match.app_name == 'reports' %}active{% endif %}">
-            <i class="fa-solid fa-chart-bar" style="padding-right:10px"></i>
-            Reports & Analytics
         </a>
 
         <a href="#" class="nav-item">
