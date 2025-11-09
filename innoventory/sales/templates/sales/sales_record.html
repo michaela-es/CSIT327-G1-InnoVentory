@@ -58,24 +58,23 @@
         {% include 'sales/partials/sales_pagination.html' with page_obj=products_page_obj page_param='prod_page' products_page_obj=sales_page_obj %}
     </div>
 
-    <h3> Sales & Transactions </h3>
-    <button style="margin-bottom: 16px;"
-            class="add-button btn btn-primary me-2"
+<h3> Sales & Transactions </h3>
+<div class="d-flex gap-2 mb-3">
+    <button class="add-button btn btn-primary me-2"
             hx-get="{% url 'record_sale_modal' %}"
             hx-target="#modal-container"
-            hx-trigger="click"
-            onclick="console.log('Button clicked')">
+            hx-trigger="click">
         <i class="fas fa-plus-circle me-2"></i>
         Record New Sale
     </button>
-    <button class="btn btn-secondary shadow-sm"
-            hx-get="#"
-            hx-target="#modal-container"
-            hx-trigger="click"
-            onclick="console.log('Manage Credits clicked')">
+    <button class="btn btn-warning shadow-sm"
+            hx-get="{% url 'credit_management' %}"
+            hx-target="body"
+            hx-push-url="true">
         <i class="fas fa-handshake me-2"></i>
         Manage Credits
     </button>
+</div>
 
     <table class="table table-striped table-hover align-middle mb-0">
         <thead class="table-light">
@@ -94,7 +93,7 @@
         <tr data-sale-id="{{ sale.sale_id }}">
             <td class="text-muted">{{ sale.sale_id }}</td>
             <td>{{ sale.product_sold.name }}</td>
-            <td class="text-center">{{ sale.product_qty|intcomma }}</td>
+            <td class="text-center">{{ sale.quantity|intcomma }}</td>
             <td class="text-end text-success">₱{{ sale.total|floatformat:2|intcomma }}</td>
             <td>
                 <span class="badge {% if sale.sales_type == 'CASH' %}bg-primary{% else %}bg-info{% endif %}">{{ sale.get_sales_type_display }}</span>
@@ -127,5 +126,15 @@
 function closeModal() {
     document.getElementById('modal-container').innerHTML = '';
 }
+
+document.body.addEventListener('reloadPage', function() {
+    window.location.reload();
+});
+
+document.addEventListener('htmx:afterOnLoad', function(event) {
+    if (event.detail.xhr.status === 204) {
+        closeModal();
+    }
+});
 </script>
 {% endblock %}

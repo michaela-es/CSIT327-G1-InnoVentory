@@ -1,0 +1,124 @@
+{% extends 'products/base.html' %}
+{% load humanize %}
+
+{% block title %}Credit Management{% endblock %}
+
+{% block content %}
+<div class="container mt-3">
+    {% if error_occurred %}
+    <div class="alert alert-warning">
+        <strong>Note:</strong> Showing basic credit sales information due to a technical issue.
+    </div>
+    {% endif %}
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="mb-1">Credit Management</h1>
+        </div>
+        <div>
+            <a href="{% url 'sales_record' %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Back to Sales
+            </a>
+        </div>
+    </div>
+
+    <!-- Credit Sales List -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">Credit Sales</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Sale ID</th>
+                            <th>Customer</th>
+                            <th>Product</th>
+                            <th>Quantity</th>
+                            <th>Total Amount</th>
+                            <th>Balance</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for sale in page_obj %}
+                        <tr>
+                            <td>{{ sale.sale_id }}</td>
+                            <td>{{ sale.customer_name|default:"Unknown" }}</td>
+                            <td>{{ sale.product_sold.name }}</td>
+                            <td>{{ sale.product_qty }}</td>
+                            <td class="text-success">₱{{ sale.total|floatformat:2|intcomma }}</td>
+                            <td class="{% if sale.balance > 0 %}text-danger{% else %}text-success{% endif %}">
+                                ₱{{ sale.balance|default:sale.total|floatformat:2|intcomma }}
+                            </td>
+                            <td>
+                                <span class="badge 
+                                    {% if sale.payment_status == 'paid' %}bg-success
+                                    {% elif sale.payment_status == 'overdue' %}bg-danger
+                                    {% elif sale.payment_status == 'partial' %}bg-warning
+                                    {% else %}bg-secondary{% endif %}">
+                                    {{ sale.payment_status|default:"pending"|title }}
+                                </span>
+                            </td>
+                            <td>{{ sale.sales_date|date:"M j, Y" }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8" class="text-center py-4 text-muted">
+                                No credit sales found.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Summary -->
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h6>Total Credit Sales</h6>
+                    <h3>₱{{ total_receivable|default:0|floatformat:2|intcomma }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <h6>Outstanding Balance</h6>
+                    <h3>₱{{ total_balance|default:0|floatformat:2|intcomma }}</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if page_obj.has_other_pages %}
+    <nav aria-label="Page navigation" class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+            </li>
+            {% endif %}
+            
+            {% for num in page_obj.paginator.page_range %}
+            <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+            </li>
+            {% endfor %}
+            
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+{% endblock %}
