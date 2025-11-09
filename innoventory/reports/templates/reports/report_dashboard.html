@@ -83,6 +83,14 @@
                             <td>{{ s.top_product }}</td>
                         </tr>
                     {% endfor %}
+
+                <tr style="background-color:#343a40; color:white; font-weight:700;">
+                    <td>Total</td>
+                    <td>{{ totals.total_sales }} sales</td>
+                    <td>₱{{ totals.total_revenue|floatformat:2|intcomma }}</td>
+                    <td>—</td>
+                </tr>
+
                 {% else %}
                     <tr>
                         <td colspan="4" class="text-center py-4">No data for the selected filters.</td>

@@ -4,7 +4,8 @@ from django.utils.dateparse import parse_date
 from sales.models import Sale
 from products.models import Product, Category
 from stocks.models import Stocks
-from datetime import datetime, timedelta
+from datetime import datetime
+from django.db.models import Sum, Count
 
 
 def _parse_date_or_none(value):
@@ -22,7 +23,6 @@ def report_dashboard(request):
     end_date = _parse_date_or_none(request.GET.get('end_date'))
     product_q = request.GET.get('product', '').strip()
     category_q = request.GET.get('category', '').strip()
-    stock_type = request.GET.get('stock_type', '').strip()
 
     sales_qs = Sale.objects.select_related('product_sold')
 
@@ -35,8 +35,7 @@ def report_dashboard(request):
     if category_q:
         sales_qs = sales_qs.filter(product_sold__category__name__icontains=category_q)
 
-    # Aggregate per-date summary
-    # Collect the distinct dates in the queryset (by date)
+    # Aggregate per date summary
     date_list = (
         sales_qs
         .values_list('sales_date__date', flat=True)
@@ -50,7 +49,7 @@ def report_dashboard(request):
         total_sales = day_qs.count()
         total_revenue = day_qs.aggregate(total=Sum('total'))['total'] or 0
 
-        # top product for the date
+        # top product of the day
         top = (
             day_qs.values('product_sold__name')
             .annotate(qty=Sum('product_qty'))
@@ -66,12 +65,31 @@ def report_dashboard(request):
             'top_product': top_product,
         })
 
+    # ✅ Compute totals across all filtered sales
+    grand_total_sales = sales_qs.count()
+    grand_total_revenue = sales_qs.aggregate(total=Sum('total'))['total'] or 0
+
+    top_overall = (
+        sales_qs.values('product_sold__name')
+        .annotate(qty=Sum('product_qty'))
+        .order_by('-qty')
+        .first()
+    )
+    grand_top_product = top_overall['product_sold__name'] if top_overall else ''
+
+    totals = {
+        "total_sales": grand_total_sales,
+        "total_revenue": grand_total_revenue,
+        "top_product": grand_top_product,
+    }
+
     # Provide choices for filters
     products = Product.objects.order_by('name')[:200]
     categories = Category.objects.order_by('name')
 
     context = {
         'summaries': summaries,
+        'totals': totals,    # ✅ Added totals
         'products': products,
         'categories': categories,
         'filters': {
@@ -79,7 +97,6 @@ def report_dashboard(request):
             'end_date': end_date,
             'product': product_q,
             'category': category_q,
-            'stock_type': stock_type,
         }
     }
 
