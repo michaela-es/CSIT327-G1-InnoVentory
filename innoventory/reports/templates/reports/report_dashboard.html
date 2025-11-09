@@ -9,7 +9,7 @@
             <p class="text-muted mb-0">Welcome back, {{ request.user.get_full_name|default:request.user.username }}!</p>
         </div>
         <div>
-            <a href="#" class="btn btn-outline-success">Export Excel</a>
+            <a href="{% url 'reports:export_excel' %}" class="btn btn-outline-success">Export Excel</a>
         </div>
     </div>
 
