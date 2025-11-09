@@ -6,7 +6,6 @@
     <div class="d-flex justify-content-between align-items-center mb-2">
         <div>
             <h1>Reports & Analytics</h1>
-            <p class="text-muted mb-0">Welcome back, {{ request.user.get_full_name|default:request.user.username }}!</p>
         </div>
         <div>
             <a href="{% url 'reports:export_excel' %}" class="btn btn-outline-success">Export Excel</a>
