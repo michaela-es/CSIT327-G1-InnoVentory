@@ -2,220 +2,297 @@
 {% load humanize %}
 
 {% block content %}
-
 <div class="container-fluid py-4">
-
-    <div class="row mb-4 d-flex align-items-stretch">
-        <div class="col-md-3 mb-3">
-            <div class="card text-white bg-dark-blue shadow-sm h-100 p-3">
-                <div class="card-body text-center">
-                    <div class="text-uppercase mb-1 fw-bold opacity-75">Total Revenue</div>
-                    <div class="h2 mb-0 fw-bold">₱{{ total_revenue|floatformat:2|intcomma }}</div>
+    <!-- Filters -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body p-3">
+            <form method="get" class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label fw-bold">Start Date</label>
+                    <input type="date" name="start_date" class="form-control" value="{{ filters.start_date }}">
                 </div>
-            </div>
-        </div>
-
-        <div class="col-md-3 mb-3">
-            <div class="card text-white bg-dark-blue shadow-sm h-100 p-3">
-                <div class="card-body text-center">
-                    <div class="text-uppercase mb-1 fw-bold opacity-75">Low Stocks Alerts</div>
-                    <div class="h2 mb-0 fw-bold text-danger">{{ low_stock_count }}</div>
-                    <small class="opacity-75">products</small>
+                <div class="col-md-3">
+                    <label class="form-label fw-bold">End Date</label>
+                    <input type="date" name="end_date" class="form-control" value="{{ filters.end_date }}">
                 </div>
-            </div>
-        </div>
-
-        <div class="col-md-3 mb-3">
-            <div class="card text-white bg-dark-blue shadow-sm h-100 p-3">
-                <div class="card-body text-center">
-                    <div class="text-uppercase mb-1 fw-bold opacity-75">Number of Sales</div>
-                    <div class="h2 mb-0 fw-bold">{{ total_sales_count|intcomma }}</div>
+                <div class="col-md-3">
+                    <label class="form-label fw-bold">Product</label>
+                    <select name="product" class="form-select">
+                        <option value="">All Products</option>
+                        {% for p in products %}
+                            <option value="{{ p.name }}" {% if filters.product == p.name %}selected{% endif %}>{{ p.name }}</option>
+                        {% endfor %}
+                    </select>
                 </div>
-            </div>
-        </div>
-
-        <div class="col-md-3 mb-3">
-            <div class="card text-white bg-dark-blue shadow-sm h-100 p-3">
-                <div class="card-body text-center">
-                    <div class="text-uppercase mb-1 fw-bold opacity-75">Pending Credits</div>
-                    <div class="h2 mb-0 fw-bold text-warning">{{ pending_credits }}</div>
+                <div class="col-md-3">
+                    <label class="form-label fw-bold">Category</label>
+                    <select name="category" class="form-select">
+                        <option value="">All Categories</option>
+                        {% for c in categories %}
+                            <option value="{{ c.name }}" {% if filters.category == c.name %}selected{% endif %}>{{ c.name }}</option>
+                        {% endfor %}
+                    </select>
                 </div>
-            </div>
+                <div class="col-12">
+                    <button type="submit" class="btn btn-primary">Apply Filters</button>
+                    <a href="{% url 'admin_dashboard' %}" class="btn btn-outline-secondary">Clear</a>
+                </div>
+            </form>
         </div>
     </div>
 
-    <div class="row mb-4 d-flex align-items-stretch">
-        <div class="col-md-6 mb-3">
-            <div class="card text-white bg-dark-blue shadow-sm h-100 p-4">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div class="h3 fw-bold mb-0">Sales Trends</div>
-
-                    <div class="dropdown">
-                        <button class="btn btn-light btn-sm dropdown-toggle" data-bs-toggle="dropdown">
-                            Filter
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <li><a class="dropdown-item chart-filter" data-target="salesChart" data-range="7">Last 7 Days</a></li>
-                            <li><a class="dropdown-item chart-filter" data-target="salesChart" data-range="30">Last 30 Days</a></li>
-                            <li><a class="dropdown-item chart-filter" data-target="salesChart" data-range="365">Last 1 Year</a></li>
-                        </ul>
-                    </div>
-                </div>
-
-                <div id="salesChart" class="mt-3" style="height:300px;"></div>
-
-            </div>
-        </div>
-
-
-        <div class="col-md-6 mb-3">
-            <div class="card text-white bg-dark-blue shadow-sm h-100 p-4">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div class="h3 fw-bold mb-0">Stock Movement</div>
-
-                    <div class="dropdown">
-                        <button class="btn btn-light btn-sm dropdown-toggle" data-bs-toggle="dropdown">
-                            Filter
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <li><a class="dropdown-item chart-filter" data-target="stockChart" data-range="7">Last 7 Days</a></li>
-                            <li><a class="dropdown-item chart-filter" data-target="stockChart" data-range="30">Last 30 Days</a></li>
-                            <li><a class="dropdown-item chart-filter" data-target="stockChart" data-range="365">Last 1 Year</a></li>
-                        </ul>
-                    </div>
-                </div>
-
-                <div id="stockChart" class="mt-3" style="height:300px;"></div>
-
-            </div>
-        </div>
-
-    </div>
-
+    <!-- High-Level KPIs -->
     <div class="row mb-4">
-
-        <div class="col-12 mb-3">
-            <div class="card bg-teal-card text-white shadow-sm h-100 p-4">
-                <h3 class="fw-bold mb-3 text-center">Top-Selling Products</h3>
-
-                    {% if top_selling %}
-                        <div class="row">
-                            {% for item in top_selling %}
-                                <div class="col-md-4 mb-3">
-                                    <div class="card bg-dark-blue text-white shadow-sm p-3 h-100">
-                                        <h5 class="fw-bold text-center">
-                                            {{ item.product_sold__name }}
-                                        </h5>
-                                        <p class="text-center mb-0 opacity-75">
-                                            {{ item.total_qty|intcomma }} sold
-                                        </p>
-                                    </div>
-                                </div>
-                            {% endfor %}
+        <div class="col-md-3 mb-3">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0 me-3">
+                            <i class="fas fa-chart-line fa-2x text-primary"></i>
                         </div>
-                    {% else %}
-                        <p class="text-center opacity-75">No sales data available.</p>
-                    {% endif %}
-
+                        <div>
+                            <h6 class="text-muted mb-1">Total Revenue</h6>
+                            <h3 class="mb-0">₱{{ total_revenue|floatformat:2|intcomma }}</h3>
+                            {% if revenue_change > 0 %}
+                                <small class="text-success">+{{ revenue_change|floatformat:1 }}% vs previous period</small>
+                            {% elif revenue_change < 0 %}
+                                <small class="text-danger">{{ revenue_change|floatformat:1 }}% vs previous period</small>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
+        <div class="col-md-3 mb-3">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0 me-3">
+                            <i class="fas fa-shopping-cart fa-2x text-success"></i>
+                        </div>
+                        <div>
+                            <h6 class="text-muted mb-1">Total Sales</h6>
+                            <h3 class="mb-0">{{ total_sales|intcomma }}</h3>
+                            {% if sales_change > 0 %}
+                                <small class="text-success">+{{ sales_change|floatformat:1 }}% vs previous period</small>
+                            {% elif sales_change < 0 %}
+                                <small class="text-danger">{{ sales_change|floatformat:1 }}% vs previous period</small>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0 me-3">
+                            <i class="fas fa-boxes fa-2x text-warning"></i>
+                        </div>
+                        <div>
+                            <h6 class="text-muted mb-1">Products Sold</h6>
+                            <h3 class="mb-0">{{ unique_products|intcomma }}</h3>
+                            <small class="text-warning">{{ low_stock_count }} low stock items</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0 me-3">
+                            <i class="fas fa-credit-card fa-2x text-info"></i>
+                        </div>
+                        <div>
+                            <h6 class="text-muted mb-1">Pending Credits</h6>
+                            <h3 class="mb-0">{{ pending_credits|intcomma }}</h3>
+                            {% if top_category %}
+                                <small class="text-info">Top category: {{ top_category.product_sold__category__name }}</small>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
+    <!-- Charts -->
+    <div class="row mb-4">
+        <div class="col-md-6 mb-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-white">
+                    <h5 class="card-title mb-0">Sales Trend</h5>
+                </div>
+                <div class="card-body">
+                    <div id="salesTrendChart" style="height: 300px;"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-white">
+                    <h5 class="card-title mb-0">Revenue Trend</h5>
+                </div>
+                <div class="card-body">
+                    <div id="revenueTrendChart" style="height: 300px;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Product Performance -->
+    <div class="row mb-4">
+        <div class="col-md-6 mb-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-white">
+                    <h5 class="card-title mb-0">Top Selling Products</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Category</th>
+                                    <th class="text-end">Quantity</th>
+                                    <th class="text-end">Revenue</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for product in top_selling %}
+                                <tr>
+                                    <td>{{ product.product_sold__name }}</td>
+                                    <td><span class="badge bg-light text-dark">{{ product.product_sold__category__name }}</span></td>
+                                    <td class="text-end">{{ product.total_qty|intcomma }}</td>
+                                    <td class="text-end">₱{{ product.total_revenue|floatformat:2|intcomma }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-white">
+                    <h5 class="card-title mb-0">Low Performing Products</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Category</th>
+                                    <th class="text-end">Current Stock</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for product in low_performing %}
+                                <tr>
+                                    <td>{{ product.name }}</td>
+                                    <td><span class="badge bg-light text-dark">{{ product.category__name }}</span></td>
+                                    <td class="text-end">{{ product.stock_quantity|intcomma }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
-
-<style>
-    .bg-dark-blue { background-color: #3a4f63 !important; }
-    .bg-orange-card { background-color: #f4b740 !important; }
-    .bg-teal-card { background-color: #5d8a9b !important; }
-</style>
-
-{% endblock content %}
+{% endblock %}
 
 {% block extra_js %}
-<script src="https://www.gstatic.com/charts/loader.js"></script>
-
-{{ sales_dates|json_script:"sales-dates" }}
-{{ sales_totals|json_script:"sales-totals" }}
-
-{{ stock_dates|json_script:"stock-dates" }}
-{{ stock_in_totals|json_script:"stock-in-totals" }}
-{{ stock_out_totals|json_script:"stock-out-totals" }}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{{ chart_dates|json_script:"chart-dates" }}
+{{ sales_data|json_script:"sales-data" }}
+{{ revenue_data|json_script:"revenue-data" }}
 
 <script>
-google.charts.load('current', {'packages':['corechart']});
-google.charts.setOnLoadCallback(drawCharts);
+document.addEventListener('DOMContentLoaded', function() {
+    const dates = JSON.parse(document.getElementById('chart-dates').textContent);
+    const salesData = JSON.parse(document.getElementById('sales-data').textContent);
+    const revenueData = JSON.parse(document.getElementById('revenue-data').textContent);
 
-function drawCharts() {
-    drawSalesChart();
-    drawStockChart();
-}
+    // Sales Trend Chart
+    new Chart(document.getElementById('salesTrendChart'), {
+        type: 'line',
+        data: {
+            labels: dates,
+            datasets: [{
+                label: 'Number of Sales',
+                data: salesData,
+                borderColor: '#0d6efd',
+                backgroundColor: '#0d6efd20',
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        precision: 0
+                    }
+                }
+            }
+        }
+    });
 
-window.addEventListener('resize', () => {
-    drawSalesChart();
-    drawStockChart();
+    // Revenue Trend Chart
+    new Chart(document.getElementById('revenueTrendChart'), {
+        type: 'line',
+        data: {
+            labels: dates,
+            datasets: [{
+                label: 'Revenue',
+                data: revenueData,
+                borderColor: '#198754',
+                backgroundColor: '#19875420',
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return '₱' + value.toLocaleString();
+                        }
+                    }
+                }
+            }
+        }
+    });
 });
-
-
-function drawStockChart() {
-    const labels = JSON.parse(document.getElementById("stock-dates").textContent);
-    const inValues = JSON.parse(document.getElementById("stock-in-totals").textContent);
-    const outValues = JSON.parse(document.getElementById("stock-out-totals").textContent);
-
-    const data = new google.visualization.DataTable();
-    data.addColumn('string', 'Date');
-    data.addColumn('number', 'Stock In');
-    data.addColumn('number', 'Stock Out');
-
-    labels.forEach((label, i) => {
-        data.addRow([label, Number(inValues[i]), Number(outValues[i])]);
-    });
-
-    const options = {
-        title: 'Stock Movement (In vs Out)',
-        curveType: 'function',
-        legend: { position: 'bottom' },
-        height: 300,
-        backgroundColor: 'transparent',
-        titleTextStyle: { color: '#fff' },
-        legendTextStyle: { color: '#fff' },
-        hAxis: { textStyle: { color: '#fff' } },
-        vAxis: { textStyle: { color: '#fff' } },
-        chartArea: { width: '85%', height: '70%' }
-    };
-
-    new google.visualization.LineChart(document.getElementById('stockChart')).draw(data, options);
-}
-
-
-function drawSalesChart() {
-    const labels = JSON.parse(document.getElementById("sales-dates").textContent);
-    const values = JSON.parse(document.getElementById("sales-totals").textContent);
-
-    const data = new google.visualization.DataTable();
-    data.addColumn('string', 'Date');
-    data.addColumn('number', 'Sales');
-
-    labels.forEach((label, i) => {
-        data.addRow([label, Number(values[i])]);
-    });
-
-    const options = {
-        title: 'Sales Trends',
-        curveType: 'function',
-        legend: { position: 'bottom' },
-        height: 300,
-        backgroundColor: 'transparent',
-        titleTextStyle: { color: '#fff' },
-        legendTextStyle: { color: '#fff' },
-        hAxis: { textStyle: { color: '#fff' } },
-        vAxis: { textStyle: { color: '#fff' } },
-        chartArea: { width: '85%', height: '70%' }
-    };
-
-    new google.visualization.LineChart(document.getElementById('salesChart')).draw(data, options);
-}
-
 </script>
-
-{% endblock extra_js %}
+{% endblock %}
