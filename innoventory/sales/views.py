@@ -174,14 +174,16 @@ def credit_management(request):
                 Q(customer_name__icontains=search_query) | Q(product_sold__name__icontains=search_query)
             )
         
-        overdue_sales = credit_sales.filter(
-            Q(due_date__lt=today) & (Q(balance__gt=0) | Q(balance__isnull=True))
+        overdue_sales_to_update = Sale.objects.filter(
+            sales_type='credit',
+            due_date__lt=today,
+            balance__gt=0
         ).exclude(payment_status='overdue')
-        overdue_sales.update(payment_status='overdue')
+        overdue_sales_to_update.update(payment_status='overdue')
         
         overdue_summary = credit_sales.filter(
             Q(due_date__lt=today) & (Q(balance__gt=0) | Q(balance__isnull=True))
-        )[:6]  # Limit to 6 items
+        )[:6]
         
         for sale in overdue_summary:
             sale.days_overdue = (today - sale.due_date).days
@@ -206,20 +208,22 @@ def credit_management(request):
         
     except Exception as e:
         print(f"Error in credit_management: {str(e)}")
-        credit_sales = Sale.objects.filter(sales_type='credit')[:50]
-        
         today = timezone.now().date()
-        overdue_summary = credit_sales.filter(
+        credit_sales_error = Sale.objects.filter(sales_type='credit')
+        
+        overdue_summary = credit_sales_error.filter(
             Q(due_date__lt=today) & (Q(balance__gt=0) | Q(balance__isnull=True))
         )[:6]
         
         for sale in overdue_summary:
             sale.days_overdue = (today - sale.due_date).days
         
+        credit_sales_error = credit_sales_error[:50]
+        
         context = {
-            'credit_sales': credit_sales,
-            'total_balance': sum(sale.balance or sale.total for sale in credit_sales),
-            'total_receivable': sum(sale.total for sale in credit_sales),
+            'credit_sales': credit_sales_error,
+            'total_balance': sum(sale.balance or sale.total for sale in credit_sales_error),
+            'total_receivable': sum(sale.total for sale in credit_sales_error),
             'overdue_summary': overdue_summary,
             'today': today,
             'error_occurred': True,
@@ -303,10 +307,6 @@ def delete_credit_sale(request, sale_id):
     sale = get_object_or_404(Sale, sale_id=sale_id, sales_type='credit')
     
     if request.method == 'POST':
-        if sale.payment_status not in ['pending', 'partial']:
-            messages.error(request, 'Only pending or partial credit sales can be deleted')
-            return redirect('credit_management')
-        
         customer_name = sale.customer_name or "Unknown Customer"
         
         Stocks.objects.create(
