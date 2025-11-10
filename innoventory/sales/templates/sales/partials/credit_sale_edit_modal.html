@@ -1,0 +1,107 @@
+<div class="modal fade show" style="display: block; background-color: rgba(0,0,0,0.5);">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <form method="post"
+                  action="{{ form_action }}"
+                  hx-post="{{ form_action }}"
+                  hx-target="#modal-container"
+                  hx-swap="innerHTML">
+                {% csrf_token %}
+                <div class="modal-header">
+                    <h5 class="modal-title">{{ modal_title }}</h5>
+                    <button type="button" class="btn-close" aria-label="Close"
+                            onclick="document.getElementById('modal-container').innerHTML = ''"></button>
+                </div>
+                <div class="modal-body p-3" style="max-height: 65vh; overflow-y: auto;">
+                    <div class="mb-3">
+                        <label class="form-label mb-2">Product</label>
+                        <input type="text" class="form-control" value="{{ sale.product_sold.name }}" readonly>
+                        <div class="form-text">Product cannot be changed</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label mb-2">Total Amount</label>
+                        <input type="text" class="form-control" value="₱{{ sale.total|floatformat:2 }}" readonly>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label mb-2">Payment Status</label>
+                        <div class="d-flex gap-2 mb-2">
+                            {% for value, label in form.payment_status.field.choices %}
+                            <button type="button" 
+                                    class="btn {% if sale.payment_status == value %}btn-primary{% else %}btn-outline-primary{% endif %} flex-fill payment-status-btn"
+                                    data-status="{{ value }}">
+                                {{ label }}
+                            </button>
+                            {% endfor %}
+                        </div>
+                        <input type="hidden" name="payment_status" id="id_payment_status" value="{{ sale.payment_status }}">
+                    </div>
+                    
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label mb-2">Customer Name</label>
+                            <input type="text" name="customer_name" value="{{ form.customer_name.value }}" class="form-control">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label mb-2">Customer Contact</label>
+                            <input type="text" name="customer_contact" value="{{ form.customer_contact.value }}" class="form-control">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label mb-2">Due Date</label>
+                    <input type="date" name="due_date" value="{{ form.due_date.value|date:'Y-m-d' }}" class="form-control">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label mb-2">Amount Paid</label>
+                    <input type="number" name="amount_paid" value="{{ form.amount_paid.value }}" step="0.01" class="form-control">
+                    <div class="form-text mt-1">Current Balance: ₱{{ sale.balance|default:sale.total|floatformat:2 }}</div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label mb-2">Payment Notes</label>
+                    <textarea name="payment_notes" class="form-control" rows="3">{{ form.payment_notes.value }}</textarea>
+                </div>
+                <div class="modal-footer py-3">
+                    <button type="button" class="btn btn-secondary"
+                            onclick="document.getElementById('modal-container').innerHTML = ''">Cancel</button>
+                    <button type="submit" class="btn btn-primary">{{ submit_text }}</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('click', function(event) {
+    if (event.target.classList.contains('payment-status-btn')) {
+        const status = event.target.getAttribute('data-status');
+        setPaymentStatus(status);
+    }
+});
+
+function setPaymentStatus(status) {
+    const statusField = document.getElementById('id_payment_status');
+    if (statusField) {
+        statusField.value = status;
+    }
+    
+    const buttons = document.querySelectorAll('.payment-status-btn');
+    buttons.forEach(btn => {
+        const btnStatus = btn.getAttribute('data-status');
+        btn.classList.remove('btn-primary', 'btn-outline-primary');
+        btn.classList.add(status === btnStatus ? 'btn-primary' : 'btn-outline-primary');
+    });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const currentStatus = "{{ sale.payment_status }}";
+    setPaymentStatus(currentStatus);
+});
+</script>

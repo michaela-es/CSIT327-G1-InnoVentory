@@ -1,0 +1,165 @@
+{% extends 'products/base.html' %}
+{% load humanize %}
+
+{% block title %}Credit Management{% endblock %}
+
+{% block content %}
+<div class="container mt-3">
+    {% if error_occurred %}
+    <div class="alert alert-warning">
+        <strong>Note:</strong> Showing basic credit sales information due to a technical issue.
+    </div>
+    {% endif %}
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="mb-1">Credit Management</h1>
+        </div>
+        <div>
+            <a href="{% url 'sales_record' %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Back to Sales
+            </a>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">Credit Sales</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Sale ID</th>
+                            <th>Customer</th>
+                            <th>Product</th>
+                            <th>Quantity</th>
+                            <th>Total Amount</th>
+                            <th>Balance</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for sale in page_obj %}
+                        <tr>
+                            <td>{{ sale.sale_id }}</td>
+                            <td>{{ sale.customer_name|default:"Unknown" }}</td>
+                            <td>{{ sale.product_sold.name }}</td>
+                            <td>{{ sale.product_qty }}</td>
+                            <td class="text-success">₱{{ sale.total|floatformat:2|intcomma }}</td>
+                            <td class="{% if sale.balance > 0 %}text-danger{% else %}text-success{% endif %}">
+                                ₱{{ sale.balance|default:sale.total|floatformat:2|intcomma }}
+                            </td>
+                            <td>
+                                <span class="badge 
+                                    {% if sale.payment_status == 'paid' %}bg-success
+                                    {% elif sale.payment_status == 'overdue' %}bg-danger
+                                    {% elif sale.payment_status == 'partial' %}bg-warning
+                                    {% else %}bg-secondary{% endif %}">
+                                    {{ sale.payment_status|default:"pending"|title }}
+                                </span>
+                            </td>
+                            <td>{{ sale.sales_date|date:"M j, Y" }}</td>
+                            <td>
+                                <button class="btn btn-sm"
+                                        style="background-color: #0d6efd; color: white; width: 30px; height: 30px; padding: 0; font-size: 0.9rem; line-height: 30px; margin-right: 5px;"
+                                        hx-get="{% url 'edit_credit_sale' sale.sale_id %}"
+                                        hx-target="#modal-container"
+                                        hx-trigger="click"
+                                        title="Edit credit sale">
+                                    ✎
+                                </button>
+                                <button class="btn btn-sm"
+                                    style="background-color: #dc3545; color: white; width: 30px; height: 30px; padding: 0; font-size: 1.1rem; line-height: 30px;"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#deleteConfirmModal"
+                                    data-sale-id="{{ sale.sale_id }}"
+                                    data-customer-name="{{ sale.customer_name|default:'Unknown Customer' }}"
+                                    data-item-type="credit_sale"
+                                    title="Delete credit sale">
+                                    ×
+                                </button>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="9" class="text-center py-4 text-muted">
+                                No credit sales found.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Summary -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Overdue Credits Summary</h5>
+                </div>
+                <div class="card-body">
+                    {% if overdue_summary %}
+                    <div class="row">
+                        {% for sale in overdue_summary %}
+                        <div class="col-md-6 col-lg-4 mb-3">
+                            <div class="card h-100 border-danger">
+                                <div class="card-body">
+                                    <h6 class="card-title text-danger">{{ sale.customer_name|default:"Unknown Customer" }}</h6>
+                                    <p class="card-text mb-1">
+                                        <strong>Balance Due:</strong> ₱{{ sale.balance|default:sale.total|floatformat:2|intcomma }}
+                                    </p>
+                                    <p class="card-text mb-1">
+                                        <strong>Due Date:</strong> {{ sale.due_date|date:"m/d/Y" }}
+                                    </p>
+                                    <p class="card-text mb-0">
+                                        <strong>Days Overdue:</strong> 
+                                        <span class="badge bg-danger">
+                                            {{ sale.days_overdue }} day{{ sale.days_overdue|pluralize }} overdue
+                                        </span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="text-muted mb-0">No overdue credits at this time.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="modal-container"></div>
+    {% include 'products/partials/delete_confirm_modal.html' %}
+
+    {% if page_obj.has_other_pages %}
+    <nav aria-label="Page navigation" class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+            </li>
+            {% endif %}
+            
+            {% for num in page_obj.paginator.page_range %}
+            <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+            </li>
+            {% endfor %}
+            
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+{% endblock %}

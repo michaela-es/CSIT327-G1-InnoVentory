@@ -1,8 +1,11 @@
-
 <div class="modal fade show" style="display: block; background-color: rgba(0,0,0,0.5);">
   <div class="modal-dialog modal-lg modal-dialog-centered">
     <div class="modal-content">
-      <form method="post" action="{{ form_action }}">
+      <form method="post" 
+            action="{{ form_action }}"
+            hx-post="{{ form_action }}"
+            hx-target="#modal-container"
+            hx-swap="innerHTML">
         {% csrf_token %}
         <div class="modal-header">
           <h5 class="modal-title">{{ modal_title }}</h5>
@@ -38,8 +41,21 @@
         </div>
 
         <div class="mb-3">
-          {{ form.sales_type.label_tag }}
+          <label for="id_sales_type" class="form-label">Sales Type:</label>
           {{ form.sales_type }}
+        </div>
+
+        <div id="credit-fields" style="display: none; border-left: 3px solid #0d6efd; padding-left: 15px; background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 10px 0;">
+          <h6>Credit Information</h6>
+          <div class="mb-3">
+            <label for="id_due_date" class="form-label">Due Date:</label>
+            <input type="date" name="due_date" id="id_due_date" class="form-control">
+          </div>
+          <div class="mb-3">
+            <label for="id_customer_name" class="form-label">Customer Name:</label>
+            <input type="text" name="customer_name" id="id_customer_name" class="form-control" 
+                   placeholder="Enter customer name">
+          </div>
         </div>
 
         <div id="combined-container">
@@ -51,7 +67,6 @@
             <label for="id_total" class="form-label">Total:</label>
             <input type="number" name="total" value="0" step="0.01" class="form-control" id="id_total" disabled>
           </div>
-
         </div>
 
         </div>
@@ -69,4 +84,20 @@
 function closeModal() {
     document.getElementById('modal-container').innerHTML = '';
 }
+
+function toggleCreditFields() {
+    const salesTypeSelect = document.getElementById('id_sales_type');
+    const creditFields = document.getElementById('credit-fields');
+    if (salesTypeSelect && creditFields) {
+        creditFields.style.display = salesTypeSelect.value === 'credit' ? 'block' : 'none';
+    }
+}
+
+setTimeout(() => {
+    const salesTypeSelect = document.getElementById('id_sales_type');
+    if (salesTypeSelect) {
+        salesTypeSelect.addEventListener('change', toggleCreditFields);
+        toggleCreditFields();
+    }
+}, 100);
 </script>
