@@ -179,6 +179,13 @@ def credit_management(request):
         ).exclude(payment_status='overdue')
         overdue_sales.update(payment_status='overdue')
         
+        overdue_summary = credit_sales.filter(
+            Q(due_date__lt=today) & (Q(balance__gt=0) | Q(balance__isnull=True))
+        )[:6]  # Limit to 6 items
+        
+        for sale in overdue_summary:
+            sale.days_overdue = (today - sale.due_date).days
+        
         total_balance = sum(sale.balance or sale.total for sale in credit_sales)
         total_receivable = sum(sale.total for sale in credit_sales)
         
@@ -192,19 +199,29 @@ def credit_management(request):
             'search_query': search_query,
             'total_balance': total_balance,
             'total_receivable': total_receivable,
+            'overdue_summary': overdue_summary, 
             'today': today,
         }
         return render(request, 'sales/credit_management.html', context)
         
     except Exception as e:
         print(f"Error in credit_management: {str(e)}")
-        credit_sales = Sale.objects.filter(sales_type='credit')[:50]  # Limit to prevent huge queries
+        credit_sales = Sale.objects.filter(sales_type='credit')[:50]
+        
+        today = timezone.now().date()
+        overdue_summary = credit_sales.filter(
+            Q(due_date__lt=today) & (Q(balance__gt=0) | Q(balance__isnull=True))
+        )[:6]
+        
+        for sale in overdue_summary:
+            sale.days_overdue = (today - sale.due_date).days
         
         context = {
             'credit_sales': credit_sales,
             'total_balance': sum(sale.balance or sale.total for sale in credit_sales),
             'total_receivable': sum(sale.total for sale in credit_sales),
-            'today': timezone.now().date(),
+            'overdue_summary': overdue_summary,
+            'today': today,
             'error_occurred': True,
         }
         return render(request, 'sales/credit_management.html', context)
