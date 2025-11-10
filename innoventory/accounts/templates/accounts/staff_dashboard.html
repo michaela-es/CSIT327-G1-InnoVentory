@@ -1,12 +1,359 @@
-{% extends 'products/base.html' %}
+{% extends 'base.html' %}
+{% load humanize %}
 
-<div style="padding: 20px; background: #f0f0f0; border-radius: 10px;">
-<!--    <h2>📦 Staff Dashboard (Test)</h2>-->
-<!--    <p>You have staff privileges!</p>-->
-<!--    <ul>-->
-<!--        <a href="{% url 'product_list' %}">Manage Inventory</a>-->
-<!--        <li>Process Orders</li>-->
-<!--        <li>Customer Management</li>-->
-<!--    </ul>-->
-    <p>HELLO HELLO HELLO HELLO HELLO HELLO HELLO HELLO HELLO HELLO HELLO HELLO HELLO HELLO HELLO </p>
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0 me-3">
+                            <i class="fas fa-cash-register fa-2x text-success"></i>
+                        </div>
+                        <div>
+                            <h6 class="text-muted mb-1">Today's Sales</h6>
+                            <h3 class="mb-0">{{ today_sales_count }}</h3>
+                            {% if sales_change > 0 %}
+                                <small class="text-success">+{{ sales_change|floatformat:1 }}% vs yesterday</small>
+                            {% elif sales_change < 0 %}
+                                <small class="text-danger">{{ sales_change|floatformat:1 }}% vs yesterday</small>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0 me-3">
+                            <i class="fas fa-chart-line fa-2x text-primary"></i>
+                        </div>
+                        <div>
+                            <h6 class="text-muted mb-1">Today's Revenue</h6>
+                            <h3 class="mb-0">₱{{ today_revenue|floatformat:2|intcomma }}</h3>
+                            {% if revenue_change > 0 %}
+                                <small class="text-success">+{{ revenue_change|floatformat:1 }}% vs yesterday</small>
+                            {% elif revenue_change < 0 %}
+                                <small class="text-danger">{{ revenue_change|floatformat:1 }}% vs yesterday</small>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0 me-3">
+                            <i class="fas fa-exclamation-triangle fa-2x text-warning"></i>
+                        </div>
+                        <div>
+                            <h6 class="text-muted mb-1">Stock Alerts</h6>
+                            <h3 class="mb-0">{{ low_stock_count }}</h3>
+                            <small class="text-warning">{{ out_of_stock }} out of stock</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0 me-3">
+                            <i class="fas fa-credit-card fa-2x text-info"></i>
+                        </div>
+                        <div>
+                            <h6 class="text-muted mb-1">Pending Credits</h6>
+                            <h3 class="mb-0">{{ pending_credits|length }}</h3>
+                            <small class="text-info">Need attention</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row mb-4">
+        <div class="col-md-6 col-lg-3 mb-3">
+            <a href="{% url 'sales_record' %}" class="text-decoration-none">
+                <div class="card shadow-sm border-0 h-100">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-shrink-0 me-3">
+                                <i class="fas fa-plus-circle fa-2x text-success"></i>
+                            </div>
+                            <div>
+                                <h6 class="text-muted mb-1">New Sale</h6>
+                                <p class="small mb-0">Record a new sale</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-md-6 col-lg-3 mb-3">
+            <a href="{% url 'sales_record' %}" class="text-decoration-none">
+                <div class="card shadow-sm border-0 h-100">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-shrink-0 me-3">
+                                <i class="fas fa-history fa-2x text-info"></i>
+                            </div>
+                            <div>
+                                <h6 class="text-muted mb-1">Sales History</h6>
+                                <p class="small mb-0">View all transactions</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-md-6 col-lg-3 mb-3">
+            <a href="{% url 'product_list' %}" class="text-decoration-none">
+                <div class="card shadow-sm border-0 h-100">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-shrink-0 me-3">
+                                <i class="fas fa-box fa-2x text-primary"></i>
+                            </div>
+                            <div>
+                                <h6 class="text-muted mb-1">Inventory</h6>
+                                <p class="small mb-0">Manage products</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-md-6 col-lg-3 mb-3">
+            <a href="{% url 'stock_transactions' %}" class="text-decoration-none">
+                <div class="card shadow-sm border-0 h-100">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-shrink-0 me-3">
+                                <i class="fas fa-exchange-alt fa-2x text-warning"></i>
+                            </div>
+                            <div>
+                                <h6 class="text-muted mb-1">Stock Updates</h6>
+                                <p class="small mb-0">Track stock changes</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+    <div class="row mb-4">
+        <div class="col-md-6 mb-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-white">
+                    <h5 class="card-title mb-0">Today's Sales Trend</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="salesTrendChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-white">
+                    <h5 class="card-title mb-0">Revenue Trend</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="revenueTrendChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-6 mb-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-exclamation-triangle text-warning me-2"></i>
+                        Low Stock Items
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-sm mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Category</th>
+                                    <th class="text-end">Stock</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for product in low_stock_products %}
+                                <tr>
+                                    <td>{{ product.name }}</td>
+                                    <td>
+                                        <span class="badge bg-light text-dark">
+                                            {{ product.category.name }}
+                                        </span>
+                                    </td>
+                                    <td class="text-end">{{ product.stock_quantity }}</td>
+                                    <td class="text-end">
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted">No low stock items</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-clock text-info me-2"></i>
+                        Recent Activity
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-sm mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Activity</th>
+                                    <th>Details</th>
+                                    <th>Time</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for sale in recent_sales %}
+                                <tr>
+                                    <td>
+                                        <i class="fas fa-shopping-cart text-success me-2"></i>
+                                        Sale
+                                    </td>
+                                    <td>{{ sale.product_sold.name }}</td>
+                                    <td>{{ sale.sales_date|naturaltime }}</td>
+                                </tr>
+                                {% endfor %}
+                                {% for stock in recent_stocks %}
+                                <tr>
+                                    <td>
+                                        <i class="fas fa-box text-primary me-2"></i>
+                                        Stock
+                                    </td>
+                                    <td>{{ stock.product.name }}</td>
+                                    <td>{{ stock.date|naturaltime }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+{{ chart_dates|json_script:"chart-dates" }}
+{{ sales_data|json_script:"sales-data" }}
+{{ revenue_data|json_script:"revenue-data" }}
+{% endblock %}
+
+{% block extra_js %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+
+    // Charts
+    const chartDates = JSON.parse(document.getElementById('chart-dates').textContent);
+    const salesData = JSON.parse(document.getElementById('sales-data').textContent);
+    const revenueData = JSON.parse(document.getElementById('revenue-data').textContent);
+
+    // Sales Trend Chart
+    new Chart(document.getElementById('salesTrendChart'), {
+        type: 'line',
+        data: {
+            labels: chartDates,
+            datasets: [{
+                label: 'Number of Sales',
+                data: salesData,
+                borderColor: '#0d6efd',
+                backgroundColor: '#0d6efd20',
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        precision: 0
+                    }
+                }
+            }
+        }
+    });
+
+    // Revenue Trend Chart
+    new Chart(document.getElementById('revenueTrendChart'), {
+        type: 'line',
+        data: {
+            labels: chartDates,
+            datasets: [{
+                label: 'Revenue',
+                data: revenueData,
+                borderColor: '#198754',
+                backgroundColor: '#19875420',
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return '₱' + value.toLocaleString();
+                        }
+                    }
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

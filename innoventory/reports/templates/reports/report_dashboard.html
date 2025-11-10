@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block content %}
+<div class="container mt-3">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <div>
+            <h1>Reports & Analytics</h1>
+        </div>
+        <div>
+            <a href="{% url 'reports:export_excel' %}" class="btn btn-outline-success">Export Excel</a>
+        </div>
+    </div>
+
+    <div style="background-color: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,.05); margin-bottom: 20px;">
+        <h5 class="mb-2" style="font-weight: 500;"><span class="me-2">🔍︎</span>Filters</h5>
+
+        <form method="get">
+            <div class="row g-3 mb-3">
+                <div class="col-md-3">
+                    <label class="form-label" style="font-weight: 500;">From</label>
+                    <input type="date" name="start_date" class="form-control" value="{{ filters.start_date|date:'Y-m-d' }}">
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label" style="font-weight: 500;">To</label>
+                    <input type="date" name="end_date" class="form-control" value="{{ filters.end_date|date:'Y-m-d' }}">
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label" style="font-weight: 500;">Product</label>
+                    <select name="product" class="form-select">
+                        <option value="">All Products</option>
+                        {% for p in products %}
+                            <option value="{{ p.name }}" {% if filters.product == p.name %}selected{% endif %}>
+                                {{ p.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label" style="font-weight: 500;">Category</label>
+                    <select name="category" class="form-select">
+                        <option value="">All Categories</option>
+                        {% for c in categories %}
+                            <option value="{{ c.name }}" {% if filters.category == c.name %}selected{% endif %}>{{ c.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="d-flex align-items-center">
+                <button type="submit" class="btn btn-primary me-3">Apply Filters</button>
+                <a href="{% url 'reports:dashboard' %}" class="text-decoration-none" style="color: #6c757d; font-weight: 500;">✕ Clear Filters</a>
+            </div>
+        </form>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mb-2 mt-4">
+        <h5 style="font-weight: 600; color: #333;">Summary Table</h5>
+        <span class="text-muted small">Showing {{ summaries|length }} rows</span>
+    </div>
+
+    <div style="background-color: white; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.08); overflow-x: auto;">
+        <table class="table align-middle mb-0">
+            <thead>
+                <tr style="background-color: #f8f9fa;">
+                    <th style="width:160px; font-weight:600;">Date</th>
+                    <th style="font-weight:600;">Total Sales</th>
+                    <th style="font-weight:600;">Total Revenue</th>
+                    <th style="font-weight:600;">Top Product</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if summaries %}
+                    {% for s in summaries %}
+                        <tr>
+                            <td>{{ s.date }}</td>
+                            <td>{{ s.total_sales }} sales</td>
+                            <td>₱{{ s.total_revenue|floatformat:2|intcomma }}</td>
+                            <td>{{ s.top_product }}</td>
+                        </tr>
+                    {% endfor %}
+
+                <tr style="background-color:#343a40; color:white; font-weight:700;">
+                    <td>Total</td>
+                    <td>{{ totals.total_sales }} sales</td>
+                    <td>₱{{ totals.total_revenue|floatformat:2|intcomma }}</td>
+                    <td>—</td>
+                </tr>
+
+                {% else %}
+                    <tr>
+                        <td colspan="4" class="text-center py-4">No data for the selected filters.</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+
+</div>
+{% endblock %}
