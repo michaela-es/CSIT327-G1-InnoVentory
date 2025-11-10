@@ -10,10 +10,10 @@ class Sale(models.Model):
     ]
     
     PAYMENT_STATUS_CHOICES = [
-        ('pending', '● Pending'),
-        ('paid', '● Paid'),
-        ('overdue', '● Overdue'),
-        ('partial', '● Partial'),
+        ('pending', 'Pending'),
+        ('paid', 'Paid'),
+        ('overdue', 'Overdue'),
+        ('partial', 'Partial'),
     ]
 
     sale_id = models.AutoField(primary_key=True)

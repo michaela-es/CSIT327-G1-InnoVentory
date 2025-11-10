@@ -9,4 +9,5 @@ urlpatterns = [
     path('credits/', views.credit_management, name='credit_management'),
     path('credits/payment/<int:sale_id>/', views.record_payment, name='record_payment'),
     path('credits/delete/<int:sale_id>/', views.delete_credit_sale, name='delete_credit_sale'),
+    path('credits/edit/<int:sale_id>/', views.edit_credit_sale_modal, name='edit_credit_sale'),
 ]

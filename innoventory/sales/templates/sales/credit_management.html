@@ -22,7 +22,6 @@
         </div>
     </div>
 
-    <!-- Credit Sales List -->
     <div class="card">
         <div class="card-header">
             <h5 class="mb-0">Credit Sales</h5>
@@ -64,6 +63,14 @@
                             </td>
                             <td>{{ sale.sales_date|date:"M j, Y" }}</td>
                             <td>
+                                <button class="btn btn-sm"
+                                        style="background-color: #0d6efd; color: white; width: 30px; height: 30px; padding: 0; font-size: 0.9rem; line-height: 30px; margin-right: 5px;"
+                                        hx-get="{% url 'edit_credit_sale' sale.sale_id %}"
+                                        hx-target="#modal-container"
+                                        hx-trigger="click"
+                                        title="Edit credit sale">
+                                    ✎
+                                </button>
                                 {% if sale.payment_status in 'pending partial' %}
                                 <button class="btn btn-sm"
                                     style="background-color: #dc3545; color: white; width: 30px; height: 30px; padding: 0; font-size: 1.1rem; line-height: 30px;"
@@ -82,7 +89,7 @@
                         </tr>
                         {% empty %}
                         <tr>
-                            <td colspan="8" class="text-center py-4 text-muted">
+                            <td colspan="9" class="text-center py-4 text-muted">
                                 No credit sales found.
                             </td>
                         </tr>
@@ -132,7 +139,7 @@
             </div>
         </div>
     </div>
-
+    <div id="modal-container"></div>
     {% include 'products/partials/delete_confirm_modal.html' %}
 
     {% if page_obj.has_other_pages %}

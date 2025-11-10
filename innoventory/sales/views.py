@@ -322,3 +322,37 @@ def delete_credit_sale(request, sale_id):
     
     messages.error(request, 'Invalid request method.')
     return redirect('credit_management')
+
+@login_required
+def edit_credit_sale_modal(request, sale_id):
+    sale = get_object_or_404(Sale, sale_id=sale_id, sales_type='credit')
+    
+    if request.method == 'POST':
+        form = SaleForm(request.POST, instance=sale)
+        if form.is_valid():
+            updated_sale = form.save(commit=False)
+            
+            if 'amount_paid' in form.changed_data:
+                updated_sale.balance = updated_sale.total - updated_sale.amount_paid
+            
+            updated_sale.save()
+            
+            return HttpResponse('''
+                <script>
+                    document.getElementById("modal-container").innerHTML = "";
+                    window.location.reload();
+                </script>
+            ''')
+        else:
+            print("Form errors:", form.errors)
+    else:
+        form = SaleForm(instance=sale)
+    
+    context = {
+        'form': form,
+        'sale': sale,
+        'modal_title': 'Edit Credit Sale',
+        'form_action': f'/sales/credits/edit/{sale.sale_id}/',
+        'submit_text': 'Update Credit Sale'
+    }
+    return render(request, 'sales/partials/credit_sale_edit_modal.html', context)
