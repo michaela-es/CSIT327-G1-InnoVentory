@@ -79,19 +79,39 @@
 
     <!-- Summary -->
     <div class="row mt-4">
-        <div class="col-md-6">
-            <div class="card bg-primary text-white">
-                <div class="card-body">
-                    <h6>Total Credit Sales</h6>
-                    <h3>₱{{ total_receivable|default:0|floatformat:2|intcomma }}</h3>
+        <div class="col-12">
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Overdue Credits Summary</h5>
                 </div>
-            </div>
-        </div>
-        <div class="col-md-6">
-            <div class="card bg-warning text-white">
                 <div class="card-body">
-                    <h6>Outstanding Balance</h6>
-                    <h3>₱{{ total_balance|default:0|floatformat:2|intcomma }}</h3>
+                    {% if overdue_summary %}
+                    <div class="row">
+                        {% for sale in overdue_summary %}
+                        <div class="col-md-6 col-lg-4 mb-3">
+                            <div class="card h-100 border-danger">
+                                <div class="card-body">
+                                    <h6 class="card-title text-danger">{{ sale.customer_name|default:"Unknown Customer" }}</h6>
+                                    <p class="card-text mb-1">
+                                        <strong>Balance Due:</strong> ₱{{ sale.balance|default:sale.total|floatformat:2|intcomma }}
+                                    </p>
+                                    <p class="card-text mb-1">
+                                        <strong>Due Date:</strong> {{ sale.due_date|date:"m/d/Y" }}
+                                    </p>
+                                    <p class="card-text mb-0">
+                                        <strong>Days Overdue:</strong> 
+                                        <span class="badge bg-danger">
+                                            {{ sale.days_overdue }} day{{ sale.days_overdue|pluralize }} overdue
+                                        </span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="text-muted mb-0">No overdue credits at this time.</p>
+                    {% endif %}
                 </div>
             </div>
         </div>
