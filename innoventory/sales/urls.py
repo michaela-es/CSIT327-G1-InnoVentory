@@ -8,4 +8,5 @@ urlpatterns = [
     path('calculate-total/', views.calculate_total, name='calculate_total'),
     path('credits/', views.credit_management, name='credit_management'),
     path('credits/payment/<int:sale_id>/', views.record_payment, name='record_payment'),
+    path('credits/delete/<int:sale_id>/', views.delete_credit_sale, name='delete_credit_sale'),
 ]

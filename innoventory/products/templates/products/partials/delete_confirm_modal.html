@@ -30,12 +30,23 @@
         deleteModal.addEventListener('show.bs.modal', function(event) {
             const button = event.relatedTarget;
             const itemType = button.getAttribute('data-item-type') || 'product';
-            const itemName = button.getAttribute('data-product-name') || button.getAttribute('data-item-name');
+            const itemName = button.getAttribute('data-product-name') || 
+                            button.getAttribute('data-item-name') || 
+                            button.getAttribute('data-customer-name');
             
             let deleteUrl = "";
             let modalTitle = deleteModal.querySelector('.modal-title');
             
-            if (itemType === 'transaction') {
+            if (itemType === 'credit_sale') {
+                const saleId = button.getAttribute('data-sale-id');
+                deleteUrl = "{% url 'delete_credit_sale' 0 %}".replace('0', saleId);
+                deleteItemName.innerHTML = `credit sale for <strong>${itemName}</strong>`;
+                modalTitle.textContent = 'Delete Credit Sale';
+                const warningText = `<p class="text-warning mt-2"><small>Note: Product stock will be restored automatically.</small></p>`;
+                if (!deleteModal.querySelector('.text-warning')) {
+                    deleteModal.querySelector('.modal-body').insertAdjacentHTML('beforeend', warningText);
+                }
+            } else if (itemType === 'transaction') {
                 const transactionId = button.getAttribute('data-transaction-id');
                 deleteUrl = "{% url 'delete_transaction' 0 %}".replace('0', transactionId);
                 deleteItemName.innerHTML = `this transaction for <strong>${itemName}</strong>`;

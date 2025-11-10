@@ -7,6 +7,8 @@ from django.core.paginator import Paginator
 from django.db.models import Sum, Q
 from django.utils import timezone
 import json
+from django.contrib import messages
+
 
 from products.models import Product
 from .forms import SaleForm
@@ -278,3 +280,28 @@ def sale_modal(request, sale_id=None):
         'submit_text': 'Update Sale' if sale else 'Submit Sale',
     }
     return render(request, 'sales/partials/sale_modal.html', context)
+
+@login_required
+def delete_credit_sale(request, sale_id):
+    sale = get_object_or_404(Sale, sale_id=sale_id, sales_type='credit')
+    
+    if request.method == 'POST':
+        if sale.payment_status not in ['pending', 'partial']:
+            messages.error(request, 'Only pending or partial credit sales can be deleted')
+            return redirect('credit_management')
+        
+        customer_name = sale.customer_name or "Unknown Customer"
+        
+        Stocks.objects.create(
+            product=sale.product_sold,
+            qty=sale.product_qty,
+            type=Stocks.IN,
+            remarks=f"CREDIT SALE DELETED - Sale ID: {sale.sale_id}"
+        )
+        
+        sale.delete()
+        messages.success(request, f'Credit sale for {customer_name} deleted successfully!')
+        return redirect('credit_management')
+    
+    messages.error(request, 'Invalid request method.')
+    return redirect('credit_management')

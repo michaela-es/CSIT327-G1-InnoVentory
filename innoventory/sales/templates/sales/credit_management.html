@@ -63,6 +63,22 @@
                                 </span>
                             </td>
                             <td>{{ sale.sales_date|date:"M j, Y" }}</td>
+                            <td>
+                                {% if sale.payment_status in 'pending partial' %}
+                                <button class="btn btn-sm"
+                                    style="background-color: #dc3545; color: white; width: 30px; height: 30px; padding: 0; font-size: 1.1rem; line-height: 30px;"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#deleteConfirmModal"
+                                    data-sale-id="{{ sale.sale_id }}"
+                                    data-customer-name="{{ sale.customer_name|default:'Unknown Customer' }}"
+                                    data-item-type="credit_sale"
+                                    title="Delete credit sale">
+                                    ×
+                                </button>
+                                {% else %}
+                                <span class="text-muted">—</span>
+                                {% endif %}
+                            </td>
                         </tr>
                         {% empty %}
                         <tr>
@@ -116,6 +132,8 @@
             </div>
         </div>
     </div>
+
+    {% include 'products/partials/delete_confirm_modal.html' %}
 
     {% if page_obj.has_other_pages %}
     <nav aria-label="Page navigation" class="mt-4">
