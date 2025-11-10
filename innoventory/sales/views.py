@@ -32,11 +32,21 @@ def create_sale(request):
                 'sold_by': request.user,
             }
             
-            # setting initial balance
             if sales_type == 'credit':
                 sale_data['balance'] = total
                 sale_data['amount_paid'] = 0
                 sale_data['payment_status'] = 'pending'
+                
+                # Convert due_date string to date object
+                due_date_str = request.POST.get('due_date')
+                if due_date_str:
+                    try:
+                        from datetime import datetime
+                        sale_data['due_date'] = datetime.strptime(due_date_str, '%Y-%m-%d').date()
+                    except (ValueError, TypeError):
+                        sale_data['due_date'] = None
+                
+                sale_data['customer_name'] = request.POST.get('customer_name', '')
             
             sale = Sale.objects.create(**sale_data)
 
@@ -129,65 +139,49 @@ def calculate_total(request):
 @login_required
 def credit_management(request):
     try:
-        credit_sales = Sale.objects.filter(sales_type='credit').select_related('product_sold').order_by('-sales_date')
+        credit_sales = Sale.objects.filter(sales_type='credit').select_related('product_sold')
         
         status_filter = request.GET.get('status', 'all')
         due_date_filter = request.GET.get('due_date', '')
         search_query = request.GET.get('search', '')
+        today = timezone.now().date()
         
-        if status_filter == 'active':
-            credit_sales = credit_sales.filter(
-                Q(payment_status__in=['pending', 'partial']) | 
-                Q(payment_status__isnull=True)
-            )
-        elif status_filter == 'overdue':
-            credit_sales = credit_sales.filter(payment_status='overdue')
+        status_filters = {
+            'active': Q(payment_status__in=['pending', 'partial']) | Q(payment_status__isnull=True),
+            'overdue': Q(payment_status='overdue'),
+        }
+        if status_filter in status_filters:
+            credit_sales = credit_sales.filter(status_filters[status_filter])
         elif status_filter != 'all':
             credit_sales = credit_sales.filter(payment_status=status_filter)
         
-        today = timezone.now().date()
-        if due_date_filter:
-            if due_date_filter == 'today':
-                credit_sales = credit_sales.filter(due_date=today)
-            elif due_date_filter == 'week':
-                end_date = today + timezone.timedelta(days=7)
-                credit_sales = credit_sales.filter(due_date__range=[today, end_date])
-            elif due_date_filter == 'month':
-                end_date = today + timezone.timedelta(days=30)
-                credit_sales = credit_sales.filter(due_date__range=[today, end_date])
-            elif due_date_filter == 'overdue':
-                credit_sales = credit_sales.filter(
-                    Q(due_date__lt=today) & 
-                    (Q(balance__gt=0) | Q(balance__isnull=True))
-                )
+        due_date_ranges = {
+            'today': [today, today],
+            'week': [today, today + timezone.timedelta(days=7)],
+            'month': [today, today + timezone.timedelta(days=30)],
+            'overdue': Q(due_date__lt=today) & (Q(balance__gt=0) | Q(balance__isnull=True))
+        }
+        if due_date_filter in due_date_ranges:
+            if due_date_filter == 'overdue':
+                credit_sales = credit_sales.filter(due_date_ranges[due_date_filter])
+            else:
+                credit_sales = credit_sales.filter(due_date__range=due_date_ranges[due_date_filter])
         
         if search_query:
             credit_sales = credit_sales.filter(
-                Q(customer_name__icontains=search_query) |
-                Q(product_sold__name__icontains=search_query)
+                Q(customer_name__icontains=search_query) | Q(product_sold__name__icontains=search_query)
             )
         
         overdue_sales = credit_sales.filter(
-            Q(due_date__lt=today) & 
-            (Q(balance__gt=0) | Q(balance__isnull=True))
+            Q(due_date__lt=today) & (Q(balance__gt=0) | Q(balance__isnull=True))
         ).exclude(payment_status='overdue')
+        overdue_sales.update(payment_status='overdue')
         
-        for sale in overdue_sales:
-            sale.payment_status = 'overdue'
-            sale.save()
+        total_balance = sum(sale.balance or sale.total for sale in credit_sales)
+        total_receivable = sum(sale.total for sale in credit_sales)
         
-        total_balance = 0
-        total_receivable = 0
-        
-        for sale in credit_sales:
-            total_receivable += sale.total
-            # Handle None balance values
-            balance = sale.balance if sale.balance is not None else sale.total
-            total_balance += balance
-        
-        paginator = Paginator(credit_sales, 10)
-        page_number = request.GET.get('page')
-        page_obj = paginator.get_page(page_number)
+        paginator = Paginator(credit_sales.order_by('-sales_date'), 10)
+        page_obj = paginator.get_page(request.GET.get('page'))
         
         context = {
             'page_obj': page_obj,
@@ -222,38 +216,25 @@ def record_payment(request, sale_id):
         payment_date = request.POST.get('payment_date')
         payment_notes = request.POST.get('payment_notes', '')
         
-        if payment_amount > 0 and payment_amount <= sale.balance:
+        if 0 < payment_amount <= sale.balance:
             sale.amount_paid += payment_amount
             sale.balance = sale.total - sale.amount_paid
             
-            if payment_notes:
-                note_entry = f"{payment_date} - Payment: ₱{payment_amount} - {payment_notes}"
-                if sale.payment_notes:
-                    sale.payment_notes += f"\n{note_entry}"
-                else:
-                    sale.payment_notes = note_entry
+            note_entry = f"{payment_date} - Payment: ₱{payment_amount} - {payment_notes}"
+            sale.payment_notes = f"{sale.payment_notes}\n{note_entry}".strip() if sale.payment_notes else note_entry
             
             sale.save()
             
-            return HttpResponse(
-                status=204,
-                headers={
-                    'HX-Trigger': json.dumps({
-                        "creditListChanged": None,
-                        "showMessage": f"Payment of ₱{payment_amount} recorded successfully"
-                    })
-                }
-            )
-        else:
-            return JsonResponse({
-                'success': False,
-                'message': 'Invalid payment amount'
+            return HttpResponse(status=204, headers={
+                'HX-Trigger': json.dumps({
+                    "creditListChanged": None,
+                    "showMessage": f"Payment of ₱{payment_amount} recorded successfully"
+                })
             })
+        
+        return JsonResponse({'success': False, 'message': 'Invalid payment amount'})
     
-    return render(request, 'sales/partials/payment_modal.html', {
-        'sale': sale,
-        'today': timezone.now().date()
-    })
+    return render(request, 'sales/partials/payment_modal.html', {'sale': sale, 'today': timezone.now().date()})
 
 @login_required
 def sale_modal(request, sale_id=None):
