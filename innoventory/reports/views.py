@@ -179,7 +179,6 @@ def report_dashboard(request):
             'top_product': top_product,
         })
 
-    # ✅ Compute totals across all filtered sales
     grand_total_sales = sales_qs.count()
     grand_total_revenue = sales_qs.aggregate(total=Sum('total'))['total'] or 0
 
