@@ -1,3 +1,5 @@
+from datetime import date
+
 from django.db import models
 from django.conf import settings
 from products.models import Product
@@ -60,6 +62,22 @@ class Sale(models.Model):
                 self.payment_status = 'overdue'
         
         super().save(*args, **kwargs)
+
+    @property
+    def days_overdue(self):
+        if not self.due_date or self.balance <= 0:
+            return None
+        today = date.today()
+        if self.due_date > today:
+            return None  # Not overdue yet
+        delta = today - self.due_date
+        return delta.days
+
+    @property
+    def is_overdue(self):
+        if not self.due_date or self.balance <= 0:
+            return False
+        return self.due_date < date.today()
 
     def __str__(self):
         return f"Sale {self.sale_id} - {self.product_sold.name} x {self.product_qty}"

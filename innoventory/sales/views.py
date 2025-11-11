@@ -349,7 +349,6 @@ def edit_credit_sale_modal(request, sale_id):
     }
     return render(request, 'sales/partials/credit_sale_edit_modal.html', context)
 
-
 @login_required
 def overdue_credits_modal(request):
     today = timezone.now().date()
@@ -359,7 +358,7 @@ def overdue_credits_modal(request):
     })
 
 
-@login_required()
+@login_required
 @require_POST
 def quick_paid(request, sale_id):
     sale = get_object_or_404(Sale, pk=sale_id)
@@ -369,6 +368,11 @@ def quick_paid(request, sale_id):
     sale.save()
 
     if request.headers.get("HX-Request"):
-        return render(request, "sales/partials/sale_paid_row.html", {"sale": sale})
+        return HttpResponse('''
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                Credit marked as paid successfully!
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        ''')
 
     return JsonResponse({"success": True})

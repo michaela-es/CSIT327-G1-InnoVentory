@@ -1,5 +1,8 @@
 {% load humanize %}
-<div class="modal fade" id="overdueCreditsModal" tabindex="-1">
+<div class="modal-backdrop fade show"></div>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<div class="modal fade show" id="overdueCreditsModal" tabindex="-1" style="display: block; padding-right: 17px;">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header bg-danger text-white">
@@ -7,48 +10,58 @@
           Overdue Credits
           <span class="badge bg-light text-danger ms-2">{{ overdue_summary|length }}</span>
         </h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        <button type="button" class="btn-close btn-close-white"
+                onclick="closeModal()"></button>
       </div>
-      <div class="modal-body p-0">
-        <div class="table-responsive">
-          <table class="table table-hover mb-0">
-            <thead class="table-light">
-              <tr>
-                <th class="ps-4">Customer</th>
-                <th class="text-end">Balance</th>
-                <th class="text-end">Days Overdue</th>
-                <th class="text-end pe-4">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for sale in overdue_summary %}
-              <tr id="sale-{{ sale.sale_id }}">
-                <td>{{ sale.customer_name|default:"Unknown" }}</td>
-                <td class="text-end">₱{{ sale.balance|floatformat:2|intcomma }}</td>
-                <td class="text-end">{{ sale.days_overdue }}</td>
-                <td class="text-end pe-4">
-                  <button class="btn btn-success btn-sm"
-                          hx-post="{% url 'quick_paid' sale.sale_id %}"
-                          hx-target="#sale-{{ sale.sale_id }}"
-                          hx-swap="outerHTML"
-                          hx-confirm="Mark {{ sale.customer_name|default:'Unknown' }}'s credit as paid?">
-                    <i class="fas fa-check"></i>
-                  </button>
-                </td>
-              </tr>
-              {% empty %}
-              <tr>
-                <td colspan="4" class="text-center text-muted py-4">No overdue credits</td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
+      <div class="modal-body">
+        {% if overdue_summary %}
+        <div class="row g-3">
+          {% for sale in overdue_summary %}
+          <div class="col-md-6" id="sale-{{ sale.sale_id }}">
+            <div class="card border-danger shadow-sm">
+              <div class="card-body">
+                <h6 class="card-title">{{ sale.customer_name|default:"Unknown" }}</h6>
+                <p class="card-text mb-1">
+                  <strong>Balance:</strong> ₱{{ sale.balance|floatformat:2|intcomma }}
+                </p>
+                <p class="card-text mb-1">
+                    <strong>Days Overdue:</strong>
+                    {% if sale.days_overdue %}
+                        {{ sale.days_overdue }} days
+                    {% else %}
+                        <span class="text-muted">Not overdue</span>
+                    {% endif %}
+                </p>
+                <button class="btn btn-success btn-sm"
+                        hx-post="{% url 'quick_paid' sale.sale_id %}"
+                        hx-target="#sale-{{ sale.sale_id }}"
+                        hx-swap="outerHTML"
+                        hx-confirm="Mark {{ sale.customer_name|default:'Unknown' }}'s credit as paid?">
+                  <i class="fas fa-check me-1"></i> Mark Paid
+                </button>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
         </div>
+        {% else %}
+        <p class="text-center text-muted py-4">No overdue credits</p>
+        {% endif %}
       </div>
       <div class="modal-footer">
         <a href="{% url 'credit_management' %}?status=overdue" class="btn btn-primary btn-sm">Manage All</a>
-        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="closeModal()">Close</button>
       </div>
     </div>
   </div>
 </div>
+
+<script>
+function closeModal() {
+    const modal = document.getElementById('overdueCreditsModal');
+    const backdrop = document.querySelector('.modal-backdrop');
+    if (modal) modal.remove();
+    if (backdrop) backdrop.remove();
+}
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
