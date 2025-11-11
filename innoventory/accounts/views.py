@@ -5,11 +5,10 @@ from .forms import RegisterForm
 from django.db.models import Sum, Count, Q
 from products.models import Product
 from sales.models import Sale
-from stocks.models import Stocks
 from django.db.models.functions import TruncDate, TruncHour
 from django.utils import timezone
 from datetime import timedelta, datetime, time
-from products.models import Product, Category
+from products.models import Product, StockTransaction, Category
 
 
 
