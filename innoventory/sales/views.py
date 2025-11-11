@@ -354,9 +354,10 @@ def edit_credit_sale_modal(request, sale_id):
 def overdue_credits_modal(request):
     today = timezone.now().date()
     overdue_summary = Sale.objects.filter(balance__gt=0, due_date__lt=today)
-    return render(request, "partials/overdue_credits_modal.html", {
+    return render(request, "sales/partials/overdue_credits_modal.html", {
         "overdue_summary": overdue_summary,
     })
+
 
 @login_required()
 @require_POST
@@ -367,7 +368,7 @@ def quick_paid(request, sale_id):
     sale.payment_status = 'paid'
     sale.save()
 
-    if request.htmx:
-        return render(request, "partials/sale_paid_row.html", {"sale": sale})
+    if request.headers.get("HX-Request"):
+        return render(request, "sales/partials/sale_paid_row.html", {"sale": sale})
 
     return JsonResponse({"success": True})
