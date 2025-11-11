@@ -22,63 +22,57 @@
 </div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const deleteModal = document.getElementById('deleteConfirmModal');
-        const deleteItemName = document.getElementById('deleteItemName');
-        const deleteForm = document.getElementById('deleteForm');
+const deleteModal = document.getElementById('deleteConfirmModal');
+const deleteItemName = document.getElementById('deleteItemName');
+const deleteForm = document.getElementById('deleteForm');
 
-        deleteModal.addEventListener('show.bs.modal', function(event) {
-            const button = event.relatedTarget;
-            const itemType = button.getAttribute('data-item-type') || 'product';
-            const itemName = button.getAttribute('data-product-name') || 
-                            button.getAttribute('data-item-name') || 
-                            button.getAttribute('data-customer-name');
-            
-            let deleteUrl = "";
-            let modalTitle = deleteModal.querySelector('.modal-title');
-            
-            if (itemType === 'credit_sale') {
-                const saleId = button.getAttribute('data-sale-id');
-                deleteUrl = "{% url 'delete_credit_sale' 0 %}".replace('0', saleId);
-                deleteItemName.innerHTML = `credit sale for <strong>${itemName}</strong>`;
-                modalTitle.textContent = 'Delete Credit Sale';
-                const warningText = `<p class="text-warning mt-2"><small>Note: Product stock will be restored automatically.</small></p>`;
-                if (!deleteModal.querySelector('.text-warning')) {
-                    deleteModal.querySelector('.modal-body').insertAdjacentHTML('beforeend', warningText);
-                }
-            } else if (itemType === 'transaction') {
-                const transactionId = button.getAttribute('data-transaction-id');
-                deleteUrl = "{% url 'delete_transaction' 0 %}".replace('0', transactionId);
-                deleteItemName.innerHTML = `this transaction for <strong>${itemName}</strong>`;
-                modalTitle.textContent = 'Delete Transaction';
-            } else if (itemType === 'supplier') {
-                const supplierId = button.getAttribute('data-supplier-id');
-                deleteUrl = "{% url 'delete_supplier' 0 %}".replace('0', supplierId);
-                deleteItemName.innerHTML = `supplier "<strong>${itemName}</strong>"`;
-                modalTitle.textContent = 'Delete Supplier';
-                // Add warning about related products if needed
-                const warningText = `<p class="text-warning mt-2"><small>Note: This will also remove this supplier from all associated products.</small></p>`;
-                if (!deleteModal.querySelector('.text-warning')) {
-                    deleteModal.querySelector('.modal-body').insertAdjacentHTML('beforeend', warningText);
-                }
-            } else {
-                // Default to product
-                const productId = button.getAttribute('data-product-id');
-                deleteUrl = "{% url 'delete_product' 0 %}".replace('0', productId);
-                deleteItemName.innerHTML = `"<strong>${itemName}</strong>"`;
-                modalTitle.textContent = 'Delete Product';
-            }
+deleteModal.addEventListener('show.bs.modal', function(event) {
+    const button = event.relatedTarget;
+    const itemType = button.getAttribute('data-item-type') || 'product';
+    const itemName = button.getAttribute('data-product-name') || 
+                    button.getAttribute('data-item-name') || 
+                    button.getAttribute('data-customer-name');
+    
+    let deleteUrl = "";
+    let modalTitle = deleteModal.querySelector('.modal-title');
+    
+    if (itemType === 'credit_sale') {
+        const saleId = button.getAttribute('data-sale-id');
+        deleteUrl = "{% url 'delete_credit_sale' 0 %}".replace('0', saleId);
+        deleteItemName.innerHTML = `credit sale for <strong>${itemName}</strong>`;
+        modalTitle.textContent = 'Delete Credit Sale';
+        const warningText = `<p class="text-warning mt-2"><small>Note: Product stock will be restored automatically.</small></p>`;
+        if (!deleteModal.querySelector('.text-warning')) {
+            deleteModal.querySelector('.modal-body').insertAdjacentHTML('beforeend', warningText);
+        }
+    } else if (itemType === 'transaction') {
+        const transactionId = button.getAttribute('data-transaction-id');
+        deleteUrl = "{% url 'delete_transaction' 0 %}".replace('0', transactionId);
+        deleteItemName.innerHTML = `this transaction for <strong>${itemName}</strong>`;
+        modalTitle.textContent = 'Delete Transaction';
+    } else if (itemType === 'supplier') {
+        const supplierId = button.getAttribute('data-supplier-id');
+        deleteUrl = "{% url 'delete_supplier' 0 %}".replace('0', supplierId);
+        deleteItemName.innerHTML = `supplier "<strong>${itemName}</strong>"`;
+        modalTitle.textContent = 'Delete Supplier';
+        const warningText = `<p class="text-warning mt-2"><small>Note: This will also remove this supplier from all associated products.</small></p>`;
+        if (!deleteModal.querySelector('.text-warning')) {
+            deleteModal.querySelector('.modal-body').insertAdjacentHTML('beforeend', warningText);
+        }
+    } else {
+        const productId = button.getAttribute('data-product-id');
+        deleteUrl = "{% url 'delete_product' 0 %}".replace('0', productId);
+        deleteItemName.innerHTML = `"<strong>${itemName}</strong>"`;
+        modalTitle.textContent = 'Delete Product';
+    }
 
-            deleteForm.action = deleteUrl;
-        });
+    deleteForm.action = deleteUrl;
+});
 
-        // Clean up modal when hidden
-        deleteModal.addEventListener('hidden.bs.modal', function() {
-            // Remove any dynamically added warning messages
-            const warningElement = deleteModal.querySelector('.text-warning');
-            if (warningElement) {
-                warningElement.remove();
-            }
-        });
-    });
+deleteModal.addEventListener('hidden.bs.modal', function() {
+    const warningElement = deleteModal.querySelector('.text-warning');
+    if (warningElement) {
+        warningElement.remove();
+    }
+});
 </script>

@@ -11,7 +11,7 @@ from django.contrib import messages
 
 
 from products.models import Product
-from .forms import SaleForm
+from .forms import SaleForm, CreateSaleForm
 from .models import Sale
 from stocks.models import Stocks
 
@@ -19,7 +19,7 @@ from stocks.models import Stocks
 @login_required
 def create_sale(request):
     if request.method == "POST":
-        form = SaleForm(request.POST)
+        form = CreateSaleForm(request.POST)
         if form.is_valid():
             product = form.cleaned_data['product']
             qty = form.cleaned_data['quantity']
