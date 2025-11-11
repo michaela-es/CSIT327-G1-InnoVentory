@@ -176,7 +176,7 @@ def staff_dashboard(request):
     pending_credits = Sale.objects.filter(sales_type='credit')
 
     recent_sales = Sale.objects.select_related('product_sold').order_by('-sales_date')[:5]
-    recent_stocks = Stocks.objects.select_related('product').order_by('-date')[:5]
+    recent_stocks = StockTransaction.objects.select_related('product').order_by('-date')[:5]
 
     today_start = timezone.make_aware(datetime.combine(today, time.min))
     today_end = timezone.make_aware(datetime.combine(today, time.max))
