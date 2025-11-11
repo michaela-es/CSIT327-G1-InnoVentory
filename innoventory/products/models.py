@@ -30,7 +30,6 @@ class Product(models.Model):
     price = models.FloatField()
     stock_quantity = models.IntegerField()
     date_modified = models.DateTimeField(auto_now=True)
-    # supplier = models.ForeignKey(Supplier, on_delete=models.CASCADE, null=True, blank=True)
     supplier = models.ForeignKey('suppliers.Supplier', on_delete=models.CASCADE, related_name='products')
 
     def __str__(self):
@@ -49,6 +48,7 @@ class StockTransaction(models.Model):
     remarks = models.TextField(blank=True)
     date = models.DateField(default=timezone.now)
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     
     class Meta:
         ordering = ['-date', '-created_at']

@@ -91,13 +91,12 @@
                         <td style="padding: 12px;">
                             <button class="btn btn-sm"
                                     style="background-color: #0d6efd; color: white; width: 30px; height: 30px; padding: 0; font-size: 0.9rem; line-height: 30px; margin-right: 5px;"
-                                    hx-get="{% url 'edit_transaction_modal' transaction.id %}"
-                                    hx-target="#modal-container"
-                                    hx-trigger="click"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#editTransactionModal"
+                                    data-transaction-id="{{ transaction.id }}"
                                     title="Edit transaction">
                                 ✎
                             </button>
-
                             <button class="btn btn-sm"
                                     style="background-color: #dc3545; color: white; width: 30px; height: 30px; padding: 0; font-size: 1.1rem; line-height: 30px;"
                                     data-bs-toggle="modal"
@@ -121,6 +120,8 @@
         {% endif %}
     </div>
 </div>
+<div id="modal-container"></div>
+{% include 'products/partials/delete_confirm_modal.html' %}
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -135,25 +136,19 @@ document.addEventListener('DOMContentLoaded', function() {
         dateField.value = today;
     }
 
-    const deleteConfirmModal = document.getElementById('deleteConfirmModal');
-    if (deleteConfirmModal) {
-        deleteConfirmModal.addEventListener('show.bs.modal', function (event) {
-            const button = event.relatedTarget;
+    // Edit button click handler
+    document.addEventListener('click', function(event) {
+        if (event.target.closest('[data-bs-target="#editTransactionModal"]')) {
+            const button = event.target.closest('[data-bs-target="#editTransactionModal"]');
             const transactionId = button.getAttribute('data-transaction-id');
-            const productName = button.getAttribute('data-product-name');
-            const itemType = button.getAttribute('data-item-type') || 'transaction';
             
-            const modalTitle = deleteConfirmModal.querySelector('.modal-title');
-            const modalBody = deleteConfirmModal.querySelector('.modal-body');
-            const deleteForm = deleteConfirmModal.querySelector('#deleteForm');
-            
-            if (itemType === 'transaction') {
-                modalTitle.textContent = 'Delete Transaction';
-                modalBody.innerHTML = `Are you sure you want to delete this transaction for <strong>${productName}</strong>? This action cannot be undone.`;
-                deleteForm.action = `/products/transactions/delete/${transactionId}/`;
-            }
-        });
-    }
+            // Load the edit modal via HTMX
+            htmx.ajax('GET', `{% url 'edit_transaction_modal' 0 %}`.replace('0', transactionId), {
+                target: '#modal-container',
+                swap: 'innerHTML'
+            });
+        }
+    });
 });
 
 function setTransactionType(type) {
@@ -188,18 +183,15 @@ function clearForm() {
     document.getElementById('id_date').value = today;
 }
 
-// Handle successful transaction updates
 document.addEventListener('htmx:afterOnLoad', function(event) {
     if (event.detail.xhr.response) {
         try {
             const response = JSON.parse(event.detail.xhr.response);
             if (response.success) {
-                // Close modal and refresh page
                 const modal = bootstrap.Modal.getInstance(document.getElementById('deleteConfirmModal'));
                 if (modal) modal.hide();
                 window.location.reload();
             } else if (response.error) {
-                // Show error message
                 alert('Error: ' + response.error);
             }
         } catch (e) {
