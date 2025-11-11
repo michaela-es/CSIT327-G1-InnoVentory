@@ -1,0 +1,53 @@
+<div class="modal fade" id="overdueCreditsModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title">
+          Overdue Credits
+          <span class="badge bg-light text-danger ms-2">{{ overdue_summary|length }}</span>
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover mb-0">
+            <thead class="table-light">
+              <tr>
+                <th class="ps-4">Customer</th>
+                <th class="text-end">Balance</th>
+                <th class="text-end">Days Overdue</th>
+                <th class="text-end pe-4">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for sale in overdue_summary %}
+              <tr id="sale-{{ sale.sale_id }}">
+                <td>{{ sale.customer_name|default:"Unknown" }}</td>
+                <td class="text-end">₱{{ sale.balance|floatformat:2|intcomma }}</td>
+                <td class="text-end">{{ sale.days_overdue }}</td>
+                <td class="text-end pe-4">
+                  <button class="btn btn-success btn-sm"
+                          hx-post="{% url 'quick_paid' sale.sale_id %}"
+                          hx-target="#sale-{{ sale.sale_id }}"
+                          hx-swap="outerHTML"
+                          hx-confirm="Mark {{ sale.customer_name|default:'Unknown' }}'s credit as paid?">
+                    <i class="fas fa-check"></i>
+                  </button>
+                </td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="4" class="text-center text-muted py-4">No overdue credits</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <a href="{% url 'credit_management' %}?status=overdue" class="btn btn-primary btn-sm">Manage All</a>
+        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>

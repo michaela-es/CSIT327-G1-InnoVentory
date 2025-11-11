@@ -1,4 +1,4 @@
-<div class="top-header">
+<div class="top-header d-flex justify-content-between align-items-center">
     <h1>
         {% if page_title %}
             {{ page_title }}
@@ -6,17 +6,26 @@
             InnoVentory
         {% endif %}
     </h1>
-</div>
 
-<div class="welcome-section">
-    <div>
-        <div class="welcome-text">
-            Welcome back, <span class="username">{{ request.user.username }}</span>!
+    <div class="header-right d-flex align-items-center gap-3">
+        <div class="header-info text-end">
+            <div id="current-date">09/24/25</div>
+            <div id="current-time">05:12 PM</div>
         </div>
-    </div>
 
-    <div class="header-info">
-        <span id="current-date">09/24/25</span>
-        <span id="current-time">05:12 PM</span>
+        {% if request.user.role == 'admin' %}
+        <button class="btn btn-outline-danger position-relative"
+            hx-get="{% url 'overdue_credits_modal' %}"
+            hx-target="#modal-container"
+            hx-swap="innerHTML"
+            hx-trigger="click">
+            <i class="fas fa-bell"></i>
+            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                {{ overdue_summary|length }}
+                <span class="visually-hidden">overdue credits</span>
+            </span>
+        </button>
+        {% endif %}
+
     </div>
 </div>

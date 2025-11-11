@@ -348,3 +348,24 @@ def edit_credit_sale_modal(request, sale_id):
         'submit_text': 'Update Credit Sale'
     }
     return render(request, 'sales/partials/credit_sale_edit_modal.html', context)
+
+@login_required
+def overdue_credits_modal(request):
+    overdue_summary = Sale.objects.filter(balance__gt=0, due_date__lt=datetime.date.today())
+    return render(request, "partials/overdue_credits_modal.html", {
+        "overdue_summary": overdue_summary,
+    })
+
+@login_required()
+@require_POST
+def quick_paid(request, sale_id):
+    sale = get_object_or_404(Sale, pk=sale_id)
+    sale.balance = 0
+    sale.amount_paid = sale.total
+    sale.payment_status = 'paid'
+    sale.save()
+
+    if request.htmx:
+        return render(request, "partials/sale_paid_row.html", {"sale": sale})
+
+    return JsonResponse({"success": True})
