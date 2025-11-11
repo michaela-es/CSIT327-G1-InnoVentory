@@ -18,9 +18,8 @@ load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 DATABASE_URL = os.environ.get("DATABASE_URL")
-SECRET_KEY = os.environ.get("SECRET_KEY")
-DEBUG = os.environ.get("DEBUG", "False") == "True"
-
+SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY")
+DEBUG = True
 ALLOWED_HOSTS = [
     h.strip() for h in os.environ.get("DJANGO_ALLOWED_HOSTS", "").split(",") if h.strip()
 ]
