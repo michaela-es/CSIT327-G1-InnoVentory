@@ -326,10 +326,11 @@
 <body>
     <div class="container-fluid">
         <div class="row">
-            <!-- Sidebar -->
-            <div class="col-md-3 col-lg-2 d-md-block sidebar collapse">
-                {% include "partials/sidebar.html" %}
-            </div>
+         {% if request.user.role == 'admin' %}
+                {% include "partials/admin_sidebar.html" %}
+            {% elif request.user.role == 'staff' %}
+                {% include "partials/staff_sidebar.html" %}
+            {% endif %}
             
             <!-- Main content -->
             <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content" id="main-content">
