@@ -16,25 +16,11 @@ from .models import Sale
 from products.models import StockTransaction
 from django.core.paginator import Paginator
 from django.db.models import Sum, Avg, Count, F
-from stocks.models import Stocks
 
 
 @login_required
+@login_required
 def create_sale(request):
-    form = SaleForm(request.POST)
-    if form.is_valid():
-        product = form.cleaned_data['product']
-        qty = form.cleaned_data['quantity']
-        sales_type = form.cleaned_data['sales_type']
-        total = product.price * qty
-
-        sale = Sale.objects.create(
-            product_sold=product,
-            product_qty=qty,
-            total=total,
-            sales_type=sales_type,
-            sold_by=request.user
-        )
     if request.method == "POST":
         form = SaleForm(request.POST)
         if form.is_valid():
@@ -56,7 +42,6 @@ def create_sale(request):
                 sale_data['amount_paid'] = 0
                 sale_data['payment_status'] = 'pending'
 
-                # Convert due_date string to date object
                 due_date_str = request.POST.get('due_date')
                 if due_date_str:
                     try:
@@ -69,13 +54,14 @@ def create_sale(request):
 
             sale = Sale.objects.create(**sale_data)
 
-        StockTransaction.objects.create(
-            product=product,
-            quantity=qty,
-            transaction_type='OUT',
-            remarks="SOLD"
-        )
-        return HttpResponse(
+            StockTransaction.objects.create(
+                product=product,
+                quantity=qty,
+                transaction_type='OUT',
+                remarks=f"SALE - {sales_type.upper()} - Sale ID: {sale.sale_id}"
+            )
+
+            return HttpResponse(
                 status=204,
                 headers={
                     'HX-Trigger': json.dumps({
@@ -93,8 +79,7 @@ def create_sale(request):
         'form_action': reverse('create_sale'),
         'submit_text': 'Submit',
     }
-
-
+    return render(request, 'sales/partials/record_sale_modal.html', context)
 @login_required
 def sales_record(request):
     sales_list = Sale.objects.order_by('-sales_date')
@@ -106,7 +91,7 @@ def sales_record(request):
     product_paginator = Paginator(products_list, 10)
     products_page_obj = product_paginator.get_page(prod_page_number)
 
-    sales_paginator = Paginator(sales_list, 10)  # 10 items per page
+    sales_paginator = Paginator(sales_list, 10)
     sales_page_obj = sales_paginator.get_page(sale_page_number)
 
     context = {
@@ -289,15 +274,6 @@ def sale_modal(request, sale_id=None):
                 sale.sold_by = request.user
             sale.save()
 
-            # Update stock
-            if not sale_id:
-                Stocks.objects.create(
-                    product=sale.product_sold,
-                    qty=sale.product_qty,
-                    type=Stocks.OUT,
-                    remarks=f"SOLD"
-                )
-
             return HttpResponse(
                 status=204,
                 headers={
@@ -325,11 +301,11 @@ def delete_credit_sale(request, sale_id):
     if request.method == 'POST':
         customer_name = sale.customer_name or "Unknown Customer"
 
-        Stocks.objects.create(
+        StockTransaction.objects.create(
             product=sale.product_sold,
-            qty=sale.product_qty,
-            type=Stocks.IN,
-            remarks=f"CREDIT SALE DELETED - Sale ID: {sale.sale_id}"
+            quantity=sale.product_qty,
+            transaction_type='IN',
+            remarks=f"CREDIT SALE DELETED - Sale ID: {sale.sale_id} - Customer: {customer_name}"
         )
 
         sale.delete()
