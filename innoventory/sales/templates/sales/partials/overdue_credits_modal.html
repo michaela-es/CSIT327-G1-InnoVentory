@@ -64,14 +64,6 @@
 
 <script>
 function closeModal() {
-    const modal = document.getElementById('overdueCreditsModal');
-    const backdrop = document.querySelector('.modal-backdrop');
-
-    if (modal) modal.remove();
-    if (backdrop) backdrop.remove();
-
-    document.body.classList.remove('modal-open');
-    document.body.style.overflow = '';
-    document.body.style.paddingRight = '';
+    document.getElementById('modal-container').innerHTML = '';
 }
 </script>
