@@ -2,8 +2,7 @@ from django.shortcuts import render
 from django.db.models import Sum
 from django.utils.dateparse import parse_date
 from sales.models import Sale
-from products.models import Product, Category
-from stocks.models import Stocks
+from products.models import Product, StockTransaction, Category
 from datetime import datetime
 from django.db.models import Sum, Count
 from django.http import HttpResponse

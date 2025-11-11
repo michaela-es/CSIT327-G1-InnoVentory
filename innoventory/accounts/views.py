@@ -5,11 +5,10 @@ from .forms import RegisterForm
 from django.db.models import Sum, Count, Q
 from products.models import Product
 from sales.models import Sale
-from stocks.models import Stocks
 from django.db.models.functions import TruncDate, TruncHour
 from django.utils import timezone
 from datetime import timedelta, datetime, time
-from products.models import Product, Category
+from products.models import Product, StockTransaction, Category
 
 
 
@@ -119,7 +118,15 @@ def admin_dashboard(request):
         .order_by('name')[:5]
     )
 
+    today = timezone.now().date()
+    overdue_summary = Sale.objects.filter(
+        sales_type='credit',
+        due_date__lt=today,
+        balance__gt=0
+    )[:5]
+
     context = {
+        'overdue_summary': overdue_summary,
         'total_revenue': total_revenue,
         'total_sales': total_sales,
         'unique_products': unique_products,
@@ -177,7 +184,7 @@ def staff_dashboard(request):
     pending_credits = Sale.objects.filter(sales_type='credit')
 
     recent_sales = Sale.objects.select_related('product_sold').order_by('-sales_date')[:5]
-    recent_stocks = Stocks.objects.select_related('product').order_by('-date')[:5]
+    recent_stocks = StockTransaction.objects.select_related('product').order_by('-date')[:5]
 
     today_start = timezone.make_aware(datetime.combine(today, time.min))
     today_end = timezone.make_aware(datetime.combine(today, time.max))
@@ -227,16 +234,27 @@ def custom_login(request):
 def register(request):
     if request.method == 'POST':
         form = RegisterForm(request.POST)
+        print("=== REGISTRATION DEBUG ===")
+        print("Form data:", request.POST)
+        print("Form is valid:", form.is_valid())
+
+        if not form.is_valid():
+            print("Form errors:", form.errors.as_json())
+            for field, errors in form.errors.items():
+                print(f"Field '{field}': {errors}")
+        else:
+            print("Form is valid, attempting to save...")
+
         if form.is_valid():
             try:
-                form.save()
+                user = form.save()
+                print("=== USER SAVED SUCCESSFULLY ===")
+                print(f"User: {user.username}, Email: {user.email}, Phone: {user.phone_number}")
                 messages.success(request, 'Registration successful! You can now log in.')
                 return redirect('login')
             except Exception as e:
+                print(f"=== SAVE ERROR: {e} ===")
                 messages.error(request, f'Error during registration: {str(e)}')
-        else:
-            print("Form errors:", form.errors)
-            messages.error(request, 'Please correct the errors below.')
     else:
         form = RegisterForm()
 

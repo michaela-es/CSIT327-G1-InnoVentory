@@ -31,7 +31,7 @@ class Product(models.Model):
     stock_quantity = models.IntegerField()
     date_modified = models.DateTimeField(auto_now=True)
     # supplier = models.ForeignKey(Supplier, on_delete=models.CASCADE, null=True, blank=True)
-    supplier = models.ForeignKey('suppliers.Supplier', on_delete=models.CASCADE, related_name='products')
+    supplier = models.ForeignKey('suppliers.Supplier', on_delete=models.SET_NULL, null=True, blank=True, related_name='products')
 
     def __str__(self):
         return self.name
