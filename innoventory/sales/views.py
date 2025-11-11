@@ -349,14 +349,27 @@ def edit_credit_sale_modal(request, sale_id):
     }
     return render(request, 'sales/partials/credit_sale_edit_modal.html', context)
 
+
 @login_required
 def overdue_credits_modal(request):
     today = timezone.now().date()
-    overdue_summary = Sale.objects.filter(balance__gt=0, due_date__lt=today)
+
+    overdue_summary = Sale.objects.filter(
+        sales_type='credit',
+        due_date__lt=today,
+        balance__gt=0
+    ).select_related('product_sold')[:5]
+
+    for sale in overdue_summary:
+        if sale.due_date:
+            sale.days_overdue_calculated = (today - sale.due_date).days
+        else:
+            sale.days_overdue_calculated = None
+
     return render(request, "sales/partials/overdue_credits_modal.html", {
         "overdue_summary": overdue_summary,
+        "today": today,
     })
-
 
 @login_required
 @require_POST
