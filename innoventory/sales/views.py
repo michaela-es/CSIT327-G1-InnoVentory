@@ -350,7 +350,6 @@ def edit_credit_sale_modal(request, sale_id):
     return render(request, 'sales/partials/credit_sale_edit_modal.html', context)
 
 
-@login_required
 def overdue_credits_modal(request):
     today = timezone.now().date()
 
