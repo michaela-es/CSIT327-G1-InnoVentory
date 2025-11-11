@@ -11,7 +11,7 @@ from django.contrib import messages
 
 
 from products.models import Product
-from .forms import SaleForm
+from .forms import SaleForm, CreateSaleForm
 from .models import Sale
 from products.models import StockTransaction
 from django.core.paginator import Paginator
@@ -22,7 +22,7 @@ from django.db.models import Sum, Avg, Count, F
 @login_required
 def create_sale(request):
     if request.method == "POST":
-        form = SaleForm(request.POST)
+        form = CreateSaleForm(request.POST)
         if form.is_valid():
             product = form.cleaned_data['product']
             qty = form.cleaned_data['quantity']
