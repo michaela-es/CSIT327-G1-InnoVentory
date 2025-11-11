@@ -118,7 +118,15 @@ def admin_dashboard(request):
         .order_by('name')[:5]
     )
 
+    today = timezone.now().date()
+    overdue_summary = Sale.objects.filter(
+        sales_type='credit',
+        due_date__lt=today,
+        balance__gt=0
+    )[:5]
+
     context = {
+        'overdue_summary': overdue_summary,
         'total_revenue': total_revenue,
         'total_sales': total_sales,
         'unique_products': unique_products,
