@@ -1,0 +1,22 @@
+<tr id="sale-{{ sale.sale_id }}">
+    <td class="ps-4">
+        <div class="d-flex align-items-center">
+            <i class="fas fa-user text-muted me-3"></i>
+            <div>
+                <div class="fw-medium">{{ sale.customer_name|default:"Unknown Customer" }}</div>
+                <small class="text-muted">{{ sale.product_sold.name }} • Due {{ sale.due_date|date:"M d" }}</small>
+            </div>
+        </div>
+    </td>
+    <td class="text-end">
+        <span class="fw-bold text-success">₱{{ sale.balance|floatformat:2|intcomma }}</span>
+    </td>
+    <td class="text-end">
+        <span class="badge bg-success">Paid</span>
+    </td>
+    <td class="text-end pe-4">
+        <button class="btn btn-success btn-sm" disabled>
+            <i class="fas fa-check"></i>
+        </button>
+    </td>
+</tr>

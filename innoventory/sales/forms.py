@@ -46,30 +46,13 @@ class SaleForm(forms.ModelForm):
     )
     price = forms.FloatField(label="Price", required=False, disabled=True)
     total = forms.FloatField(label="Total", required=False, disabled=True)
-    
-    class Meta:
-        model = Sale
-        fields = ['customer_name', 'customer_contact', 'due_date', 'payment_status', 'payment_notes', 'amount_paid']
-        widgets = {
-            'due_date': forms.DateInput(attrs={'type': 'date'}),
-            'payment_notes': forms.Textarea(attrs={'rows': 3}),
-        }
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        if self.instance and self.instance.pk:
-            self.fields['product'].widget = forms.HiddenInput()
-            self.fields['quantity'].widget = forms.HiddenInput()
-            self.fields['sales_type'].widget = forms.HiddenInput()
-            self.fields['price'].widget = forms.HiddenInput()
-            self.fields['total'].widget = forms.HiddenInput()
 
     def clean_quantity(self):
-        quantity = self.cleaned_data.get('quantity')
+        quantity = self.cleaned_data['quantity']
         product = self.cleaned_data.get('product')
 
-        if product and quantity and quantity > product.stock_quantity:
-            raise forms.ValidationError(f"Only {product.stock_quantity} items available in stock")
+        if product and quantity > product.stock_quantity:
+            raise forms.ValidationError(f"Only {product.stock_quantity} item(s) available in stock")
 
         return quantity
 

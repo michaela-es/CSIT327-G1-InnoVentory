@@ -170,7 +170,6 @@ def upload_excel_modal(request):
             })
 
     else:
-        # to track upload type
         context = {
             'upload_type': upload_type,
             'modal_title': 'Upload Suppliers Excel' if upload_type == 'supplier' else 'Upload Products Excel',

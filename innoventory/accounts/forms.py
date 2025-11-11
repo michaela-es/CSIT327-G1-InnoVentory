@@ -61,12 +61,3 @@ class RegisterForm(UserCreationForm):
                 raise forms.ValidationError("A user with this phone number already exists.")
         return phone
 
-    def save(self, commit=True):
-        user = super().save(commit=False)
-        user.email = self.cleaned_data['email']
-        user.phone_number = self.cleaned_data['phone_number']
-        user.role = self.cleaned_data['role']
-
-        if commit:
-            user.save()
-        return user
