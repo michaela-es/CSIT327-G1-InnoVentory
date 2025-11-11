@@ -35,13 +35,14 @@
                     <span class="text-muted">Not calculated</span>
                   {% endif %}
                 </p>
-                <button class="btn btn-success btn-sm"
-                        hx-post="{% url 'quick_paid' sale.sale_id %}"
-                        hx-target="#sale-{{ sale.sale_id }}"
-                        hx-swap="outerHTML"
-                        hx-confirm="Mark {{ sale.customer_name|default:'Unknown' }}'s credit as paid?">
-                  <i class="fas fa-check me-1"></i> Mark Paid
-                </button>
+            <button class="btn btn-success btn-sm"
+                    hx-post="{% url 'quick_paid' sale.sale_id %}"
+                    hx-target="#sale-{{ sale.sale_id }}"
+                    hx-swap="outerHTML"
+                    hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                    hx-confirm="Mark {{ sale.customer_name|default:'Unknown' }}'s credit as paid?">
+              <i class="fas fa-check me-1"></i> Mark Paid
+            </button>
               </div>
             </div>
           </div>
