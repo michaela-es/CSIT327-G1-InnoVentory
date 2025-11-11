@@ -10,4 +10,6 @@ urlpatterns = [
     path('credits/payment/<int:sale_id>/', views.record_payment, name='record_payment'),
     path('credits/delete/<int:sale_id>/', views.delete_credit_sale, name='delete_credit_sale'),
     path('credits/edit/<int:sale_id>/', views.edit_credit_sale_modal, name='edit_credit_sale'),
+    path('credits/overdue-modal/', views.overdue_credits_modal, name='overdue_credits_modal'),
+    path('credits/quick-paid/<int:sale_id>/', views.quick_paid, name='quick_paid')
 ]
