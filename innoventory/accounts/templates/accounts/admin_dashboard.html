@@ -115,6 +115,18 @@
                             {% if top_category %}
                                 <small class="text-info">Top category: {{ top_category.product_sold__category__name }}</small>
                             {% endif %}
+
+                            <button class="btn btn-outline-danger position-relative"
+                                hx-get="{% url 'overdue_credits_modal' %}"
+                                hx-target="#modal-container"
+                                hx-swap="innerHTML"
+                                hx-trigger="click">
+                                <i class="fas fa-bell"></i>
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                    {{ overdue_summary|length }}
+                                    <span class="visually-hidden">overdue credits</span>
+                                </span>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -212,8 +224,9 @@
         </div>
     </div>
 
-    <div id="modal-container"></div>
 </div>
+<div id="modal-container"></div>
+
 {% endblock %}
 
 {% block extra_js %}
