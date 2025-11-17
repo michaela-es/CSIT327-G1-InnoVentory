@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load humanize %}
+{% load custom_filters %}
 
 {% block content %}
 <div class="container-fluid py-4">
@@ -72,7 +73,7 @@
                         </div>
                         <div>
                             <h6 class="text-muted mb-1">Pending Credits</h6>
-                            <h3 class="mb-0">{{ pending_credits|length }}</h3>
+                            <h3 class="mb-0">{{ pending_credits}}</h3>
                             <small class="text-info">Need attention</small>
                         </div>
                     </div>
@@ -248,7 +249,7 @@
                                         Sale
                                     </td>
                                     <td>{{ sale.product_sold.name }}</td>
-                                    <td>{{ sale.sales_date|naturaltime }}</td>
+                                    <td>{{ sale.sales_date|relative_date|naturaltime }}</td>
                                 </tr>
                                 {% endfor %}
                                 {% for stock in recent_stocks %}
@@ -258,7 +259,7 @@
                                         Stock
                                     </td>
                                     <td>{{ stock.product.name }}</td>
-                                    <td>{{ stock.date|naturaltime }}</td>
+                                    <td>{{ stock.date|relative_date|naturaltime }}</td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
