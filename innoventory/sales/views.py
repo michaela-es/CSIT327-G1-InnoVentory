@@ -19,7 +19,6 @@ from django.db.models import Sum, Avg, Count, F
 
 
 @login_required
-@login_required
 def create_sale(request):
     if request.method == "POST":
         form = CreateSaleForm(request.POST)
