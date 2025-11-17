@@ -36,6 +36,7 @@ def supplier_list(request):
         'page_obj': page_obj,
         'search_query': search_query,
         'selected_products_range': products_range,
+        'page_title': 'Supplier Management',
     }
     
     return render(request, 'suppliers/supplier_list.html', context)

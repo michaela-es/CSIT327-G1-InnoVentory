@@ -209,7 +209,8 @@ def report_dashboard(request):
             'end_date': end_date,
             'product': product_q,
             'category': category_q,
-        }
+        },
+        'page_title': 'Reports & Analytics',
     }
 
     return render(request, 'reports/report_dashboard.html', context)
