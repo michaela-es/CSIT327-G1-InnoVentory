@@ -324,21 +324,18 @@
     {% block extra_css %}{% endblock %}
 </head>
 <body>
-    <div class="container-fluid">
-        <div class="row">
-         {% if request.user.role == 'admin' %}
-                {% include "partials/admin_sidebar.html" %}
+    {% if request.user.role == 'admin' %}
+            {% include "partials/admin_sidebar.html" %}
             {% elif request.user.role == 'staff' %}
-                {% include "partials/staff_sidebar.html" %}
-            {% endif %}
+            {% include "partials/staff_sidebar.html" %}
+    {% endif %}
 
-            <!-- Main content -->
-            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content" id="main-content">
-                {% include 'partials/top_header.html' %}
-                {% block content %}{% endblock %}
-            </main>
-        </div>
-    </div>
+    <main class="main-content">
+        {% include 'partials/top_header.html' %}
+
+        {% block content %}
+        {% endblock %}
+    </main>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
