@@ -248,7 +248,7 @@
                                         Sale
                                     </td>
                                     <td>{{ sale.product_sold.name }}</td>
-                                    <td>{{ sale.sales_date|naturaltime }}</td>
+                                    <td>{{ sale.sales_date|relative_date|naturaltime }}</td>
                                 </tr>
                                 {% endfor %}
                                 {% for stock in recent_stocks %}
@@ -258,7 +258,7 @@
                                         Stock
                                     </td>
                                     <td>{{ stock.product.name }}</td>
-                                    <td>{{ stock.date|naturaltime }}</td>
+                                    <td>{{ stock.date|relative_date|naturaltime }}</td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
