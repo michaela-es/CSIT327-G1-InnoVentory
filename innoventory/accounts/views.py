@@ -55,7 +55,10 @@ def admin_dashboard(request):
     total_sales = sales_qs.count()
     unique_products = sales_qs.values('product_sold').distinct().count()
     low_stock_count = Product.objects.filter(stock_quantity__lte=10).count()
-    pending_credits = sales_qs.filter(sales_type='credit').count()
+    pending_credits = Sale.objects.filter(
+    sales_type='credit',
+    balance__gt=0
+    )
 
     # Top selling products overall
     top_selling = (
