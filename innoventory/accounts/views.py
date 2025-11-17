@@ -58,7 +58,7 @@ def admin_dashboard(request):
     pending_credits = Sale.objects.filter(
     sales_type='credit',
     balance__gt=0
-    )
+    ).count()
 
     # Top selling products overall
     top_selling = (
