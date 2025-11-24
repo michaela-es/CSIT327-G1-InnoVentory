@@ -48,22 +48,25 @@ def product_list(request):
     return render(request, 'products/product_list.html', context)
 
 @login_required
-
 @require_POST
 def delete_product(request, pk):
     product = get_object_or_404(Product, product_id=pk)
+    product_name = product.name
+
     try:
-        product_name = product.name
         product.delete()
-        html = render_to_string('products/partials/delete_response.html', {
-            'product_name': product_name
-        })
+        html = render_to_string(
+            'products/partials/delete_response.html',
+            {'product_name': product_name},
+            request=request
+        )
         return HttpResponse(html)
     except ProtectedError:
-        html = render_to_string('products/partials/delete_response.html', {
-            'product_name': product.name,
-            'error': True
-        })
+        html = render_to_string(
+            'products/partials/delete_response.html',
+            {'product_name': product_name, 'error': True},
+            request=request
+        )
         return HttpResponse(html, status=400)
 
 
