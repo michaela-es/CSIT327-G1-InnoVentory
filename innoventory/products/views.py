@@ -53,15 +53,22 @@ def delete_product(request, pk):
     product = get_object_or_404(Product, product_id=pk)
 
     if product.transactions.exists():
-        messages.error(request, "Cannot delete this product because it has stock transactions.")
-        return redirect('product_list')
+        return JsonResponse({
+            'success': False,
+            'message': 'Cannot delete this product because it has stock transactions.'
+        })
 
     try:
         product.delete()
-        messages.success(request, "Product deleted successfully.")
+        return JsonResponse({
+            'success': True,
+            'message': 'Product deleted successfully.'
+        })
     except ProtectedError:
-        messages.error(request, "Cannot delete this product because it has sales.")
-    return redirect('product_list')
+        return JsonResponse({
+            'success': False,
+            'message': 'Cannot delete this product because it has related sales.'
+        })
 
 @login_required
 def product_modal(request, pk=None):
