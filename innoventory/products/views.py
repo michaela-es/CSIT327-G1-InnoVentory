@@ -47,27 +47,33 @@ def product_list(request):
 
     return render(request, 'products/product_list.html', context)
 
-@login_required
 @require_POST
+@login_required
 def delete_product(request, pk):
     product = get_object_or_404(Product, product_id=pk)
     product_name = product.name
 
     try:
         product.delete()
-        html = render_to_string(
-            'products/partials/delete_response.html',
-            {'product_name': product_name},
-            request=request
-        )
-        return HttpResponse(html)
+        return HttpResponse(f'''
+            <script>
+                const modalMessages = document.getElementById("modalMessages");
+                modalMessages.innerHTML = '<div class="alert alert-success alert-dismissible fade show" role="alert">Product "{product_name}" deleted successfully!<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>';
+                setTimeout(() => {{
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('deleteProductModal'));
+                    modal.hide();
+                    window.location.reload();
+                }}, 1000);
+            </script>
+        ''')
     except ProtectedError:
-        html = render_to_string(
-            'products/partials/delete_response.html',
-            {'product_name': product_name, 'error': True},
-            request=request
-        )
-        return HttpResponse(html, status=400)
+        return HttpResponse(f'''
+            <script>
+                const modalMessages = document.getElementById("modalMessages");
+                modalMessages.innerHTML = '<div class="alert alert-danger alert-dismissible fade show" role="alert">Cannot delete "{product_name}" - it has related records.<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>';
+            </script>
+        ''', status=400)
+
 
 
 
