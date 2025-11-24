@@ -48,24 +48,22 @@ def product_list(request):
     return render(request, 'products/product_list.html', context)
 
 @login_required
+
 @require_POST
 def delete_product(request, pk):
     product = get_object_or_404(Product, product_id=pk)
     try:
+        product_name = product.name
         product.delete()
-        html = (
-            f'<div class="alert alert-success">'
-            f'Product "{product.name}" deleted successfully!</div>'
-            '<script>setTimeout(() => { '
-            'bootstrap.Modal.getInstance(document.getElementById("deleteProductModal")).hide(); '
-            'window.location.reload(); }, 1500)</script>'
-        )
+        html = render_to_string('products/partials/delete_response.html', {
+            'product_name': product_name
+        })
         return HttpResponse(html)
     except ProtectedError:
-        html = (
-            f'<div class="alert alert-danger">'
-            f'Cannot delete "{product.name}" - it has related records.</div>'
-        )
+        html = render_to_string('products/partials/delete_response.html', {
+            'product_name': product.name,
+            'error': True
+        })
         return HttpResponse(html, status=400)
 
 
