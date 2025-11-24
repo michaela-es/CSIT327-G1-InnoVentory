@@ -54,20 +54,16 @@ def delete_product(request, pk):
 
     try:
         product.delete()
-        messages.success(request, f"Product '{product.name}' deleted successfully.")
-        status = 200
+        return JsonResponse({
+            'success': True,
+            'message': f"Product '{product.name}' deleted successfully.",
+            'action': 'reload'
+        })
     except ProtectedError:
-        messages.error(
-            request,
-            f"Cannot delete product '{product.name}' because it has related sales or transactions."
-        )
-        status = 400
-
-    if request.headers.get('Hx-Request'):
-        html = render_to_string('partials/messages.html', {'messages': messages.get_messages(request)})
-        return HttpResponse(html, status=status)
-    else:
-        return redirect('product_list')
+        return JsonResponse({
+            'success': False,
+            'message': f"Cannot delete product '{product.name}' because it has related sales or transactions."
+        }, status=400)
 
 
 @login_required
