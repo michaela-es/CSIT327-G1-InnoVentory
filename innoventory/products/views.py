@@ -6,7 +6,7 @@ from django.views.decorators.http import require_POST
 from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponse
 from .forms import ProductForm
-from django.db.models import Q
+from django.db.models import Q, ProtectedError
 from .models import Product, Category, StockTransaction, Supplier
 from .utils import import_products_from_excel
 from .forms import StockTransactionForm
@@ -51,12 +51,11 @@ def product_list(request):
 @require_POST
 def delete_product(request, pk):
     product = get_object_or_404(Product, product_id=pk)
-
-    if product.sales.exists():
-        messages.error(request, "Cannot delete this product because it has sales.")
-    else:
+    try:
         product.delete()
-
+        messages.success(request, "Product deleted successfully.")
+    except ProtectedError:
+        messages.error(request, "Cannot delete this product because it has sales.")
     return redirect('product_list')
 
 @login_required
