@@ -12,7 +12,7 @@ from .utils import import_products_from_excel
 from .forms import StockTransactionForm
 from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
-
+from ..suppliers.views import import_suppliers_from_excel
 
 
 @login_required
@@ -46,29 +46,27 @@ def product_list(request):
 
     return render(request, 'products/product_list.html', context)
 
-
 @login_required
 @require_POST
 def delete_product(request, pk):
     product = get_object_or_404(Product, product_id=pk)
 
-    if product.transactions.exists():
-        return JsonResponse({
-            'success': False,
-            'message': 'Cannot delete this product because it has stock transactions.'
-        })
-
     try:
         product.delete()
-        return JsonResponse({
-            'success': True,
-            'message': 'Product deleted successfully.'
-        })
+        messages.success(request, f"Product '{product.name}' deleted successfully.")
     except ProtectedError:
-        return JsonResponse({
-            'success': False,
-            'message': 'Cannot delete this product because it has related sales.'
-        })
+        messages.error(
+            request,
+            f"Cannot delete product '{product.name}' because it has related sales or transactions."
+        )
+
+    if request.headers.get('Hx-Request'):  # HTMX request
+        from django.template.loader import render_to_string
+        html = render_to_string('partials/messages.html', {'messages': messages.get_messages(request)})
+        return HttpResponse(html)
+    else:
+        return redirect('product_list')
+
 
 @login_required
 def product_modal(request, pk=None):
