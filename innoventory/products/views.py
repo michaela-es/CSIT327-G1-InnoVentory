@@ -51,6 +51,11 @@ def product_list(request):
 @require_POST
 def delete_product(request, pk):
     product = get_object_or_404(Product, product_id=pk)
+
+    if product.transactions.exists():
+        messages.error(request, "Cannot delete this product because it has stock transactions.")
+        return redirect('product_list')
+
     try:
         product.delete()
         messages.success(request, "Product deleted successfully.")
