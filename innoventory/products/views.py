@@ -55,26 +55,16 @@ def delete_product(request, pk):
 
     try:
         product.delete()
-        return HttpResponse(f'''
-            <script>
-                const modalMessages = document.getElementById("modalMessages");
-                modalMessages.innerHTML = '<div class="alert alert-success alert-dismissible fade show" role="alert">Product "{product_name}" deleted successfully!<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>';
-                setTimeout(() => {{
-                    const modal = bootstrap.Modal.getInstance(document.getElementById('deleteProductModal'));
-                    modal.hide();
-                    window.location.reload();
-                }}, 1000);
-            </script>
-        ''')
+        return JsonResponse({
+            'success': True,
+            'message': f'Product "{product_name}" deleted successfully!'
+        })
+
     except ProtectedError:
-        return HttpResponse(f'''
-            <script>
-                const modalMessages = document.getElementById("modalMessages");
-                modalMessages.innerHTML = '<div class="alert alert-danger alert-dismissible fade show" role="alert">Cannot delete "{product_name}" - it has related records.<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>';
-            </script>
-        ''', status=400)
-
-
+        return JsonResponse({
+            'success': False,
+            'error': f'Cannot delete "{product_name}" - it has related records.'
+        }, status=400)
 
 
 

@@ -2,65 +2,116 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Confirm Delete</h5>
+                <h5 class="modal-title" id="deleteProductModalLabel">Confirm Delete</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <div id="modalMessages"></div>
+
                 <p>Are you sure you want to delete <strong id="deleteItemName"></strong>?</p>
                 <p class="text-danger"><small>This action cannot be undone.</small></p>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-
-            <form
-                id="deleteForm"
-                method="POST"
-                hx-post=""
-                hx-target="#modalMessages"
-                hx-swap="innerHTML"
-            >
-                {% csrf_token %}
-                <button type="submit" class="btn btn-danger">Delete</button>
-            </form>
-
-
+                <form id="deleteForm" method="POST">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger" id="deleteSubmitBtn">
+                        Delete
+                    </button>
+                </form>
             </div>
         </div>
     </div>
 </div>
-
 <script>
+document.addEventListener('DOMContentLoaded', () => {
+    const deleteProductModal = document.getElementById('deleteProductModal');
+    const deleteItemName = document.getElementById('deleteItemName');
+    const deleteForm = document.getElementById('deleteForm');
+    const deleteSubmitBtn = document.getElementById('deleteSubmitBtn');
+    const modalMessages = document.getElementById('modalMessages');
 
-    document.addEventListener('DOMContentLoaded', () => {
-        const deleteProductModal = document.getElementById('deleteProductModal');
-        const deleteItemName = document.getElementById('deleteItemName');
-        const deleteForm = document.getElementById('deleteForm');
-        const modalMessages = document.getElementById('modalMessages');
+    deleteProductModal.addEventListener('hidden.bs.modal', () => {
+        modalMessages.innerHTML = '';
+    });
 
-        deleteProductModal.addEventListener('show.bs.modal', (event) => {
-            const button = event.relatedTarget;
-            const productId = button.getAttribute('data-product-id');
-            const productName = button.getAttribute('data-product-name');
+    deleteProductModal.addEventListener('show.bs.modal', (event) => {
+        const button = event.relatedTarget;
+        const productId = button.getAttribute('data-product-id');
+        const productName = button.getAttribute('data-product-name');
 
-            deleteItemName.textContent = productName;
-            deleteForm.setAttribute('hx-post', `/products/delete/${productId}/`);
+        modalMessages.innerHTML = '';
+        deleteItemName.textContent = productName;
+        deleteForm.action = `/products/delete/${productId}/`;
 
-            if (modalMessages) {
-                modalMessages.innerHTML = '';
-            }
-        });
+        if (deleteSubmitBtn) {
+            deleteSubmitBtn.innerHTML = 'Delete';
+            deleteSubmitBtn.disabled = false;
+        }
+    });
 
-        deleteForm.addEventListener('htmx:afterSwap', (event) => {
-            const successAlert = modalMessages.querySelector('.alert-success');
-            if (successAlert) {
+    deleteForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const csrfToken = deleteForm.querySelector('[name=csrfmiddlewaretoken]').value;
+
+        if (deleteSubmitBtn) {
+            deleteSubmitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Deleting...';
+            deleteSubmitBtn.disabled = true;
+        }
+
+        try {
+            const response = await fetch(deleteForm.action, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken,
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                modalMessages.innerHTML = `
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        ${data.message}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                `;
+
                 setTimeout(() => {
                     const modal = bootstrap.Modal.getInstance(deleteProductModal);
                     modal.hide();
                     window.location.reload();
                 }, 1500);
-            }
-        });
 
+            } else {
+                modalMessages.innerHTML = `
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        ${data.error}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                `;
+
+                if (deleteSubmitBtn) {
+                    deleteSubmitBtn.innerHTML = 'Delete';
+                    deleteSubmitBtn.disabled = false;
+                }
+            }
+
+        } catch (error) {
+            console.error('Delete failed:', error);
+            modalMessages.innerHTML = `
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    Delete operation failed. Please try again.
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            `;
+
+            if (deleteSubmitBtn) {
+                deleteSubmitBtn.innerHTML = 'Delete';
+                deleteSubmitBtn.disabled = false;
+            }
+        }
     });
+});
 </script>
