@@ -1,6 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.http import HttpResponseRedirect, JsonResponse
+from django.template.loader import render_to_string
 from django.urls import reverse
 from django.views.decorators.http import require_POST
 from django.shortcuts import get_object_or_404, render
@@ -54,16 +55,17 @@ def delete_product(request, pk):
     try:
         product.delete()
         messages.success(request, f"Product '{product.name}' deleted successfully.")
+        status = 200
     except ProtectedError:
         messages.error(
             request,
             f"Cannot delete product '{product.name}' because it has related sales or transactions."
         )
+        status = 400
 
-    if request.headers.get('Hx-Request'):  # HTMX request
-        from django.template.loader import render_to_string
+    if request.headers.get('Hx-Request'):
         html = render_to_string('partials/messages.html', {'messages': messages.get_messages(request)})
-        return HttpResponse(html)
+        return HttpResponse(html, status=status)
     else:
         return redirect('product_list')
 
