@@ -55,20 +55,17 @@ def delete_product(request, pk):
     try:
         product.delete()
         return HttpResponse(
-            '<div class="alert alert-success">'
-            '<i class="fas fa-check-circle"></i> '
-            f'Product "{product.name}" deleted successfully! Redirecting...'
-            '</div>'
+            f'<div class="alert alert-success">'
+            f'<i class="fas fa-check-circle"></i> Product "{product.name}" deleted successfully!</div>'
             '<script>setTimeout(() => { window.location.reload(); }, 1500)</script>'
         )
     except ProtectedError:
         return HttpResponse(
-            '<div class="alert alert-danger">'
-            '<i class="fas fa-exclamation-triangle"></i> '
-            f'Cannot delete "{product.name}" - it has related sales or stock records.'
-            '</div>',
+            f'<div class="alert alert-danger">'
+            f'<i class="fas fa-exclamation-triangle"></i> Cannot delete "{product.name}" - it has related sales or stock records.</div>',
             status=400
         )
+
 
 
 @login_required
