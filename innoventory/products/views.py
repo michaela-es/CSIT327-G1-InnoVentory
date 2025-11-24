@@ -51,20 +51,23 @@ def product_list(request):
 @require_POST
 def delete_product(request, pk):
     product = get_object_or_404(Product, product_id=pk)
-
     try:
         product.delete()
-        return HttpResponse(
+        html = (
             f'<div class="alert alert-success">'
-            f'<i class="fas fa-check-circle"></i> Product "{product.name}" deleted successfully!</div>'
-            '<script>setTimeout(() => { window.location.reload(); }, 1500)</script>'
+            f'Product "{product.name}" deleted successfully!</div>'
+            '<script>setTimeout(() => { '
+            'bootstrap.Modal.getInstance(document.getElementById("deleteProductModal")).hide(); '
+            'window.location.reload(); }, 1500)</script>'
         )
+        return HttpResponse(html)
     except ProtectedError:
-        return HttpResponse(
+        html = (
             f'<div class="alert alert-danger">'
-            f'<i class="fas fa-exclamation-triangle"></i> Cannot delete "{product.name}" - it has related sales or stock records.</div>',
-            status=400
+            f'Cannot delete "{product.name}" - it has related records.</div>'
         )
+        return HttpResponse(html, status=400)
+
 
 
 

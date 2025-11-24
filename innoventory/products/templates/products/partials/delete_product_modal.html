@@ -16,7 +16,7 @@
             <form
                 id="deleteForm"
                 method="POST"
-                hx-post=""
+                hx-post="{% url 'delete_product' product.product_id %}"
                 hx-target="#modalMessages"
                 hx-swap="innerHTML"
             >
