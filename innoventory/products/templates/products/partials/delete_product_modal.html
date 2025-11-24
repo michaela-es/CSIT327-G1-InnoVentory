@@ -16,7 +16,7 @@
             <form
                 id="deleteForm"
                 method="POST"
-                hx-post="{% url 'delete_product' product.product_id %}"
+                hx-post=""
                 hx-target="#modalMessages"
                 hx-swap="innerHTML"
             >
@@ -51,42 +51,16 @@
             }
         });
 
-        deleteForm.addEventListener('htmx:afterRequest', (event) => {
-            try {
-                const response = JSON.parse(event.detail.xhr.responseText);
-
-                if (response.success) {
-                    modalMessages.innerHTML = `
-                        <div class="alert alert-success">
-                            <i class="fas fa-check-circle"></i>
-                            ${response.message}
-                        </div>
-                    `;
-
-                    if (response.action === 'reload') {
-                        setTimeout(() => {
-                            const modal = bootstrap.Modal.getInstance(deleteProductModal);
-                            modal.hide();
-                            window.location.reload();
-                        }, 1500);
-                    }
-                } else {
-                    modalMessages.innerHTML = `
-                        <div class="alert alert-danger">
-                            <i class="fas fa-exclamation-triangle"></i>
-                            ${response.message}
-                        </div>
-                    `;
-                }
-            } catch (e) {
-                console.error('Error parsing JSON response:', e);
-                modalMessages.innerHTML = `
-                    <div class="alert alert-danger">
-                        <i class="fas fa-exclamation-triangle"></i>
-                        An unexpected error occurred.
-                    </div>
-                `;
+        deleteForm.addEventListener('htmx:afterSwap', (event) => {
+            const successAlert = modalMessages.querySelector('.alert-success');
+            if (successAlert) {
+                setTimeout(() => {
+                    const modal = bootstrap.Modal.getInstance(deleteProductModal);
+                    modal.hide();
+                    window.location.reload();
+                }, 1500);
             }
         });
+
     });
 </script>
