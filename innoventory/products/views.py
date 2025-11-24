@@ -50,13 +50,14 @@ def product_list(request):
 @login_required
 @require_POST
 def delete_product(request, pk):
-    try:
-        product = Product.objects.get(product_id=pk)
-        product.delete()
-    except Product.DoesNotExist:
-        pass
-    return HttpResponseRedirect(reverse('product_list'))
+    product = get_object_or_404(Product, product_id=pk)
 
+    if product.sales.exists():
+        messages.error(request, "Cannot delete this product because it has sales.")
+    else:
+        product.delete()
+
+    return redirect('product_list')
 
 @login_required
 def product_modal(request, pk=None):
