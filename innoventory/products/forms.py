@@ -1,6 +1,6 @@
 from django import forms
-from .models import Product, Category, StockTransaction, Supplier
-
+from .models import Product, Category, StockTransaction
+from suppliers.models import Supplier
 from django import forms
 from .models import Product, Category
 
