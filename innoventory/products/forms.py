@@ -54,14 +54,6 @@ class ProductForm(forms.ModelForm):
         self.fields['category'].choices = category_choices
         self.fields['category'].required = False
 
-        if self.instance and not self.instance.is_tracked:
-            self.fields['low_threshold'].widget.attrs.update({
-                'style': 'display: none;'
-            })
-            self.fields['medium_threshold'].widget.attrs.update({
-                'style': 'display: none;'
-            })
-
     def clean(self):
         cleaned = super().clean()
         is_tracked = cleaned.get("is_tracked")

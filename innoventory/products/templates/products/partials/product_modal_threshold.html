@@ -92,7 +92,6 @@ document.addEventListener('htmx:afterSwap', function(evt) {
         }
 
         if (isTracked) {
-            // Pre-check if editing an existing tracked product
             {% if form.instance and form.instance.is_tracked %}
             isTracked.checked = true;
             {% endif %}
