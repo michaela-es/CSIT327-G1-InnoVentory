@@ -2,15 +2,6 @@ from django.db import models
 from django.core.validators import MinValueValidator, MinLengthValidator, MaxValueValidator
 from django.utils import timezone
 from django.db.models import Case, When, Value, F, ExpressionWrapper, FloatField, IntegerField
-
-class Supplier(models.Model):
-    supplier_id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=255)
-    contact_info = models.CharField(max_length=255)
-    address = models.TextField()
-
-    def __str__(self):
-        return self.name
     
 class Category(models.Model):
     name = models.CharField(max_length=100, unique=True)

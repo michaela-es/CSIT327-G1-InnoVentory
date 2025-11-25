@@ -10,7 +10,7 @@ def import_products_from_excel(file):
     default_supplier, _ = Supplier.objects.get_or_create(
         name='Unknown Supplier',
         defaults={
-            'contact_info': 'Not provided',
+            'contact': 'Not provided',
             'address': 'Not provided'
         }
     )
