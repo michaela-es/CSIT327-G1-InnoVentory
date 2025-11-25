@@ -1,12 +1,13 @@
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.http import HttpResponseRedirect, JsonResponse
+from django.template.loader import render_to_string
 from django.urls import reverse
 from django.views.decorators.http import require_POST
 from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponse
 from .forms import ProductForm
-from django.db.models import Q
+from django.db.models import Q, ProtectedError
 from .models import Product, Category, StockTransaction
 from .utils import import_products_from_excel
 from .forms import StockTransactionForm
@@ -47,16 +48,24 @@ def product_list(request):
 
     return render(request, 'products/product_list.html', context)
 
-
-@login_required
 @require_POST
+@login_required
 def delete_product(request, pk):
+    product = get_object_or_404(Product, product_id=pk)
+    product_name = product.name
+
     try:
-        product = Product.objects.get(product_id=pk)
         product.delete()
-    except Product.DoesNotExist:
-        pass
-    return HttpResponseRedirect(reverse('product_list'))
+        return JsonResponse({
+            'success': True,
+            'message': f'Product "{product_name}" deleted successfully!'
+        })
+    except ProtectedError:
+        return JsonResponse({
+            'success': False,
+            'error': f'Cannot delete "{product_name}" - it has related records.'
+        }, status=400)
+
 
 
 @login_required

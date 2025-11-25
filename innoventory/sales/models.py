@@ -21,7 +21,7 @@ class Sale(models.Model):
     sale_id = models.AutoField(primary_key=True)
     product_sold = models.ForeignKey(
         Product,
-        on_delete=models.SET_NULL,
+        on_delete=models.PROTECT,
         null=True,
         related_name='sales'
     )
