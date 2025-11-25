@@ -27,11 +27,13 @@ class ProductForm(forms.ModelForm):
                 'class': 'form-control',
                 'min': 1,
                 'max': 100,
+                'id': 'id_low_threshold'
             }),
             'medium_threshold': forms.NumberInput(attrs={
                 'class': 'form-control',
                 'min': 1,
                 'max': 100,
+                'id': 'id_medium_threshold'
             }),
         }
 

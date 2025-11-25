@@ -50,8 +50,8 @@
 </div>
 
 <script>
-(function() {
-    // Handle "Add New Category" field visibility
+
+    (function() {
     const categorySelect = document.getElementById('id_category');
     const newCategoryInput = document.getElementById('new-category-input');
 
@@ -69,28 +69,44 @@
         });
     }
 
-    // Toggle low/medium threshold fields based on is_tracked checkbox
     const isTrackedCheckbox = document.getElementById('id_is_tracked');
-    const lowThreshold = document.getElementById('id_low_threshold');
-    const mediumThreshold = document.getElementById('id_medium_threshold');
+
+    const lowThreshold = document.querySelector('[name="low_threshold"]');
+    const mediumThreshold = document.querySelector('[name="medium_threshold"]');
 
     if (isTrackedCheckbox && lowThreshold && mediumThreshold) {
         function toggleThresholdFields() {
+            const lowFieldContainer = lowThreshold.closest('.mb-3');
+            const mediumFieldContainer = mediumThreshold.closest('.mb-3');
+
             if (isTrackedCheckbox.checked) {
-                lowThreshold.closest('.mb-3').style.display = 'block';
-                mediumThreshold.closest('.mb-3').style.display = 'block';
+                lowFieldContainer.style.display = 'block';
+                mediumFieldContainer.style.display = 'block';
+                lowThreshold.disabled = false;
+                mediumThreshold.disabled = false;
                 lowThreshold.required = true;
                 mediumThreshold.required = true;
             } else {
-                lowThreshold.closest('.mb-3').style.display = 'none';
-                mediumThreshold.closest('.mb-3').style.display = 'none';
+                lowFieldContainer.style.display = 'none';
+                mediumFieldContainer.style.display = 'none';
+                lowThreshold.disabled = true;
+                mediumThreshold.disabled = true;
                 lowThreshold.required = false;
                 mediumThreshold.required = false;
+                lowThreshold.value = '';
+                mediumThreshold.value = '';
             }
         }
 
         toggleThresholdFields();
+
         isTrackedCheckbox.addEventListener('change', toggleThresholdFields);
+    } else {
+        console.log('Could not find all required elements for threshold toggling');
+        console.log('is_tracked:', isTrackedCheckbox);
+        console.log('low_threshold:', lowThreshold);
+        console.log('medium_threshold:', mediumThreshold);
     }
 })();
+
 </script>
