@@ -7,11 +7,12 @@ from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponse
 from .forms import ProductForm
 from django.db.models import Q
-from .models import Product, Category, StockTransaction, Supplier
+from .models import Product, Category, StockTransaction
 from .utils import import_products_from_excel
 from .forms import StockTransactionForm
 from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
+from suppliers.models import Supplier
 from suppliers.views import import_suppliers_from_excel
 
 
