@@ -1,7 +1,6 @@
 from django import forms
 from .models import Product, Category, StockTransaction, Supplier
 
-
 class ProductForm(forms.ModelForm):
     class Meta:
         model = Product
@@ -24,8 +23,16 @@ class ProductForm(forms.ModelForm):
                 'class': 'form-check-input',
                 'id': 'id_is_tracked'
             }),
-            'low_threshold': forms.NumberInput(attrs={'class': 'form-control', 'min': '1'}),
-            'medium_threshold': forms.NumberInput(attrs={'class': 'form-control', 'min': '1'}),
+            'low_threshold': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'min': 1,
+                'max': 100,
+            }),
+            'medium_threshold': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'min': 1,
+                'max': 100,
+            }),
         }
 
     def __init__(self, *args, **kwargs):
@@ -42,6 +49,10 @@ class ProductForm(forms.ModelForm):
         self.fields['category'].choices = category_choices
         self.fields['category'].required = False
 
+        if self.instance and not self.instance.is_tracked:
+            self.fields['low_threshold'].widget.attrs['disabled'] = True
+            self.fields['medium_threshold'].widget.attrs['disabled'] = True
+
     def clean(self):
         cleaned = super().clean()
 
@@ -54,12 +65,14 @@ class ProductForm(forms.ModelForm):
                 self.add_error("low_threshold", "Low threshold is required when tracking is enabled.")
             if medium is None:
                 self.add_error("medium_threshold", "Medium threshold is required when tracking is enabled.")
-
             if low is not None and medium is not None:
                 if low <= 0:
                     self.add_error("low_threshold", "Low threshold must be greater than 0.")
                 if medium <= low:
                     self.add_error("medium_threshold", "Medium threshold must be greater than low threshold.")
+        else:
+            cleaned['low_threshold'] = None
+            cleaned['medium_threshold'] = None
 
         return cleaned
 
@@ -74,7 +87,6 @@ class ProductForm(forms.ModelForm):
         if stock_quantity is not None and stock_quantity < 0:
             raise forms.ValidationError("Stock quantity must be positive.")
         return stock_quantity
-
 
 class StockTransactionForm(forms.ModelForm):
     class Meta:

@@ -1,5 +1,5 @@
 from django.db import models
-from django.core.validators import MinValueValidator, MinLengthValidator
+from django.core.validators import MinValueValidator, MinLengthValidator, MaxValueValidator
 from django.utils import timezone
 
 class Supplier(models.Model):
@@ -34,6 +34,14 @@ class Product(models.Model):
 
     is_tracked = models.BooleanField(default=False)
     max_stock_recorded = models.PositiveIntegerField(default=0)
+    low_threshold = models.PositiveIntegerField(
+        null=True, blank=True,
+        validators=[MinValueValidator(1), MaxValueValidator(100)]
+    )
+    medium_threshold = models.PositiveIntegerField(
+        null=True, blank=True,
+        validators=[MinValueValidator(1), MaxValueValidator(100)]
+    )
 
     def save(self, *args, **kwargs):
         if self.stock_quantity > self.max_stock_recorded:

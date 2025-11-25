@@ -1,0 +1,96 @@
+<div class="modal fade show" style="display: block; background-color: rgba(0,0,0,0.5);">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <form method="post"
+                  action="{{ form_action }}"
+                  hx-post="{{ form_action }}"
+                  hx-target="#modal-container"
+                  hx-swap="innerHTML">
+                {% csrf_token %}
+                <div class="modal-header">
+                    <h5 class="modal-title">{{ modal_title }}</h5>
+                    <button type="button" class="btn-close" aria-label="Close"
+                            onclick="document.getElementById('modal-container').innerHTML = ''"></button>
+                </div>
+
+                <div class="modal-body p-3" style="max-height: 65vh; overflow-y: auto;">
+                    {% for field in form %}
+                        <div class="mb-3">
+                            <label class="form-label mb-2">
+                                {{ field.label }}
+                                {% if field.field.required %}<span class="text-danger">*</span>{% endif %}
+                            </label>
+
+                            {{ field }}
+
+                            {% if field.name == 'category' %}
+                                <input type="text"
+                                       id="new-category-input"
+                                       name="new_category_name"
+                                       class="form-control mt-2"
+                                       placeholder="Enter new category name"
+                                       style="display: none;">
+                            {% endif %}
+
+                            {% for error in field.errors %}
+                                <div class="text-danger small">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <div class="modal-footer py-3">
+                    <button type="button" class="btn btn-secondary"
+                            onclick="document.getElementById('modal-container').innerHTML = ''">Cancel</button>
+                    <button type="submit" class="btn btn-primary">{{ submit_text }}</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+(function() {
+    // Handle "Add New Category" field visibility
+    const categorySelect = document.getElementById('id_category');
+    const newCategoryInput = document.getElementById('new-category-input');
+
+    if (categorySelect && newCategoryInput) {
+        categorySelect.addEventListener('change', function() {
+            if (this.value === '__new__') {
+                newCategoryInput.style.display = 'block';
+                newCategoryInput.required = true;
+                newCategoryInput.focus();
+            } else {
+                newCategoryInput.style.display = 'none';
+                newCategoryInput.required = false;
+                newCategoryInput.value = '';
+            }
+        });
+    }
+
+    // Toggle low/medium threshold fields based on is_tracked checkbox
+    const isTrackedCheckbox = document.getElementById('id_is_tracked');
+    const lowThreshold = document.getElementById('id_low_threshold');
+    const mediumThreshold = document.getElementById('id_medium_threshold');
+
+    if (isTrackedCheckbox && lowThreshold && mediumThreshold) {
+        function toggleThresholdFields() {
+            if (isTrackedCheckbox.checked) {
+                lowThreshold.closest('.mb-3').style.display = 'block';
+                mediumThreshold.closest('.mb-3').style.display = 'block';
+                lowThreshold.required = true;
+                mediumThreshold.required = true;
+            } else {
+                lowThreshold.closest('.mb-3').style.display = 'none';
+                mediumThreshold.closest('.mb-3').style.display = 'none';
+                lowThreshold.required = false;
+                mediumThreshold.required = false;
+            }
+        }
+
+        toggleThresholdFields();
+        isTrackedCheckbox.addEventListener('change', toggleThresholdFields);
+    }
+})();
+</script>
