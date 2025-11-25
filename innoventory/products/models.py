@@ -71,6 +71,18 @@ class Product(models.Model):
         else:
             return "low"
 
+    def get_thresholds(self):
+        if self.is_tracked and self.low_threshold is not None and self.medium_threshold is not None:
+            return self.low_threshold, self.medium_threshold
+
+        settings = InventorySettings.objects.first()
+        if not settings:
+            return 10, 50
+
+        low = int((settings.low_percentage / 100) * self.max_stock_recorded)
+        medium = int((settings.medium_percentage / 100) * self.max_stock_recorded)
+        return low, medium
+
     def __str__(self):
         return self.name
 
