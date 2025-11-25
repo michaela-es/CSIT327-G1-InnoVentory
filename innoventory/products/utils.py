@@ -1,9 +1,10 @@
 # utils.py
 import pandas as pd
-from .models import Product
+from .models import Product, Supplier
 
 
 def import_products_from_excel(file):
+    default_supplier, _ = Supplier.objects.get_or_create(name='Unknown Supplier')
     df = pd.read_excel(file)
     required_columns = ['name', 'price', 'stock_quantity']
     if not all(col in df.columns for col in required_columns):
@@ -33,7 +34,7 @@ def import_products_from_excel(file):
                 category=None,
                 price=price,
                 stock_quantity=stock_quantity,
-                supplier=None
+                supplier=default_supplier
             )
             products_to_create.append(product)
             existing_names_lower[name_lower] = product
