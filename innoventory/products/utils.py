@@ -1,10 +1,20 @@
 # utils.py
 import pandas as pd
-from .models import Product, Supplier
+from .models import Product
 
 
 def import_products_from_excel(file):
-    default_supplier, _ = Supplier.objects.get_or_create(name='Unknown Supplier')
+    from suppliers.models import Supplier
+    from .models import Product
+
+    default_supplier, _ = Supplier.objects.get_or_create(
+        name='Unknown Supplier',
+        defaults={
+            'contact_info': 'Not provided',
+            'address': 'Not provided'
+        }
+    )
+
     df = pd.read_excel(file)
     required_columns = ['name', 'price', 'stock_quantity']
     if not all(col in df.columns for col in required_columns):
