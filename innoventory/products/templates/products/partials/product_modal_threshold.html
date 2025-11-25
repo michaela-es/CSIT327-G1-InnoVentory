@@ -15,8 +15,10 @@
                 </div>
 
                 <div class="modal-body p-3" style="max-height: 65vh; overflow-y: auto;">
+
                     {% for field in form %}
                         <div class="mb-3" id="field-container-{{ field.name }}">
+
                             {% if field.name == 'is_tracked' %}
                                 <div class="form-check form-switch">
                                     {{ field }}
@@ -24,12 +26,21 @@
                                         Track Stock
                                     </label>
                                 </div>
+
+                            {% elif field.name in ['low_threshold', 'medium_threshold'] %}
+                                <div class="mb-3 threshold-field" id="{{ field.name }}-container" style="display:none;">
+                                    <label class="form-label">
+                                        {{ field.label }}
+                                        {% if field.field.required %}<span class="text-danger">*</span>{% endif %}
+                                    </label>
+                                    {{ field }}
+                                </div>
+
                             {% else %}
                                 <label class="form-label mb-2">
                                     {{ field.label }}
                                     {% if field.field.required %}<span class="text-danger">*</span>{% endif %}
                                 </label>
-
                                 {{ field }}
 
                                 {% if field.name == 'category' %}
@@ -45,8 +56,10 @@
                             {% for error in field.errors %}
                                 <div class="text-danger small">{{ error }}</div>
                             {% endfor %}
+
                         </div>
                     {% endfor %}
+
                 </div>
 
                 <div class="modal-footer py-3">
@@ -78,37 +91,63 @@
         });
     }
 
-    const isTrackedCheckbox = document.getElementById('id_is_tracked');
-    const lowThreshold = document.querySelector('[name="low_threshold"]');
-    const mediumThreshold = document.querySelector('[name="medium_threshold"]');
+    const isTracked = document.getElementById('id_is_tracked');
 
-    if (isTrackedCheckbox && lowThreshold && mediumThreshold) {
-        function toggleThresholdFields() {
-            const lowContainer = lowThreshold.closest('.mb-3');
-            const mediumContainer = mediumThreshold.closest('.mb-3');
+    function toggleThresholdFields() {
+        const lowContainer = document.getElementById('low_threshold-container');
+        const mediumContainer = document.getElementById('medium_threshold-container');
+        const lowThreshold = document.getElementById('id_low_threshold');
+        const mediumThreshold = document.getElementById('id_medium_threshold');
 
-            if (isTrackedCheckbox.checked) {
+        console.log('Toggle function called. isTracked checked:', isTracked?.checked);
+        console.log('Low container found:', !!lowContainer);
+        console.log('Medium container found:', !!mediumContainer);
+
+        if (isTracked && lowContainer && mediumContainer) {
+            if (isTracked.checked) {
                 lowContainer.style.display = 'block';
                 mediumContainer.style.display = 'block';
-                lowThreshold.disabled = false;
-                mediumThreshold.disabled = false;
-                lowThreshold.required = true;
-                mediumThreshold.required = true;
+                if (lowThreshold) lowThreshold.disabled = false;
+                if (mediumThreshold) mediumThreshold.disabled = false;
+                if (lowThreshold) lowThreshold.required = true;
+                if (mediumThreshold) mediumThreshold.required = true;
             } else {
                 lowContainer.style.display = 'none';
                 mediumContainer.style.display = 'none';
-                lowThreshold.disabled = true;
-                mediumThreshold.disabled = true;
-                lowThreshold.required = false;
-                mediumThreshold.required = false;
-                lowThreshold.value = '';
-                mediumThreshold.value = '';
+                if (lowThreshold) lowThreshold.disabled = true;
+                if (mediumThreshold) mediumThreshold.disabled = true;
+                if (lowThreshold) lowThreshold.required = false;
+                if (mediumThreshold) mediumThreshold.required = false;
+                if (lowThreshold) lowThreshold.value = '';
+                if (mediumThreshold) mediumThreshold.value = '';
             }
         }
+    }
+
+    if (isTracked) {
+        console.log('Initializing threshold toggle...');
 
         toggleThresholdFields();
 
-        isTrackedCheckbox.addEventListener('change', toggleThresholdFields);
+        isTracked.addEventListener('change', toggleThresholdFields);
+
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(toggleThresholdFields, 100);
+        });
+    } else {
+        console.log('is_tracked checkbox not found');
     }
+
+    {% if form.instance and form.instance.is_tracked %}
+    console.log('Editing existing product with tracking enabled');
+    setTimeout(function() {
+        const isTrackedCheckbox = document.getElementById('id_is_tracked');
+        if (isTrackedCheckbox) {
+            isTrackedCheckbox.checked = true;
+            toggleThresholdFields();
+        }
+    }, 200);
+    {% endif %}
+
 })();
 </script>

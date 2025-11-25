@@ -1,6 +1,9 @@
 from django import forms
 from .models import Product, Category, StockTransaction, Supplier
 
+from django import forms
+from .models import Product, Category
+
 class ProductForm(forms.ModelForm):
     class Meta:
         model = Product
@@ -52,12 +55,15 @@ class ProductForm(forms.ModelForm):
         self.fields['category'].required = False
 
         if self.instance and not self.instance.is_tracked:
-            self.fields['low_threshold'].widget.attrs['disabled'] = True
-            self.fields['medium_threshold'].widget.attrs['disabled'] = True
+            self.fields['low_threshold'].widget.attrs.update({
+                'style': 'display: none;'
+            })
+            self.fields['medium_threshold'].widget.attrs.update({
+                'style': 'display: none;'
+            })
 
     def clean(self):
         cleaned = super().clean()
-
         is_tracked = cleaned.get("is_tracked")
         low = cleaned.get("low_threshold")
         medium = cleaned.get("medium_threshold")
@@ -67,28 +73,14 @@ class ProductForm(forms.ModelForm):
                 self.add_error("low_threshold", "Low threshold is required when tracking is enabled.")
             if medium is None:
                 self.add_error("medium_threshold", "Medium threshold is required when tracking is enabled.")
-            if low is not None and medium is not None:
-                if low <= 0:
-                    self.add_error("low_threshold", "Low threshold must be greater than 0.")
-                if medium <= low:
-                    self.add_error("medium_threshold", "Medium threshold must be greater than low threshold.")
+            if low is not None and medium is not None and medium <= low:
+                self.add_error("medium_threshold", "Medium threshold must be greater than low threshold.")
         else:
             cleaned['low_threshold'] = None
             cleaned['medium_threshold'] = None
 
         return cleaned
 
-    def clean_price(self):
-        price = self.cleaned_data.get('price')
-        if price is not None and price <= 0:
-            raise forms.ValidationError("Price must be positive.")
-        return price
-
-    def clean_stock_quantity(self):
-        stock_quantity = self.cleaned_data.get('stock_quantity')
-        if stock_quantity is not None and stock_quantity < 0:
-            raise forms.ValidationError("Stock quantity must be positive.")
-        return stock_quantity
 
 class StockTransactionForm(forms.ModelForm):
     class Meta:
@@ -117,7 +109,7 @@ class StockTransactionForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for field in self.fields.values():
-            field.widget.attrs.update({'class': 'form-control'})    
+            field.widget.attrs.update({'class': 'form-control'})
         if self.instance and self.instance.pk:
             self.fields['product'].disabled = True
 
