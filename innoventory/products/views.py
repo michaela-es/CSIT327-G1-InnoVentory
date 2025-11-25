@@ -8,11 +8,12 @@ from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponse
 from .forms import ProductForm
 from django.db.models import Q, ProtectedError
-from .models import Product, Category, StockTransaction, Supplier
+from .models import Product, Category, StockTransaction
 from .utils import import_products_from_excel
 from .forms import StockTransactionForm
 from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
+from suppliers.models import Supplier
 from suppliers.views import import_suppliers_from_excel
 
 
@@ -59,7 +60,6 @@ def delete_product(request, pk):
             'success': True,
             'message': f'Product "{product_name}" deleted successfully!'
         })
-
     except ProtectedError:
         return JsonResponse({
             'success': False,
@@ -265,4 +265,71 @@ def edit_transaction_modal(request, transaction_id):
     }
     return render(request, 'products/partials/transaction_edit_modal.html', context)
 
+
+@login_required
+def product_modal_threshold(request, pk=None):
+    if pk:
+        product = get_object_or_404(Product, pk=pk)
+        form = ProductForm(instance=product)
+        modal_title = 'Edit Product'
+        submit_text = 'Save Changes'
+        form_action = reverse('product_modal_threshold', args=[pk])
+    else:
+        product = None
+        form = ProductForm()
+        modal_title = 'Add Product'
+        submit_text = 'Add Product'
+        form_action = reverse('product_modal_threshold')
+
+    if request.method == 'POST':
+        new_category_name = request.POST.get('new_category_name', '').strip()
+
+        post_data = request.POST.copy()
+        if not post_data.get('category') or post_data.get('category') == '__new__':
+            if not new_category_name:
+                if pk:
+                    product = get_object_or_404(Product, pk=pk)
+                    form = ProductForm(post_data, instance=product)
+                else:
+                    form = ProductForm(post_data)
+                form.add_error('category', 'Please select a category or enter a new category name.')
+
+                return render(request, 'products/partials/product_modal.html', {
+                    'form': form,
+                    'modal_title': modal_title,
+                    'submit_text': submit_text,
+                    'form_action': form_action,
+                })
+
+        if new_category_name:
+            category, created = Category.objects.get_or_create(name=new_category_name)
+            post_data['category'] = category.id
+        elif post_data.get('category') == '__new__':
+            post_data['category'] = ''
+
+        if pk:
+            product = get_object_or_404(Product, pk=pk)
+            form = ProductForm(post_data, instance=product)
+        else:
+            form = ProductForm(post_data)
+
+        category_choices = [('', '---------'), ('__new__', '➕ Add New Category')]
+        category_choices.extend([(cat.id, cat.name) for cat in Category.objects.all().order_by('name')])
+        form.fields['category'].choices = category_choices
+
+        if form.is_valid():
+            form.save()
+            return HttpResponse('''
+                <script>
+                    document.getElementById("modal-container").innerHTML = "";
+                    window.location.reload();
+                </script>
+            ''')
+
+    return render(request, 'products/partials/product_modal.html', {
+        'form': form,
+        'modal_title': modal_title,
+        'submit_text': submit_text,
+        'form_action': form_action,
+    })
 

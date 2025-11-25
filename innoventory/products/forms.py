@@ -1,39 +1,78 @@
 from django import forms
-from .models import Product, Category, StockTransaction, Supplier
-
+from .models import Product, Category, StockTransaction
+from suppliers.models import Supplier
+from django import forms
+from .models import Product, Category
 
 class ProductForm(forms.ModelForm):
     class Meta:
         model = Product
-        fields = ['name', 'category', 'price', 'stock_quantity', 'supplier']
+        fields = [
+            'name',
+            'category',
+            'price',
+            'stock_quantity',
+            'supplier',
+            'is_tracked',
+            'low_threshold',
+            'medium_threshold',
+        ]
         widgets = {
             'category': forms.Select(attrs={
                 'class': 'form-control',
                 'id': 'id_category'
             }),
+            'is_tracked': forms.CheckboxInput(attrs={
+                'class': 'form-check-input',
+                'id': 'id_is_tracked'
+            }),
+            'low_threshold': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'min': 1,
+                'max': 100,
+                'id': 'id_low_threshold'
+            }),
+            'medium_threshold': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'min': 1,
+                'max': 100,
+                'id': 'id_medium_threshold'
+            }),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        for field in self.fields.values():
-            field.widget.attrs.update({'class': 'form-control'})
-        
+
+        for name, field in self.fields.items():
+            if name != 'is_tracked':
+                field.widget.attrs.setdefault('class', 'form-control')
+
         category_choices = [('', '---------'), ('__new__', '➕ Add New Category')]
-        category_choices.extend([(cat.id, cat.name) for cat in Category.objects.all().order_by('name')])
+        category_choices.extend(
+            (cat.id, cat.name) for cat in Category.objects.all().order_by('name')
+        )
         self.fields['category'].choices = category_choices
         self.fields['category'].required = False
 
-    def clean_price(self):
-        price = self.cleaned_data.get('price')
-        if price and price <= 0:
-            raise forms.ValidationError("Price must be positive.")
-        return price
+    def clean(self):
+        cleaned = super().clean()
+        is_tracked = cleaned.get("is_tracked")
+        low = cleaned.get("low_threshold")
+        medium = cleaned.get("medium_threshold")
 
-    def clean_stock_quantity(self):
-        stock_quantity = self.cleaned_data.get('stock_quantity')
-        if stock_quantity and stock_quantity < 0:
-            raise forms.ValidationError("Stock quantity must be positive.")
-        return stock_quantity
+        if is_tracked:
+            if low is None:
+                self.add_error("low_threshold", "Low threshold is required when tracking is enabled.")
+            if medium is None:
+                self.add_error("medium_threshold", "Medium threshold is required when tracking is enabled.")
+            if low is not None and medium is not None and medium <= low:
+                self.add_error("medium_threshold", "Medium threshold must be greater than low threshold.")
+        else:
+            cleaned['low_threshold'] = None
+            cleaned['medium_threshold'] = None
+
+        return cleaned
+
 
 class StockTransactionForm(forms.ModelForm):
     class Meta:
@@ -62,7 +101,7 @@ class StockTransactionForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for field in self.fields.values():
-            field.widget.attrs.update({'class': 'form-control'})    
+            field.widget.attrs.update({'class': 'form-control'})
         if self.instance and self.instance.pk:
             self.fields['product'].disabled = True
 

@@ -4,6 +4,17 @@ from .models import Product
 
 
 def import_products_from_excel(file):
+    from suppliers.models import Supplier
+    from .models import Product
+
+    default_supplier, _ = Supplier.objects.get_or_create(
+        name='Unknown Supplier',
+        defaults={
+            'contact': 'Not provided',
+            'address': 'Not provided'
+        }
+    )
+
     df = pd.read_excel(file)
     required_columns = ['name', 'price', 'stock_quantity']
     if not all(col in df.columns for col in required_columns):
@@ -33,7 +44,7 @@ def import_products_from_excel(file):
                 category=None,
                 price=price,
                 stock_quantity=stock_quantity,
-                supplier=None
+                supplier=default_supplier
             )
             products_to_create.append(product)
             existing_names_lower[name_lower] = product
