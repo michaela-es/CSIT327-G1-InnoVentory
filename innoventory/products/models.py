@@ -32,6 +32,37 @@ class Product(models.Model):
     date_modified = models.DateTimeField(auto_now=True)
     supplier = models.ForeignKey('suppliers.Supplier', on_delete=models.CASCADE, related_name='products')
 
+    is_tracked = models.BooleanField(default=False)
+    max_stock_recorded = models.PositiveIntegerField(default=0)
+
+    def save(self, *args, **kwargs):
+        if self.stock_quantity > self.max_stock_recorded:
+            self.max_stock_recorded = self.stock_quantity
+        super().save(*args, **kwargs)
+
+    def stock_status(self):
+        if self.is_tracked and self.low_threshold and self.medium_threshold:
+            if self.stock_quantity > self.medium_threshold:
+                return "high"
+            elif self.stock_quantity > self.low_threshold:
+                return "medium"
+            else:
+                return "low"
+
+        settings = InventorySettings.objects.first()
+        if not settings:
+            return "unknown"
+
+        low = (settings.low_percentage / 100) * self.max_stock_recorded
+        medium = (settings.medium_percentage / 100) * self.max_stock_recorded
+
+        if self.stock_quantity > medium:
+            return "high"
+        elif self.stock_quantity > low:
+            return "medium"
+        else:
+            return "low"
+
     def __str__(self):
         return self.name
 
@@ -77,3 +108,14 @@ class StockTransaction(models.Model):
             self.product.stock_quantity += self.quantity
         self.product.save()
         super().delete(*args, **kwargs)
+
+class InventorySettings(models.Model):
+    low_percentage = models.PositiveIntegerField(default=20)
+    medium_percentage = models.PositiveIntegerField(default=50)
+
+    def __str__(self):
+        return "Inventory Threshold Settings"
+
+    class Meta:
+        verbose_name = "Inventory Setting"
+        verbose_name_plural = "Inventory Settings"
