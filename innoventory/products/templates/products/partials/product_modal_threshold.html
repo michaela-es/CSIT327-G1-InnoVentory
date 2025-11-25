@@ -1,153 +1,106 @@
 <div class="modal fade show" style="display: block; background-color: rgba(0,0,0,0.5);">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content">
-            <form method="post"
-                  action="{{ form_action }}"
-                  hx-post="{{ form_action }}"
-                  hx-target="#modal-container"
-                  hx-swap="innerHTML">
-                {% csrf_token %}
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <form method="post"
+            action="{{ form_action }}"
+            hx-post="{{ form_action }}"
+            hx-target="#modal-container"
+            hx-swap="innerHTML">
+        {% csrf_token %}
 
-                <div class="modal-header">
-                    <h5 class="modal-title">{{ modal_title }}</h5>
-                    <button type="button" class="btn-close" aria-label="Close"
-                            onclick="document.getElementById('modal-container').innerHTML = ''"></button>
-                </div>
-
-                <div class="modal-body p-3" style="max-height: 65vh; overflow-y: auto;">
-
-                    {% for field in form %}
-                        <div class="mb-3" id="field-container-{{ field.name }}">
-
-                            {% if field.name == 'is_tracked' %}
-                                <div class="form-check form-switch">
-                                    {{ field }}
-                                    <label class="form-check-label" for="id_is_tracked">
-                                        Track Stock
-                                    </label>
-                                </div>
-
-                            {% elif field.name in ['low_threshold', 'medium_threshold'] %}
-                                <div class="mb-3 threshold-field" id="{{ field.name }}-container" style="display:none;">
-                                    <label class="form-label">
-                                        {{ field.label }}
-                                        {% if field.field.required %}<span class="text-danger">*</span>{% endif %}
-                                    </label>
-                                    {{ field }}
-                                </div>
-
-                            {% else %}
-                                <label class="form-label mb-2">
-                                    {{ field.label }}
-                                    {% if field.field.required %}<span class="text-danger">*</span>{% endif %}
-                                </label>
-                                {{ field }}
-
-                                {% if field.name == 'category' %}
-                                    <input type="text"
-                                           id="new-category-input"
-                                           name="new_category_name"
-                                           class="form-control mt-2"
-                                           placeholder="Enter new category name"
-                                           style="display: none;">
-                                {% endif %}
-                            {% endif %}
-
-                            {% for error in field.errors %}
-                                <div class="text-danger small">{{ error }}</div>
-                            {% endfor %}
-
-                        </div>
-                    {% endfor %}
-
-                </div>
-
-                <div class="modal-footer py-3">
-                    <button type="button" class="btn btn-secondary"
-                            onclick="document.getElementById('modal-container').innerHTML = ''">Cancel</button>
-                    <button type="submit" class="btn btn-primary">{{ submit_text }}</button>
-                </div>
-            </form>
+        <div class="modal-header">
+          <h5 class="modal-title">{{ modal_title }}</h5>
+          <button type="button" class="btn-close" aria-label="Close"
+                  onclick="document.getElementById('modal-container').innerHTML = ''"></button>
         </div>
+
+        <div class="modal-body p-3" style="max-height: 65vh; overflow-y: auto;">
+
+          {% for field in form %}
+          <div class="mb-3" id="field-container-{{ field.name }}">
+
+            {% if field.name == 'is_tracked' %}
+            <div class="form-check form-switch">
+              {{ field }}
+              <label class="form-check-label" for="id_is_tracked">Track Stock</label>
+            </div>
+
+            {% elif field.name in ['low_threshold', 'medium_threshold'] %}
+            <div class="threshold-field" id="{{ field.name }}-container" style="display:none;">
+              <label class="form-label">
+                {{ field.label }}
+                {% if field.field.required %}<span class="text-danger">*</span>{% endif %}
+              </label>
+              {{ field }}
+            </div>
+
+            {% else %}
+            <label class="form-label mb-2">
+              {{ field.label }}
+              {% if field.field.required %}<span class="text-danger">*</span>{% endif %}
+            </label>
+            {{ field }}
+            {% endif %}
+
+            {% for error in field.errors %}
+            <div class="text-danger small">{{ error }}</div>
+            {% endfor %}
+
+          </div>
+          {% endfor %}
+
+        </div>
+
+        <div class="modal-footer py-3">
+          <button type="button" class="btn btn-secondary"
+                  onclick="document.getElementById('modal-container').innerHTML = ''">Cancel</button>
+          <button type="submit" class="btn btn-primary">{{ submit_text }}</button>
+        </div>
+      </form>
     </div>
+  </div>
 </div>
 
 <script>
-(function() {
-    const categorySelect = document.getElementById('id_category');
-    const newCategoryInput = document.getElementById('new-category-input');
+document.addEventListener('htmx:afterSwap', function(evt) {
+    if(evt.detail.target.id === 'modal-container') {
 
-    if (categorySelect && newCategoryInput) {
-        categorySelect.addEventListener('change', function() {
-            if (this.value === '__new__') {
-                newCategoryInput.style.display = 'block';
-                newCategoryInput.required = true;
-                newCategoryInput.focus();
-            } else {
-                newCategoryInput.style.display = 'none';
-                newCategoryInput.required = false;
-                newCategoryInput.value = '';
-            }
-        });
-    }
-
-    const isTracked = document.getElementById('id_is_tracked');
-
-    function toggleThresholdFields() {
+        const isTracked = document.getElementById('id_is_tracked');
         const lowContainer = document.getElementById('low_threshold-container');
         const mediumContainer = document.getElementById('medium_threshold-container');
         const lowThreshold = document.getElementById('id_low_threshold');
         const mediumThreshold = document.getElementById('id_medium_threshold');
 
-        console.log('Toggle function called. isTracked checked:', isTracked?.checked);
-        console.log('Low container found:', !!lowContainer);
-        console.log('Medium container found:', !!mediumContainer);
-
-        if (isTracked && lowContainer && mediumContainer) {
+        function toggleThresholdFields() {
             if (isTracked.checked) {
                 lowContainer.style.display = 'block';
                 mediumContainer.style.display = 'block';
-                if (lowThreshold) lowThreshold.disabled = false;
-                if (mediumThreshold) mediumThreshold.disabled = false;
-                if (lowThreshold) lowThreshold.required = true;
-                if (mediumThreshold) mediumThreshold.required = true;
+                lowThreshold.disabled = false;
+                mediumThreshold.disabled = false;
+                lowThreshold.required = true;
+                mediumThreshold.required = true;
             } else {
                 lowContainer.style.display = 'none';
                 mediumContainer.style.display = 'none';
-                if (lowThreshold) lowThreshold.disabled = true;
-                if (mediumThreshold) mediumThreshold.disabled = true;
-                if (lowThreshold) lowThreshold.required = false;
-                if (mediumThreshold) mediumThreshold.required = false;
-                if (lowThreshold) lowThreshold.value = '';
-                if (mediumThreshold) mediumThreshold.value = '';
+                lowThreshold.disabled = true;
+                mediumThreshold.disabled = true;
+                lowThreshold.required = false;
+                mediumThreshold.required = false;
+                lowThreshold.value = '';
+                mediumThreshold.value = '';
             }
         }
-    }
 
-    if (isTracked) {
-        console.log('Initializing threshold toggle...');
+        if (isTracked) {
+            // Pre-check if editing an existing tracked product
+            {% if form.instance and form.instance.is_tracked %}
+            isTracked.checked = true;
+            {% endif %}
 
-        toggleThresholdFields();
-
-        isTracked.addEventListener('change', toggleThresholdFields);
-
-        document.addEventListener('DOMContentLoaded', function() {
-            setTimeout(toggleThresholdFields, 100);
-        });
-    } else {
-        console.log('is_tracked checkbox not found');
-    }
-
-    {% if form.instance and form.instance.is_tracked %}
-    console.log('Editing existing product with tracking enabled');
-    setTimeout(function() {
-        const isTrackedCheckbox = document.getElementById('id_is_tracked');
-        if (isTrackedCheckbox) {
-            isTrackedCheckbox.checked = true;
             toggleThresholdFields();
+            isTracked.addEventListener('change', toggleThresholdFields);
         }
-    }, 200);
-    {% endif %}
 
-})();
+    }
+});
 </script>
