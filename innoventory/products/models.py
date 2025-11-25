@@ -79,9 +79,28 @@ class Product(models.Model):
         if not settings:
             return 10, 50
 
-        low = int((settings.low_percentage / 100) * self.max_stock_recorded)
-        medium = int((settings.medium_percentage / 100) * self.max_stock_recorded)
+        if self.max_stock_recorded == 0:
+            base = max(self.stock_quantity, 1)
+            low = int((settings.low_percentage / 100) * base)
+            medium = int((settings.medium_percentage / 100) * base)
+        else:
+            low = int((settings.low_percentage / 100) * self.max_stock_recorded)
+            medium = int((settings.medium_percentage / 100) * self.max_stock_recorded)
+
+        low = max(1, low)
+        medium = max(low + 1, medium)
+
         return low, medium
+
+    @property
+    def display_color(self):
+        low, medium = self.get_thresholds()
+        if self.stock_quantity <= low:
+            return "danger"  # red
+        elif self.stock_quantity <= medium:
+            return "warning" # orange
+        else:
+            return "info"
 
     def __str__(self):
         return self.name

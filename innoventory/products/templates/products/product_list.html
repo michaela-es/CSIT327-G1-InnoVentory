@@ -110,24 +110,12 @@
 
                     <td>₱{{ product.price|floatformat:2|intcomma }}</td>
 
-                        <td>
-                            {% if product.stock_quantity > medium %}
-                                <span class="badge rounded-pill"
-                                      style="background-color: #e0f7fa; color: #00bcd4; font-weight: 500; padding: 6px 10px;">
-                                    {{ product.stock_quantity|intcomma }}
-                                </span>
-                            {% elif product.stock_quantity > low %}
-                                <span class="badge rounded-pill"
-                                      style="background-color: #fff3e0; color: #ff9800; font-weight: 500; padding: 6px 10px;">
-                                    {{ product.stock_quantity|intcomma }}
-                                </span>
-                            {% else %}
-                                <span class="badge rounded-pill"
-                                      style="background-color: #ffe0e0; color: #f44336; font-weight: 500; padding: 6px 10px;">
-                                    {{ product.stock_quantity|intcomma }}
-                                </span>
-                            {% endif %}
-                        </td>
+                    <td>
+                        <span class="badge rounded-pill bg-{{ product.display_color }}"
+                              style="font-weight: 500; padding: 6px 10px;">
+                            {{ product.stock_quantity|intcomma }}
+                        </span>
+                    </td>
 
                     <td>{{ product.supplier.name }}</td>
                     <td>
