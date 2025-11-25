@@ -7,6 +7,7 @@
                   hx-target="#modal-container"
                   hx-swap="innerHTML">
                 {% csrf_token %}
+
                 <div class="modal-header">
                     <h5 class="modal-title">{{ modal_title }}</h5>
                     <button type="button" class="btn-close" aria-label="Close"
@@ -15,21 +16,30 @@
 
                 <div class="modal-body p-3" style="max-height: 65vh; overflow-y: auto;">
                     {% for field in form %}
-                        <div class="mb-3">
-                            <label class="form-label mb-2">
-                                {{ field.label }}
-                                {% if field.field.required %}<span class="text-danger">*</span>{% endif %}
-                            </label>
+                        <div class="mb-3" id="field-container-{{ field.name }}">
+                            {% if field.name == 'is_tracked' %}
+                                <div class="form-check form-switch">
+                                    {{ field }}
+                                    <label class="form-check-label" for="id_is_tracked">
+                                        Track Stock
+                                    </label>
+                                </div>
+                            {% else %}
+                                <label class="form-label mb-2">
+                                    {{ field.label }}
+                                    {% if field.field.required %}<span class="text-danger">*</span>{% endif %}
+                                </label>
 
-                            {{ field }}
+                                {{ field }}
 
-                            {% if field.name == 'category' %}
-                                <input type="text"
-                                       id="new-category-input"
-                                       name="new_category_name"
-                                       class="form-control mt-2"
-                                       placeholder="Enter new category name"
-                                       style="display: none;">
+                                {% if field.name == 'category' %}
+                                    <input type="text"
+                                           id="new-category-input"
+                                           name="new_category_name"
+                                           class="form-control mt-2"
+                                           placeholder="Enter new category name"
+                                           style="display: none;">
+                                {% endif %}
                             {% endif %}
 
                             {% for error in field.errors %}
@@ -50,8 +60,7 @@
 </div>
 
 <script>
-
-    (function() {
+(function() {
     const categorySelect = document.getElementById('id_category');
     const newCategoryInput = document.getElementById('new-category-input');
 
@@ -70,25 +79,24 @@
     }
 
     const isTrackedCheckbox = document.getElementById('id_is_tracked');
-
     const lowThreshold = document.querySelector('[name="low_threshold"]');
     const mediumThreshold = document.querySelector('[name="medium_threshold"]');
 
     if (isTrackedCheckbox && lowThreshold && mediumThreshold) {
         function toggleThresholdFields() {
-            const lowFieldContainer = lowThreshold.closest('.mb-3');
-            const mediumFieldContainer = mediumThreshold.closest('.mb-3');
+            const lowContainer = lowThreshold.closest('.mb-3');
+            const mediumContainer = mediumThreshold.closest('.mb-3');
 
             if (isTrackedCheckbox.checked) {
-                lowFieldContainer.style.display = 'block';
-                mediumFieldContainer.style.display = 'block';
+                lowContainer.style.display = 'block';
+                mediumContainer.style.display = 'block';
                 lowThreshold.disabled = false;
                 mediumThreshold.disabled = false;
                 lowThreshold.required = true;
                 mediumThreshold.required = true;
             } else {
-                lowFieldContainer.style.display = 'none';
-                mediumFieldContainer.style.display = 'none';
+                lowContainer.style.display = 'none';
+                mediumContainer.style.display = 'none';
                 lowThreshold.disabled = true;
                 mediumThreshold.disabled = true;
                 lowThreshold.required = false;
@@ -101,12 +109,6 @@
         toggleThresholdFields();
 
         isTrackedCheckbox.addEventListener('change', toggleThresholdFields);
-    } else {
-        console.log('Could not find all required elements for threshold toggling');
-        console.log('is_tracked:', isTrackedCheckbox);
-        console.log('low_threshold:', lowThreshold);
-        console.log('medium_threshold:', mediumThreshold);
     }
 })();
-
 </script>
