@@ -9,5 +9,7 @@ urlpatterns = [
     path('products/', include('products.urls')),
     path('sales/', include('sales.urls')),
     path('suppliers/', include('suppliers.urls')),
-    path('reports/', include('reports.urls'))
+    path('reports/', include('reports.urls')),
+    path('settings/', views.settings_view, name='settings')
 ]
+

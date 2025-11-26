@@ -1,0 +1,63 @@
+<form id="{{ form_id }}" method="post" novalidate>
+    {% csrf_token %}
+
+    <label class="form-label" for="{{ form.low_percentage.id_for_label }}">Low Percentage</label>
+    {{ form.low_percentage }}
+    {% if form.low_percentage.errors %}
+        <div class="error">{{ form.low_percentage.errors.0 }}</div>
+    {% endif %}
+
+    <label class="form-label" for="{{ form.medium_percentage.id_for_label }}">Medium Percentage</label>
+    {{ form.medium_percentage }}
+    {% if form.medium_percentage.errors %}
+        <div class="error">{{ form.medium_percentage.errors.0 }}</div>
+    {% endif %}
+
+    <button type="submit" id="save-btn-{{ form_id }}" disabled>Save Changes</button>
+</form>
+
+<style>
+    .form-input, .form-control {
+        padding: 0.5em;
+        width: 100%;
+        margin-bottom: 0.5em;
+    }
+    .form-label {
+        font-weight: bold;
+        display: block;
+        margin-bottom: 0.2em;
+    }
+    .error {
+        color: red;
+        font-size: 0.9em;
+    }
+    button:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+</style>
+
+<script>
+function initThresholdFormValidation(formId) {
+    const form = document.getElementById(formId);
+    const saveBtn = document.getElementById(`save-btn-${formId}`);
+    const lowInput = form.querySelector('input[name="low_percentage"]');
+    const mediumInput = form.querySelector('input[name="medium_percentage"]');
+
+    function validateForm() {
+        let valid = true;
+        const low = parseFloat(lowInput.value);
+        const medium = parseFloat(mediumInput.value);
+
+        if (!lowInput.value || !mediumInput.value) valid = false;
+        if (!isNaN(low) && !isNaN(medium) && medium <= low) valid = false;
+
+        saveBtn.disabled = !valid;
+    }
+
+    form.addEventListener('input', validateForm);
+    validateForm();
+}
+
+initThresholdFormValidation('{{ form_id }}');
+</script>

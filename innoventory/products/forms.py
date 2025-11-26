@@ -110,3 +110,45 @@ class StockTransactionForm(forms.ModelForm):
         if quantity and quantity <= 0:
             raise forms.ValidationError("Quantity must be positive.")
         return quantity
+
+class ThresholdForm(forms.ModelForm):
+    model = InventorySettings
+    fields = [
+        low_percentage,
+        medium_percentage
+    ]
+
+    widgets = {
+        'low_threshold': forms.NumberInput(attrs={
+            'class': 'form-control',
+            'min': 1,
+            'max': 100,
+            'id': 'id_low_threshold'
+        }),
+        'medium_threshold': forms.NumberInput(attrs={
+            'class': 'form-control',
+            'min': 1,
+            'max': 100,
+            'id': 'id_medium_threshold'
+        }),
+    }
+
+    def clean(self):
+        cleaned = super().clean()
+        low = cleaned.get("low_percentage")
+        medium = cleaned.get("medium_percentage")
+
+        if low is None:
+            self.add_error("low_percentage", "Low percentage is required.")
+
+        if medium is None:
+            self.add_error("medium_percentage", "Medium percentage is required.")
+
+        if low is not None and medium is not None and medium <= low:
+            self.add_error(
+                "medium_percentage",
+                "Medium percentage must be greater than low percentage."
+            )
+
+        return cleaned
+

@@ -1,0 +1,33 @@
+<form id="{{ form_id }}" method="post" novalidate>
+    {% csrf_token %}
+
+    <label class="form-label" for="{{ form.username.id_for_label }}">Username</label>
+    {{ form.username }}
+    {% if form.username.errors %}
+        <div class="error">{{ form.username.errors.0 }}</div>
+    {% endif %}
+
+    <label class="form-label" for="{{ form.email.id_for_label }}">Email</label>
+    {{ form.email }}
+    {% if form.email.errors %}
+        <div class="error">{{ form.email.errors.0 }}</div>
+    {% endif %}
+
+    <label class="form-label" for="{{ form.phone_number.id_for_label }}">Phone Number</label>
+    {{ form.phone_number }}
+    {% if form.phone_number.errors %}
+        <div class="error">{{ form.phone_number.errors.0 }}</div>
+    {% endif %}
+
+    <label class="form-label" for="{{ form.password1.id_for_label }}">New Password</label>
+    {{ form.password1 }}
+    {% if form.password1.errors %}
+        <div class="error">{{ form.password1.errors.0 }}</div>
+    {% endif %}
+
+    <label class="form-label" for="{{ form.password2.id_for_label }}">Confirm New Password</label>
+    {{ form.password2 }}
+    <div id="pw-match-error-{{ form_id }}" class="error" style="display:none;">Passwords do not match</div>
+
+    <button type="submit" id="save-btn-{{ form_id }}" disabled>Save Changes</button>
+</form>
