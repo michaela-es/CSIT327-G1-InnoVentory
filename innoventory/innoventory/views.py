@@ -26,4 +26,4 @@ def settings_view(request):
         'threshold_form': threshold_form
     }
 
-    return render(request, 'innoventory/settings.html', context)
+    return render(request, 'settings.html', context)
