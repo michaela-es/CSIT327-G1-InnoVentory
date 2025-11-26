@@ -21,3 +21,6 @@ def settings_view(request):
         'profile_form': profile_form,
         'threshold_form': threshold_form
     }
+
+    return render(request, 'settings.html', context)
+
