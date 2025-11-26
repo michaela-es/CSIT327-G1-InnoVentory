@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.urls import path, include
 from accounts.views import root_redirect
-
+from . import views
 urlpatterns = [
     path('', root_redirect, name='root'),
     path('admin/', admin.site.urls),
