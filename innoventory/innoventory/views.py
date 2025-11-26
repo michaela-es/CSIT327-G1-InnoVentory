@@ -2,7 +2,7 @@ from django.shortcuts import render
 from accounts.forms import UserEditForm
 from products.forms import ThresholdForm
 from django.contrib.auth.decorators import login_required
-
+from products.models import InventorySettings
 @login_required
 def settings_view(request):
     profile_form = UserEditForm(request.POST or None, instance=request.user)
