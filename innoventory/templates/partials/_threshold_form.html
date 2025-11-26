@@ -1,19 +1,25 @@
-<form id="{{ form_id }}" method="post" novalidate>
+<form id="threshold-form" method="post" novalidate>
     {% csrf_token %}
 
-    <label class="form-label" for="{{ form.low_percentage.id_for_label }}">Low Percentage</label>
-    {{ form.low_percentage }}
-    {% if form.low_percentage.errors %}
-        <div class="error">{{ form.low_percentage.errors.0 }}</div>
+    <label class="form-label" for="{{ threshold_form.low_percentage.id_for_label }}">
+        Low Percentage
+    </label>
+    {{ threshold_form.low_percentage }}
+    {% if threshold_form.low_percentage.errors %}
+        <div class="error">{{ threshold_form.low_percentage.errors.0 }}</div>
     {% endif %}
 
-    <label class="form-label" for="{{ form.medium_percentage.id_for_label }}">Medium Percentage</label>
-    {{ form.medium_percentage }}
-    {% if form.medium_percentage.errors %}
-        <div class="error">{{ form.medium_percentage.errors.0 }}</div>
+    <label class="form-label" for="{{ threshold_form.medium_percentage.id_for_label }}">
+        Medium Percentage
+    </label>
+    {{ threshold_form.medium_percentage }}
+    {% if threshold_form.medium_percentage.errors %}
+        <div class="error">{{ threshold_form.medium_percentage.errors.0 }}</div>
     {% endif %}
 
-    <button type="submit" id="save-btn-{{ form_id }}" disabled>Save Changes</button>
+    <button type="submit" name="threshold_form_submit" id="save-btn-threshold">
+        Save Changes
+    </button>
 </form>
 
 <style>
@@ -31,40 +37,4 @@
         color: red;
         font-size: 0.9em;
     }
-    button:disabled {
-        opacity: 0.6;
-        cursor: not-allowed;
-    }
 </style>
-
-<script>
-function initNumericFormValidation(formId, fields, compareFunc = null) {
-    const form = document.getElementById(formId);
-    const saveBtn = form.querySelector(`#save-btn-${formId}`);
-    const inputs = fields.map(name => form.querySelector(`input[name="${name}"]`));
-
-    function validateForm() {
-        let valid = true;
-
-        inputs.forEach(input => {
-            if (!input.value) valid = false;
-        });
-
-        if (compareFunc && valid) {
-            const values = inputs.map(input => parseFloat(input.value));
-            if (!compareFunc(...values)) valid = false;
-        }
-
-        saveBtn.disabled = !valid;
-    }
-
-    form.addEventListener('input', validateForm);
-    validateForm();
-}
-
-initNumericFormValidation(
-    '{{ form_id }}',
-    ['low_percentage', 'medium_percentage'],
-    (low, medium) => medium > low
-);
-</script>

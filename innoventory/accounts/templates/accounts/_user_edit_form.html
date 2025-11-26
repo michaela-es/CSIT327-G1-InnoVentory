@@ -1,4 +1,4 @@
-<form id="{{ form_id }}" method="post" novalidate>
+<form id="profile-form" method="post" novalidate>
     {% csrf_token %}
 
     <label class="form-label" for="{{ form.username.id_for_label }}">Username</label>
@@ -27,7 +27,28 @@
 
     <label class="form-label" for="{{ form.password2.id_for_label }}">Confirm New Password</label>
     {{ form.password2 }}
-    <div id="pw-match-error-{{ form_id }}" class="error" style="display:none;">Passwords do not match</div>
+    {% if form.password2.errors %}
+        <div class="error">{{ form.password2.errors.0 }}</div>
+    {% endif %}
 
-    <button type="submit" id="save-btn-{{ form_id }}" disabled>Save Changes</button>
+    <button type="submit" name="profile_form_submit" id="save-btn-profile">
+        Save Changes
+    </button>
 </form>
+
+<style>
+    .form-input, .form-control {
+        padding: 0.5em;
+        width: 100%;
+        margin-bottom: 0.5em;
+    }
+    .form-label {
+        font-weight: bold;
+        display: block;
+        margin-bottom: 0.2em;
+    }
+    .error {
+        color: red;
+        font-size: 0.9em;
+    }
+</style>
