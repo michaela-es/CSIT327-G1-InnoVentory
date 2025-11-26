@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from accounts.forms import UserEditForm
-from innoventory.forms import ThresholdForm
+from products.forms import ThresholdForm
 from django.contrib.auth.decorators import login_required
 
 @login_required
