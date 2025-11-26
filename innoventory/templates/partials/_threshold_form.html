@@ -38,19 +38,22 @@
 </style>
 
 <script>
-function initThresholdFormValidation(formId) {
+function initNumericFormValidation(formId, fields, compareFunc = null) {
     const form = document.getElementById(formId);
-    const saveBtn = document.getElementById(`save-btn-${formId}`);
-    const lowInput = form.querySelector('input[name="low_percentage"]');
-    const mediumInput = form.querySelector('input[name="medium_percentage"]');
+    const saveBtn = form.querySelector(`#save-btn-${formId}`);
+    const inputs = fields.map(name => form.querySelector(`input[name="${name}"]`));
 
     function validateForm() {
         let valid = true;
-        const low = parseFloat(lowInput.value);
-        const medium = parseFloat(mediumInput.value);
 
-        if (!lowInput.value || !mediumInput.value) valid = false;
-        if (!isNaN(low) && !isNaN(medium) && medium <= low) valid = false;
+        inputs.forEach(input => {
+            if (!input.value) valid = false;
+        });
+
+        if (compareFunc && valid) {
+            const values = inputs.map(input => parseFloat(input.value));
+            if (!compareFunc(...values)) valid = false;
+        }
 
         saveBtn.disabled = !valid;
     }
@@ -59,5 +62,9 @@ function initThresholdFormValidation(formId) {
     validateForm();
 }
 
-initThresholdFormValidation('{{ form_id }}');
+initNumericFormValidation(
+    '{{ form_id }}',
+    ['low_percentage', 'medium_percentage'],
+    (low, medium) => medium > low
+);
 </script>
