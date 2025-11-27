@@ -64,7 +64,7 @@
                     <tr style="background-color: #f8f9fa;">
                         <th style="padding: 12px; text-align: left; font-weight: 600; border-bottom: 2px solid #dee2e6;">Type</th>
                         <th style="padding: 12px; text-align: left; font-weight: 600; border-bottom: 2px solid #dee2e6;">Product</th>
-                        <th style="padding: 12px; text-align: left; font-weight: 600; border-bottom: 2px solid #dee2e6;">Qty</th>
+                        <th style="padding: 12px; text-align: left; font-weight: 600; border-bottom: 2px solid #dee2e6;">Quantity</th>
                         <th style="padding: 12px; text-align: left; font-weight: 600; border-bottom: 2px solid #dee2e6;">Date</th>
                         <th style="padding: 12px; text-align: left; font-weight: 600; border-bottom: 2px solid #dee2e6;">Remarks</th>
                         <th style="padding: 12px; text-align: left; font-weight: 600; border-bottom: 2px solid #dee2e6;">Actions</th>
@@ -85,7 +85,12 @@
                             {% endif %}
                         </td>
                         <td style="padding: 12px; font-weight: 500;">{{ transaction.product.name }}</td>
-                        <td style="padding: 12px;">{{ transaction.quantity|intcomma }}</td>
+                        <td>
+                             <span class="badge rounded-pill bg-{{ transaction.product.display_color }}"
+                              style="font-weight: 500; padding: 6px 10px;">
+                            {{ transaction.quantity|intcomma }}
+                        </span>
+                        </td>
                         <td style="padding: 12px;">{{ transaction.date|date:"m/d/Y" }}</td>
                         <td style="padding: 12px;">{{ transaction.remarks|default:"-" }}</td>
                         <td style="padding: 12px;">
