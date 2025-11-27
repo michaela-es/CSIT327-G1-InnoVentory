@@ -1,3 +1,5 @@
+from datetime import timedelta
+from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.http import HttpResponseRedirect, JsonResponse
@@ -24,6 +26,7 @@ def product_list(request):
     
     search_query = request.GET.get('search', '')
     category_filter = request.GET.get('category', '')
+    date_filter = request.GET.get('date', '')
     
     if search_query:
         products = products.filter(
@@ -34,6 +37,15 @@ def product_list(request):
     
     if category_filter:
         products = products.filter(category_id=category_filter)
+    if date_filter:
+        today = timezone.now().date()
+        if date_filter == 'Today':
+            products = products.filter(date_modified__date=today)
+        elif date_filter == 'This Week':
+            start_of_week = today - timedelta(days=today.weekday())
+            products = products.filter(date_modified__date__gte=start_of_week)
+        elif date_filter == 'This Month':
+            products = products.filter(date_modified__month=today.month, date_modified__year=today.year)
     paginator = Paginator(products, 10)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
@@ -44,6 +56,7 @@ def product_list(request):
         'categories': categories,
         'search_query': search_query,
         'selected_category': category_filter,
+        'selected_date': date_filter,
     }
 
     return render(request, 'products/product_list.html', context)
