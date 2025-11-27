@@ -9,7 +9,8 @@ from django.db.models.functions import TruncDate, TruncHour
 from django.utils import timezone
 from datetime import timedelta, datetime, time
 from products.models import Product, StockTransaction, Category
-
+from django.db.models import Case, When, Value, FloatField, IntegerField, F, ExpressionWrapper
+from products.models import InventorySettings
 
 
 def root_redirect(request):
@@ -54,8 +55,13 @@ def admin_dashboard(request):
     total_revenue = sales_qs.aggregate(total=Sum('total'))['total'] or 0
     total_sales = sales_qs.count()
     unique_products = sales_qs.values('product_sold').distinct().count()
-    low_stock_count = Product.objects.filter(stock_quantity__lte=10).count()
-    pending_credits = sales_qs.filter(sales_type='credit').count()
+    low_stock_products = Product.objects.low_stock().order_by('stock_quantity')
+    low_stock_count = low_stock_products.count()
+    pending_credits = Sale.objects.filter(
+        sales_type='credit'
+    ).exclude(
+        payment_status='paid'
+    ).count()
 
     # Top selling products overall
     top_selling = (
@@ -177,11 +183,15 @@ def staff_dashboard(request):
     revenue_change = ((today_revenue - yesterday_revenue) / yesterday_revenue * 100
                       if yesterday_revenue else 0)
 
-    low_stock_products = Product.objects.filter(stock_quantity__lte=10).order_by('stock_quantity')
+    low_stock_products = Product.objects.low_stock().order_by('stock_quantity')
     low_stock_count = low_stock_products.count()
     out_of_stock = low_stock_products.filter(stock_quantity=0).count()
 
-    pending_credits = Sale.objects.filter(sales_type='credit')
+    pending_credits = Sale.objects.filter(
+        sales_type='credit'
+    ).exclude(
+        payment_status='paid'
+    ).count()
 
     recent_sales = Sale.objects.select_related('product_sold').order_by('-sales_date')[:5]
     recent_stocks = StockTransaction.objects.select_related('product').order_by('-date')[:5]

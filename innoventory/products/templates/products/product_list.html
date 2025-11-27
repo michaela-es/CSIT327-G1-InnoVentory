@@ -9,12 +9,12 @@
         <h1>Product Inventory</h1>
 
         <div>
-          <button class="add-button btn btn-primary me-2"
-                  hx-get="{% url 'product_modal' %}"
-                  hx-target="#modal-container"
-                  hx-trigger="click">
-            Add Product
-          </button>
+            <button class="add-button btn btn-primary me-2"
+                    hx-get="{% url 'product_modal_threshold' %}"
+                    hx-target="#modal-container"
+                    hx-trigger="click">
+              Add Product
+            </button>
 
           <button class="add-button btn me-2"
                   style="background-color: #008000; color: white; border: none;"
@@ -26,6 +26,16 @@
         </div>
     </div>
 
+    {% if messages %}
+    <div class="container mt-2">
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    </div>
+    {% endif %}
 
 <div style="background-color: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,.05); margin-bottom: 20px;">
         <h5 class="mb-2" style="font-weight: 500;"><span class="me-2">🔍︎</span>Filters</h5>
@@ -111,29 +121,17 @@
                     <td>₱{{ product.price|floatformat:2|intcomma }}</td>
 
                     <td>
-                        {% if product.stock_quantity|add:0 > 50 %}
-                            <span class="badge rounded-pill"
-                                  style="background-color: #e0f7fa; color: #00bcd4; font-weight: 500; padding: 6px 10px;">
-                                {{ product.stock_quantity|intcomma }}
-                            </span>
-                        {% elif product.stock_quantity|add:0 > 10 %}
-                            <span class="badge rounded-pill"
-                                  style="background-color: #fff3e0; color: #ff9800; font-weight: 500; padding: 6px 10px;">
-                                {{ product.stock_quantity|intcomma }}
-                            </span>
-                        {% else %}
-                            <span class="badge rounded-pill"
-                                  style="background-color: #ffe0e0; color: #f44336; font-weight: 500; padding: 6px 10px;">
-                                {{ product.stock_quantity|intcomma }}
-                            </span>
-                        {% endif %}
+                        <span class="badge rounded-pill bg-{{ product.display_color }}"
+                              style="font-weight: 500; padding: 6px 10px;">
+                            {{ product.stock_quantity|intcomma }}
+                        </span>
                     </td>
 
                     <td>{{ product.supplier.name }}</td>
                     <td>
                         <button class="btn btn-sm"
                                 style="background-color: #0d6efd; color: white; width: 30px; height: 30px; padding: 0; font-size: 0.9rem; line-height: 30px;"
-                                hx-get="{% url 'product_modal' product.pk %}"
+                                hx-get="{% url 'product_modal_threshold' product.pk %}"
                                 hx-target="#modal-container"
                                 hx-trigger="click"
                                 title="Edit product">
@@ -143,8 +141,8 @@
                         <button class="btn btn-sm"
                             style="background-color: #dc3545; color: white; width: 30px; height: 30px; padding: 0; font-size: 1.1rem; line-height: 30px;"
                             data-bs-toggle="modal"
-                            data-bs-target="#deleteConfirmModal"
-                            data-product-id="{{ product.pk }}"
+                            data-bs-target="#deleteProductModal"
+                            data-product-id="{{ product.product_id }}"
                             data-product-name="{{ product.name }}"
                             title="Delete product">
                         ×
@@ -162,8 +160,9 @@
 
 <div id="modal-container"></div>
 
-{% include 'products/partials/delete_confirm_modal.html' %}
 {% include 'products/partials/excel_success_modal.html' %}
 {% include 'partials/pagination.html' %}
+{% include "products/partials/delete_product_modal.html" %}
+
 
 {% endblock %}
