@@ -5,65 +5,69 @@
 
 {% block content %}
 <div class="container mt-3">
-
-    <div style="background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 30px;">
-        <h2 style="font-size: 20px; font-weight: 600; margin-bottom: 25px; color: #333;">Stock Management</h2>
+    <div class="d-flex justify-content-between align-items-center mb-2 mt-4">
+        <h1>Stock Management</h1>
+    </div>
+   <div style="background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 30px;">
+    <form method="post">
+        {% csrf_token %}
+        {% if form.errors %}
+            <div class="alert alert-danger" style="font-size: 14px;">
+                <i class="fas fa-exclamation-triangle"></i>
+                {% for field in form %}
+                    {% for error in field.errors %}
+                        {{ error }}<br>
+                    {% endfor %}
+                {% endfor %}
+                {% for error in form.non_field_errors %}
+                    {{ error }}
+                {% endfor %}
+            </div>
+        {% endif %}
         
-        <form method="post">
-            {% csrf_token %}
-            {% if form.errors %}
-                <div class="alert alert-danger" style="font-size: 14px;">
-                    <i class="fas fa-exclamation-triangle"></i>
-                    {% for field in form %}
-                        {% for error in field.errors %}
-                            {{ error }}<br>
-                        {% endfor %}
-                    {% endfor %}
-                    {% for error in form.non_field_errors %}
-                        {{ error }}
-                    {% endfor %}
-                </div>
-            {% endif %}
-            <div class="row g-3">
-                <div class="col-md-6">
-                    <label class="form-label" style="font-weight: 500;">Product:</label>
-                    {{ form.product }}
-                </div>
-                
-                <div class="col-md-6">
-                    <div class="d-flex gap-2">
-                        <button type="button" class="btn btn-outline-primary flex-fill" onclick="setTransactionType('IN')">
-                            Stock In
-                        </button>
-                        <button type="button" class="btn btn-outline-danger flex-fill" onclick="setTransactionType('OUT')">
-                            Stock Out
-                        </button>
-                    </div>
-                    <input type="hidden" name="transaction_type" id="id_transaction_type">
-                    {{ form.quantity }}
-                </div>
-                
-                <div class="col-12">
-                    <label class="form-label" style="font-weight: 500;">Remarks:</label>
-                    {{ form.remarks }}
-                </div>
-                
-                <div class="col-md-6">
-                    <label class="form-label" style="font-weight: 500;">Date:</label>
-                    {{ form.date }}
-                </div>
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label class="form-label" style="font-weight: 500;">Product:</label>
+                {{ form.product }}
             </div>
             
-            <div class="mt-4">
-                <button type="submit" class="btn btn-primary me-2" style="padding: 10px 20px;">
-                    Submit
-                </button>
-                <a href="{% url 'stock_transactions' %}" class="text-decoration-none" style="color: #6c757d; font-weight: 500; font-size: 0.95rem;">
-                    <span class="me-1">✕</span> Clear Form
-                </a>
+            <div class="col-md-6">
+                <label class="form-label" style="font-weight: 500; display: block; margin-bottom: 10px;">Transaction Type:</label>
+                <div class="d-flex gap-2 mb-3">
+                    <button type="button" class="btn btn-outline-primary flex-fill" onclick="setTransactionType('IN')">
+                        Stock In
+                    </button>
+                    <button type="button" class="btn btn-outline-danger flex-fill" onclick="setTransactionType('OUT')">
+                        Stock Out
+                    </button>
+                </div>
+                <input type="hidden" name="transaction_type" id="id_transaction_type">
+                
+                <label class="form-label" style="font-weight: 500; margin-top: 15px; display: block;">Quantity:</label>
+                {{ form.quantity }}
             </div>
-        </form>
-    </div>
+            
+            <div class="col-12">
+                <label class="form-label" style="font-weight: 500;">Remarks:</label>
+                {{ form.remarks }}
+            </div>
+            
+            <div class="col-md-6">
+                <label class="form-label" style="font-weight: 500;">Date:</label>
+                {{ form.date }}
+            </div>
+        </div>
+        
+        <div class="mt-4">
+            <button type="submit" class="btn btn-primary me-2" style="padding: 10px 20px;">
+                Submit
+            </button>
+            <a href="{% url 'stock_transactions' %}" class="text-decoration-none" style="color: #6c757d; font-weight: 500; font-size: 0.95rem;">
+                <span class="me-1">✕</span> Clear Form
+            </a>
+        </div>
+    </form>
+</div>
 
     <div class="d-flex justify-content-between align-items-center mb-2 mt-4">
         <h5 style="font-weight: 600; color: #333;">Recent Activity</h5>
