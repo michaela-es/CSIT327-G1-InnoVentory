@@ -52,22 +52,22 @@
         </form>
     </div>
 
-    <div style="background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-        <h2 style="font-size: 20px; font-weight: 600; margin-bottom: 25px; color: #333;">
-            Recent Activity 
-        </h2>
-        
+    <div class="d-flex justify-content-between align-items-center mb-2 mt-4">
+        <h5 style="font-weight: 600; color: #333;">Recent Activity</h5>
+    </div>
+
+    <div div style="background-color: white; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.08); overflow-x: auto;">
         {% if recent_transactions %}
         <div style="overflow-x: auto;">
-            <table style="width: 100%; border-collapse: collapse;">
+             <table class="table align-middle mb-0">
                 <thead>
                     <tr style="background-color: #f8f9fa;">
-                        <th style="padding: 12px; text-align: left; font-weight: 600; border-bottom: 2px solid #dee2e6;">Type</th>
-                        <th style="padding: 12px; text-align: left; font-weight: 600; border-bottom: 2px solid #dee2e6;">Product</th>
-                        <th style="padding: 12px; text-align: left; font-weight: 600; border-bottom: 2px solid #dee2e6;">Quantity</th>
-                        <th style="padding: 12px; text-align: left; font-weight: 600; border-bottom: 2px solid #dee2e6;">Date</th>
-                        <th style="padding: 12px; text-align: left; font-weight: 600; border-bottom: 2px solid #dee2e6;">Remarks</th>
-                        <th style="padding: 12px; text-align: left; font-weight: 600; border-bottom: 2px solid #dee2e6;">Actions</th>
+                       <th scope="col" style="font-weight: 600; padding-left: 25px">Type</th>
+                        <th scope="col" style="font-weight: 600;">Product</th>
+                        <th scope="col" style="font-weight: 600;">Quantity</th>
+                        <th scope="col" style="font-weight: 600;">Date</th>
+                        <th scope="col" style="font-weight: 600;">Remarks</th>
+                        <th scope="col" style="font-weight: 600;">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -84,7 +84,7 @@
                             </span>
                             {% endif %}
                         </td>
-                        <td style="padding: 12px; font-weight: 500;">{{ transaction.product.name }}</td>
+                        <td style="padding: 12px;">{{ transaction.product.name }}</td>
                         <td>
                              <span class="badge rounded-pill"
                               style="background-color:#ffc107; font-weight: 500; padding: 6px 10px;">
@@ -121,18 +121,6 @@
 {% include 'products/partials/delete_confirm_modal.html' %}
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, '0');
-    const day = String(now.getDate()).padStart(2, '0');
-    const today = `${year}-${month}-${day}`;
-    
-    const dateField = document.getElementById('id_date');
-    if (dateField && !dateField.value) {
-        dateField.value = today;
-    }
-});
 
 function setTransactionType(type) {
     document.getElementById('id_transaction_type').value = type;
