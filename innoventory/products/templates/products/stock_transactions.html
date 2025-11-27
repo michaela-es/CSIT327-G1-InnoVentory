@@ -90,14 +90,6 @@
                         <td style="padding: 12px;">{{ transaction.remarks|default:"-" }}</td>
                         <td style="padding: 12px;">
                             <button class="btn btn-sm"
-                                    style="background-color: #0d6efd; color: white; width: 30px; height: 30px; padding: 0; font-size: 0.9rem; line-height: 30px; margin-right: 5px;"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#editTransactionModal"
-                                    data-transaction-id="{{ transaction.id }}"
-                                    title="Edit transaction">
-                                ✎
-                            </button>
-                            <button class="btn btn-sm"
                                     style="background-color: #dc3545; color: white; width: 30px; height: 30px; padding: 0; font-size: 1.1rem; line-height: 30px;"
                                     data-bs-toggle="modal"
                                     data-bs-target="#deleteConfirmModal"
@@ -135,20 +127,6 @@ document.addEventListener('DOMContentLoaded', function() {
     if (dateField && !dateField.value) {
         dateField.value = today;
     }
-
-    // Edit button click handler
-    document.addEventListener('click', function(event) {
-        if (event.target.closest('[data-bs-target="#editTransactionModal"]')) {
-            const button = event.target.closest('[data-bs-target="#editTransactionModal"]');
-            const transactionId = button.getAttribute('data-transaction-id');
-            
-            // Load the edit modal via HTMX
-            htmx.ajax('GET', `{% url 'edit_transaction_modal' 0 %}`.replace('0', transactionId), {
-                target: '#modal-container',
-                swap: 'innerHTML'
-            });
-        }
-    });
 });
 
 function setTransactionType(type) {

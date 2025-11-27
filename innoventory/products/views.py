@@ -240,31 +240,6 @@ def delete_transaction(request, transaction_id):
     messages.error(request, 'Invalid request method.')
     return redirect('stock_transactions')
 
-@login_required
-def edit_transaction_modal(request, transaction_id):
-    transaction = get_object_or_404(StockTransaction, id=transaction_id)
-    if request.method == 'POST':
-        form = StockTransactionForm(request.POST, instance=transaction)
-        if form.is_valid():
-            form.save()
-            return HttpResponse('''
-                <script>
-                    document.getElementById("modal-container").innerHTML = "";
-                    window.location.reload();
-                </script>
-            ''')
-    else:
-        form = StockTransactionForm(instance=transaction)
-    
-    context = {
-        'form': form,
-        'transaction': transaction,
-        'modal_title': 'Edit Transaction',
-        'form_action': f'/products/transactions/edit/{transaction.id}/',
-        'submit_text': 'Update Transaction'
-    }
-    return render(request, 'products/partials/transaction_edit_modal.html', context)
-
 
 @login_required
 def product_modal_threshold(request, pk=None):
