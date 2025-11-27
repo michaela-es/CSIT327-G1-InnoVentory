@@ -11,17 +11,23 @@
         
         <form method="post">
             {% csrf_token %}
-             <div id="stock-error" class="alert alert-danger d-none" style="font-size: 14px;">
-                <i class="fas fa-exclamation-triangle"></i>
-                <span id="error-message"></span>
-     </div>
+            {% if form.errors %}
+                <div class="alert alert-danger" style="font-size: 14px;">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    {% for field in form %}
+                        {% for error in field.errors %}
+                            {{ error }}<br>
+                        {% endfor %}
+                    {% endfor %}
+                    {% for error in form.non_field_errors %}
+                        {{ error }}
+                    {% endfor %}
+                </div>
+            {% endif %}
             <div class="row g-3">
                 <div class="col-md-6">
                     <label class="form-label" style="font-weight: 500;">Product:</label>
                     {{ form.product }}
-                    <small id="stock-info" class="form-text text-muted" style="display: none;">
-                        Current stock: <span id="current-stock">0</span> units
-                    </small>
                 </div>
                 
                 <div class="col-md-6">
@@ -142,6 +148,5 @@ function setTransactionType(type) {
         }
     });
 }
-
 </script>
 {% endblock %}

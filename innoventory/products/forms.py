@@ -110,3 +110,18 @@ class StockTransactionForm(forms.ModelForm):
         if quantity and quantity <= 0:
             raise forms.ValidationError("Quantity must be positive.")
         return quantity
+
+    def clean(self):
+        cleaned_data = super().clean()
+        transaction_type = cleaned_data.get('transaction_type')
+        quantity = cleaned_data.get('quantity')
+        product = cleaned_data.get('product')
+        
+        if transaction_type == 'OUT' and product and quantity:
+            if product.stock_quantity == 0:
+                raise forms.ValidationError(f'Cannot stock out - {product.name} is out of stock!')
+            
+            if quantity > product.stock_quantity:
+                raise forms.ValidationError(f'Insufficient stock! {product.name} has only {product.stock_quantity} units available.')
+        
+        return cleaned_data
