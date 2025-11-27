@@ -39,12 +39,12 @@ def product_list(request):
         products = products.filter(category_id=category_filter)
     if date_filter:
         today = timezone.now().date()
-        if date_filter == 'Today':
+        if date_filter == 'today':
             products = products.filter(date_modified__date=today)
-        elif date_filter == 'This Week':
+        elif date_filter == 'week':
             start_of_week = today - timedelta(days=today.weekday())
             products = products.filter(date_modified__date__gte=start_of_week)
-        elif date_filter == 'This Month':
+        elif date_filter == 'month':
             products = products.filter(date_modified__month=today.month, date_modified__year=today.year)
     paginator = Paginator(products, 10)
     page_number = request.GET.get('page')
