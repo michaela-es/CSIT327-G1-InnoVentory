@@ -19,7 +19,6 @@ from django.db.models import Sum, Avg, Count, F
 
 
 @login_required
-@login_required
 def create_sale(request):
     if request.method == "POST":
         form = CreateSaleForm(request.POST)
@@ -80,6 +79,7 @@ def create_sale(request):
         'submit_text': 'Submit',
     }
     return render(request, 'sales/partials/record_sale_modal.html', context)
+
 @login_required
 def sales_record(request):
     sales_list = Sale.objects.order_by('-sales_date')

@@ -183,21 +183,5 @@ function clearForm() {
     document.getElementById('id_date').value = today;
 }
 
-document.addEventListener('htmx:afterOnLoad', function(event) {
-    if (event.detail.xhr.response) {
-        try {
-            const response = JSON.parse(event.detail.xhr.response);
-            if (response.success) {
-                const modal = bootstrap.Modal.getInstance(document.getElementById('deleteConfirmModal'));
-                if (modal) modal.hide();
-                window.location.reload();
-            } else if (response.error) {
-                alert('Error: ' + response.error);
-            }
-        } catch (e) {
-            // Not a JSON response, likely HTML - let HTMX handle it
-        }
-    }
-});
 </script>
 {% endblock %}
