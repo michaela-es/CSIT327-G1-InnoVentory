@@ -11,5 +11,4 @@ urlpatterns = [
     path('upload-excel/', views.upload_excel_modal, name='upload_excel_modal'),
     path('transactions/', views.stock_transactions, name='stock_transactions'),
     path('transactions/delete/<int:transaction_id>/', views.delete_transaction, name='delete_transaction'),
-    path('transactions/edit/<int:transaction_id>/', views.edit_transaction_modal, name='edit_transaction_modal'),
 ]
