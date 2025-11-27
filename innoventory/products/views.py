@@ -202,6 +202,7 @@ def upload_excel_modal(request):
         return render(request, "products/partials/excel_upload_modal.html", context)
     
 
+@login_required
 def stock_transactions(request):
     if request.method == 'POST':
         form = StockTransactionForm(request.POST)
@@ -243,6 +244,7 @@ def stock_transactions(request):
     }
     return render(request, 'products/stock_transactions.html', context)
 
+@login_required
 def delete_transaction(request, transaction_id):
     transaction = get_object_or_404(StockTransaction, id=transaction_id) 
     if request.method == 'POST':
