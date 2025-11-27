@@ -74,7 +74,7 @@
     </div>
 
     <div div style="background-color: white; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.08); overflow-x: auto;">
-        {% if recent_transactions %}
+         {% if page_obj.object_list %}
         <div style="overflow-x: auto;">
              <table class="table align-middle mb-0">
                 <thead>
@@ -88,7 +88,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for transaction in recent_transactions %}
+                    {% for transaction in page_obj %}
                     <tr style="border-bottom: 1px solid #dee2e6;">
                         <td style="padding: 12px;">
                             {% if transaction.transaction_type == 'IN' %}
@@ -127,6 +127,7 @@
                 </tbody>
             </table>
         </div>
+        {% include 'products/partials/product_pagination.html' %}
         {% else %}
         <div style="text-align: center; padding: 40px; color: #6c757d;">
             <p>No transactions found. Start by recording your first stock transaction above.</p>

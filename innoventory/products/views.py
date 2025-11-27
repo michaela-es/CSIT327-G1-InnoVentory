@@ -232,12 +232,16 @@ def stock_transactions(request):
     
     if transaction_type:
         transactions = transactions.filter(transaction_type=transaction_type)
+
+    paginator = Paginator(transactions, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
     
-    recent_transactions = transactions[:50] 
     
     context = {
         'form': form,
-        'recent_transactions': recent_transactions,
+        'recent_transactions': page_obj,
+        'page_obj': page_obj,
         'search_query': search_query,
         'selected_type': transaction_type,
         'active_page': 'stock_transactions'
