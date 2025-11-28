@@ -1,6 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
-from accounts.forms import UserEditForm, ThresholdForm
+from accounts.forms import UserEditForm
+from products.forms ThresholdForm
 from sales.models import InventorySettings
 
 @login_required
