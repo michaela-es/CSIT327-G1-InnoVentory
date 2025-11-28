@@ -135,27 +135,53 @@
                                 <td>{{ user.date_joined|date:"m/d/Y" }}</td>
                                 <td>
                                     {% if user.sales_count == 0 %}
-                                    <button class="btn btn-sm btn-danger"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#deleteConfirmModal"
-                                            data-user-id="{{ user.id }}"
-                                            data-username="{{ user.username }}"
-                                            data-item-type="user"
-                                            data-action-type="delete"
-                                            title="Delete user">
-                                        Delete
-                                    </button>
+                                        {% if user.is_active %}
+                                        <button class="btn btn-sm btn-danger"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#deleteConfirmModal"
+                                                data-user-id="{{ user.id }}"
+                                                data-username="{{ user.username }}"
+                                                data-item-type="user"
+                                                data-action-type="delete"
+                                                title="Delete user">
+                                            Delete
+                                        </button>
+                                        {% else %}
+                                        <button class="btn btn-sm btn-success"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#deleteConfirmModal"
+                                                data-user-id="{{ user.id }}"
+                                                data-username="{{ user.username }}"
+                                                data-item-type="user"
+                                                data-action-type="reactivate"
+                                                title="Reactivate user">
+                                            Reactivate
+                                        </button>
+                                        {% endif %}
                                     {% else %}
-                                    <button class="btn btn-sm btn-warning"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#deleteConfirmModal"
-                                            data-user-id="{{ user.id }}"
-                                            data-username="{{ user.username }}"
-                                            data-item-type="user"
-                                            data-action-type="deactivate"
-                                            title="Deactivate user">
-                                        Deactivate
-                                    </button>
+                                        {% if user.is_active %}
+                                        <button class="btn btn-sm btn-warning"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#deleteConfirmModal"
+                                                data-user-id="{{ user.id }}"
+                                                data-username="{{ user.username }}"
+                                                data-item-type="user"
+                                                data-action-type="deactivate"
+                                                title="Deactivate user">
+                                            Deactivate
+                                        </button>
+                                        {% else %}
+                                        <button class="btn btn-sm btn-success"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#deleteConfirmModal"
+                                                data-user-id="{{ user.id }}"
+                                                data-username="{{ user.username }}"
+                                                data-item-type="user"
+                                                data-action-type="reactivate"
+                                                title="Reactivate user">
+                                            Reactivate
+                                        </button>
+                                        {% endif %}
                                     {% endif %}
                                 </td>
                             </tr>

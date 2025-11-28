@@ -318,11 +318,7 @@ def delete_user(request, user_id):
         messages.error(request, "You cannot delete your own account.")
         return redirect('user_list')
     
-    if user_to_delete.get_sales_count() > 0:
-        user_to_delete.is_active = False
-        user_to_delete.save()
-        messages.success(request, f'User {user_to_delete.username} has been deactivated (has {user_to_delete.get_sales_count()} sales records).')
-    else:
+    if user_to_delete.get_sales_count() == 0:
         user_to_delete.delete()
         messages.success(request, f'User {user_to_delete.username} has been deleted successfully.')
     
