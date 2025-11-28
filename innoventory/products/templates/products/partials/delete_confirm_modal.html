@@ -36,7 +36,56 @@ deleteModal.addEventListener('show.bs.modal', function(event) {
     let deleteUrl = "";
     let modalTitle = deleteModal.querySelector('.modal-title');
     
-    if (itemType === 'credit_sale') {
+    if (itemType === 'user') {
+       const userId = button.getAttribute('data-user-id');
+        const username = button.getAttribute('data-username');
+        const actionType = button.getAttribute('data-action-type');
+        
+        if (actionType === 'delete') {
+            deleteUrl = "{% url 'delete_user' 0 %}".replace('0', userId);
+            deleteItemName.innerHTML = `user "<strong>${username}</strong>"`;
+            modalTitle.textContent = 'Delete User';
+            
+            const deleteButton = deleteForm.querySelector('button[type="submit"]');
+            deleteButton.textContent = 'Delete';
+            deleteButton.className = 'btn btn-danger';
+            
+            const modalBody = deleteModal.querySelector('.modal-body');
+            modalBody.innerHTML = `
+                <p>Are you sure you want to delete user "<strong>${username}</strong>"?</p>
+                <p class="text-danger"><small>This action cannot be undone.</small></p>`;
+
+        } else if (actionType === 'deactivate') {
+            deleteUrl = "{% url 'toggle_user_status' 0 %}".replace('0', userId);
+            deleteItemName.innerHTML = `user "<strong>${username}</strong>"`;
+            modalTitle.textContent = 'Deactivate User';
+            
+            const deleteButton = deleteForm.querySelector('button[type="submit"]');
+            deleteButton.textContent = 'Deactivate';
+            deleteButton.className = 'btn btn-warning';
+            
+            const modalBody = deleteModal.querySelector('.modal-body');
+            modalBody.innerHTML = `
+                <p>Are you sure you want to deactivate user "<strong>${username}</strong>"?</p>
+                <p class="text-warning"><small>User will be unable to log in but can be reactivated later.</small></p>`;
+                
+        } else if (actionType === 'reactivate') {
+            deleteUrl = "{% url 'toggle_user_status' 0 %}".replace('0', userId);
+            deleteItemName.innerHTML = `user "<strong>${username}</strong>"`;
+            modalTitle.textContent = 'Reactivate User';
+            
+            const deleteButton = deleteForm.querySelector('button[type="submit"]');
+            deleteButton.textContent = 'Reactivate';
+            deleteButton.className = 'btn btn-success';
+            
+            const modalBody = deleteModal.querySelector('.modal-body');
+            modalBody.innerHTML = `
+                <p>Are you sure you want to reactivate user "<strong>${username}</strong>"?</p>
+                <p class="text-success"><small>User will be able to log in again.</small></p>`;
+        }
+        deleteForm.action = deleteUrl;
+
+    } else if (itemType === 'credit_sale') {
         const saleId = button.getAttribute('data-sale-id');
         deleteUrl = "{% url 'delete_credit_sale' 0 %}".replace('0', saleId);
         deleteItemName.innerHTML = `credit sale for <strong>${itemName}</strong>`;
@@ -45,11 +94,13 @@ deleteModal.addEventListener('show.bs.modal', function(event) {
         if (!deleteModal.querySelector('.text-warning')) {
             deleteModal.querySelector('.modal-body').insertAdjacentHTML('beforeend', warningText);
         }
+
     } else if (itemType === 'transaction') {
         const transactionId = button.getAttribute('data-transaction-id');
         deleteUrl = "{% url 'delete_transaction' 0 %}".replace('0', transactionId);
         deleteItemName.innerHTML = `this transaction for <strong>${itemName}</strong>`;
         modalTitle.textContent = 'Delete Transaction';
+
     } else if (itemType === 'supplier') {
         const supplierId = button.getAttribute('data-supplier-id');
         deleteUrl = "{% url 'delete_supplier' 0 %}".replace('0', supplierId);
@@ -59,6 +110,7 @@ deleteModal.addEventListener('show.bs.modal', function(event) {
         if (!deleteModal.querySelector('.text-warning')) {
             deleteModal.querySelector('.modal-body').insertAdjacentHTML('beforeend', warningText);
         }
+
     } else {
         const productId = button.getAttribute('data-product-id');
         deleteUrl = "{% url 'delete_product' 0 %}".replace('0', productId);

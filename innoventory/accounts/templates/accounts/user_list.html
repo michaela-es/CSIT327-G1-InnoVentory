@@ -1,0 +1,189 @@
+{% extends 'products/base.html' %}
+{% load humanize %}
+
+{% block title %}User Management{% endblock %}
+
+{% block content %}
+<div class="container mt-3">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <h1>User Management</h1>
+    </div>
+
+    {% if messages %}
+    <div class="container mt-2">
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="mb-3"><span class="me-2">🔍︎</span>Filters</h5>
+            <form method="get">
+                <div class="mb-3">
+                    <input type="text" name="search" value="{{ search_query }}" placeholder="Search users..." class="form-control">
+                </div>
+                <div class="d-flex align-items-center">
+                    <button type="submit" class="btn btn-primary me-3">Apply Filters</button>
+                    <a href="{% url 'user_list' %}" class="text-decoration-none text-muted">
+                        <span class="me-1">✕</span> Clear Filters
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Administrators</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>No.</th>
+                            <th>Username</th>
+                            <th>Full Name</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Status</th>
+                            <th>Date Joined</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users %}
+                            {% if user.role == 'admin' %}
+                            <tr>
+                                <td class="text-muted">{{ forloop.counter }}</td>
+                                <td>{{ user.username }}</td>
+                                <td>{{ user.get_full_name|default:"-" }}</td>
+                                <td>{{ user.email }}</td>
+                                <td>{{ user.phone_number }}</td>
+                                <td>
+                                    <span class="badge {% if user.is_active %}bg-success{% else %}bg-danger{% endif %}">
+                                        {{ user.is_active|yesno:"Active,Inactive" }}
+                                    </span>
+                                </td>
+                                <td>{{ user.date_joined|date:"m/d/Y" }}</td>
+                            </tr>
+                            {% endif %}
+                        {% empty %}
+                        <tr>
+                            <td colspan="8" class="text-center py-4 text-muted">No administrators found.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header bg-secondary text-white">
+            <h5 class="mb-0">Staff Users</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>No.</th>
+                            <th>Username</th>
+                            <th>Full Name</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Status</th>
+                            <th>Sales</th>
+                            <th>Date Joined</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users %}
+                            {% if user.role == 'staff' %}
+                            <tr>
+                                <td class="text-muted">{{ forloop.counter }}</td>
+                                <td>{{ user.username }}</td>
+                                <td>{{ user.get_full_name|default:"-" }}</td>
+                                <td>{{ user.email }}</td>
+                                <td>{{ user.phone_number }}</td>
+                                <td>
+                                    <span class="badge {% if user.is_active %}bg-success{% else %}bg-danger{% endif %}">
+                                        {{ user.is_active|yesno:"Active,Inactive" }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-warning text-dark">{{ user.sales_count|intcomma }}</span>
+                                </td>
+                                <td>{{ user.date_joined|date:"m/d/Y" }}</td>
+                                <td>
+                                    {% if user.sales_count == 0 %}
+                                        {% if user.is_active %}
+                                        <button class="btn btn-sm btn-danger"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#deleteConfirmModal"
+                                                data-user-id="{{ user.id }}"
+                                                data-username="{{ user.username }}"
+                                                data-item-type="user"
+                                                data-action-type="delete"
+                                                title="Delete user">
+                                            Delete
+                                        </button>
+                                        {% else %}
+                                        <button class="btn btn-sm btn-success"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#deleteConfirmModal"
+                                                data-user-id="{{ user.id }}"
+                                                data-username="{{ user.username }}"
+                                                data-item-type="user"
+                                                data-action-type="reactivate"
+                                                title="Reactivate user">
+                                            Reactivate
+                                        </button>
+                                        {% endif %}
+                                    {% else %}
+                                        {% if user.is_active %}
+                                        <button class="btn btn-sm btn-warning"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#deleteConfirmModal"
+                                                data-user-id="{{ user.id }}"
+                                                data-username="{{ user.username }}"
+                                                data-item-type="user"
+                                                data-action-type="deactivate"
+                                                title="Deactivate user">
+                                            Deactivate
+                                        </button>
+                                        {% else %}
+                                        <button class="btn btn-sm btn-success"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#deleteConfirmModal"
+                                                data-user-id="{{ user.id }}"
+                                                data-username="{{ user.username }}"
+                                                data-item-type="user"
+                                                data-action-type="reactivate"
+                                                title="Reactivate user">
+                                            Reactivate
+                                        </button>
+                                        {% endif %}
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endif %}
+                        {% empty %}
+                        <tr>
+                            <td colspan="9" class="text-center py-4 text-muted">No staff users found.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% include 'products/partials/delete_confirm_modal.html' %}
+{% endblock %}
