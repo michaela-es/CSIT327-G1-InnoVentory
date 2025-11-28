@@ -12,6 +12,8 @@ from products.models import Product, StockTransaction, Category
 from django.db.models import Case, When, Value, FloatField, IntegerField, F, ExpressionWrapper
 from products.models import InventorySettings
 
+from ..innoventory.decorators import admin_required
+
 
 def root_redirect(request):
     if request.user.is_authenticated:
@@ -33,7 +35,7 @@ def dashboard(request):
     # Fallback for other users
     return render(request, 'accounts/generic_user_dashboard.html', {})
 
-
+@admin_required
 def admin_dashboard(request):
     # Get date filters
     start_date = request.GET.get('start_date')
