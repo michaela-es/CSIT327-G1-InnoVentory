@@ -48,11 +48,12 @@
         hx-swap="innerHTML"
         hx-trigger="click">
         <i class="fas fa-bell"></i>
-        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-        {{ overdue_summary|length }}
-        <span class="visually-hidden">overdue credits</span>
+        <span id="overdue-badge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+            {{ overdue_summary|length }}
+            <span class="visually-hidden">overdue credits</span>
         </span>
     </button>
+
     {% endif %}
 
     <!-- High-Level KPIs -->
@@ -232,6 +233,7 @@
 {% endblock %}
 
 {% block extra_js %}
+
 <!-- Load Chart.js from CDN -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
@@ -352,5 +354,14 @@ document.addEventListener('DOMContentLoaded', function() {
         console.error('Error initializing charts:', error);
     }
 });
+
+    document.body.addEventListener('htmx:afterOnLoad', function(evt) {
+    const trigger = evt.detail.xhr.getResponseHeader('HX-Trigger');
+    if (trigger && trigger.startsWith('updateBadge:')) {
+        const count = trigger.split(':')[1];
+        const badge = document.getElementById('overdue-badge');
+        if (badge) badge.innerHTML = count + '<span class="visually-hidden">overdue credits</span>';
+    }
+    });
 </script>
 {% endblock %}

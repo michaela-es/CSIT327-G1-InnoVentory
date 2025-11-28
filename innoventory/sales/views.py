@@ -386,5 +386,7 @@ def quick_paid(request, sale_id):
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         ''')
+        response['HX-Trigger'] = f'updateBadge:{overdue_count}'
+        return response
 
     return JsonResponse({"success": True})
