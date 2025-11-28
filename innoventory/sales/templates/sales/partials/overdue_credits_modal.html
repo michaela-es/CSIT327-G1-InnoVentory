@@ -1,7 +1,6 @@
 {% load humanize %}
 
-<div class="modal-backdrop fade show"></div>
-<div class="modal fade show" id="overdueCreditsModal" tabindex="-1" style="display: block; padding-right: 17px;">
+<div class="modal fade" id="overdueCreditsModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header bg-danger text-white">
@@ -9,7 +8,7 @@
           Overdue Credits
           <span class="badge bg-light text-danger ms-2">{{ overdue_summary|length }}</span>
         </h5>
-        <button type="button" class="btn-close btn-close-white" onclick="closeModal()"></button>
+        <button type="button" class="btn-close btn-close-white" aria-label="Close" onclick="closeModal()"></button>
       </div>
       <div class="modal-body">
         {% if overdue_summary %}
@@ -36,14 +35,14 @@
                     <span class="text-muted">Not calculated</span>
                   {% endif %}
                 </p>
-            <button class="btn btn-success btn-sm"
-                    hx-post="{% url 'quick_paid' sale.sale_id %}"
-                    hx-target="#sale-{{ sale.sale_id }}"
-                    hx-swap="outerHTML"
-                    hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
-                    hx-confirm="Mark {{ sale.customer_name|default:'Unknown' }}'s credit as paid?">
-              <i class="fas fa-check me-1"></i> Mark Paid
-            </button>
+                <button class="btn btn-success btn-sm"
+                        hx-post="{% url 'quick_paid' sale.sale_id %}"
+                        hx-target="#sale-{{ sale.sale_id }}"
+                        hx-swap="outerHTML"
+                        hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                        hx-confirm="Mark {{ sale.customer_name|default:'Unknown' }}'s credit as paid?">
+                  <i class="fas fa-check me-1"></i> Mark Paid
+                </button>
               </div>
             </div>
           </div>
@@ -55,7 +54,7 @@
       </div>
       <div class="modal-footer">
         <a href="{% url 'credit_management' %}?status=overdue" class="btn btn-primary btn-sm">
-          <i class="fas fa-cog me-1"></i> Manage All Credits
+          <i class="fas fa-cog me-1"></i> Manage Overdue Credits
         </a>
         <button type="button" class="btn btn-secondary btn-sm" onclick="closeModal()">Close</button>
       </div>
@@ -65,12 +64,16 @@
 
 <script>
 function closeModal() {
-    document.getElementById('modal-container').innerHTML = '';
-
-    const backdrop = document.querySelector('.modal-backdrop');
-
-    if (backdrop) backdrop.remove();
-    document.body.classList.remove('modal-open');
+    const modalEl = document.getElementById('overdueCreditsModal');
+    if (modalEl) {
+        const modalInstance = bootstrap.Modal.getInstance(modalEl);
+        if (modalInstance) {
+            modalInstance.hide();
+        }
+    }
+    const modalContainer = document.getElementById('modal-container');
+    if (modalContainer) {
+        modalContainer.innerHTML = '';
+    }
 }
-
 </script>
