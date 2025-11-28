@@ -278,3 +278,5 @@ Visit: [http://127.0.0.1:8000](http://127.0.0.1:8000/)
 **Michaela Ma. Alexa D. Estrera** — Lead Developer — [michaelamaalexa.estrera@cit.edu](mailto:michaelamaalexa.estrera@cit.edu)
 
 ---
+
+Deployed Link: https://innoventory.onrender.com
