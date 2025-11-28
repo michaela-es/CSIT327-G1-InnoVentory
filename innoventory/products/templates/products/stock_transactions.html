@@ -5,73 +5,90 @@
 
 {% block content %}
 <div class="container mt-3">
-
-    <div style="background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 30px;">
-        <h2 style="font-size: 20px; font-weight: 600; margin-bottom: 25px; color: #333;">Stock Management</h2>
+    <div class="d-flex justify-content-between align-items-center mb-2 mt-4">
+        <h1>Stock Management</h1>
+    </div>
+   <div style="background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 30px;">
+    <form method="post">
+        {% csrf_token %}
+        {% if form.errors %}
+            <div class="alert alert-danger" style="font-size: 14px;">
+                <i class="fas fa-exclamation-triangle"></i>
+                {% for field in form %}
+                    {% for error in field.errors %}
+                        {{ error }}<br>
+                    {% endfor %}
+                {% endfor %}
+                {% for error in form.non_field_errors %}
+                    {{ error }}
+                {% endfor %}
+            </div>
+        {% endif %}
         
-        <form method="post">
-            {% csrf_token %}
-            <div class="row g-3">
-                <div class="col-md-6">
-                    <label class="form-label" style="font-weight: 500;">Product:</label>
-                    {{ form.product }}
-                </div>
-                
-                <div class="col-md-6">
-                    <div class="d-flex gap-2">
-                        <button type="button" class="btn btn-outline-primary flex-fill" onclick="setTransactionType('IN')">
-                            Stock In
-                        </button>
-                        <button type="button" class="btn btn-outline-danger flex-fill" onclick="setTransactionType('OUT')">
-                            Stock Out
-                        </button>
-                    </div>
-                    <input type="hidden" name="transaction_type" id="id_transaction_type">
-                    {{ form.quantity }}
-                </div>
-                
-                <div class="col-12">
-                    <label class="form-label" style="font-weight: 500;">Remarks:</label>
-                    {{ form.remarks }}
-                </div>
-                
-                <div class="col-md-6">
-                    <label class="form-label" style="font-weight: 500;">Date:</label>
-                    {{ form.date }}
-                </div>
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label class="form-label" style="font-weight: 500;">Product:</label>
+                {{ form.product }}
             </div>
             
-            <div class="mt-4">
-                <button type="submit" class="btn btn-primary me-2" style="padding: 10px 20px;">
-                    Submit
-                </button>
-                <button type="button" class="btn btn-outline-secondary" onclick="clearForm()" style="padding: 10px 20px;">
-                    Clear Form
-                </button>
+            <div class="col-md-6">
+                <label class="form-label" style="font-weight: 500; display: block; margin-bottom: 10px;">Transaction Type:</label>
+                <div class="d-flex gap-2 mb-3">
+                    <button type="button" class="btn btn-outline-primary flex-fill" onclick="setTransactionType('IN')">
+                        Stock In
+                    </button>
+                    <button type="button" class="btn btn-outline-danger flex-fill" onclick="setTransactionType('OUT')">
+                        Stock Out
+                    </button>
+                </div>
+                <input type="hidden" name="transaction_type" id="id_transaction_type">
+                
+                <label class="form-label" style="font-weight: 500; margin-top: 15px; display: block;">Quantity:</label>
+                {{ form.quantity }}
             </div>
-        </form>
+            
+            <div class="col-12">
+                <label class="form-label" style="font-weight: 500;">Remarks:</label>
+                {{ form.remarks }}
+            </div>
+            
+            <div class="col-md-6">
+                <label class="form-label" style="font-weight: 500;">Date:</label>
+                {{ form.date }}
+            </div>
+        </div>
+        
+        <div class="mt-4">
+            <button type="submit" class="btn btn-primary me-2" style="padding: 10px 20px;">
+                Submit
+            </button>
+            <a href="{% url 'stock_transactions' %}" class="text-decoration-none" style="color: #6c757d; font-weight: 500; font-size: 0.95rem;">
+                <span class="me-1">✕</span> Clear Form
+            </a>
+        </div>
+    </form>
+</div>
+
+    <div class="d-flex justify-content-between align-items-center mb-2 mt-4">
+        <h5 style="font-weight: 600; color: #333;">Recent Activity</h5>
     </div>
 
-    <div style="background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-        <h2 style="font-size: 20px; font-weight: 600; margin-bottom: 25px; color: #333;">
-            Recent Activity 
-        </h2>
-        
-        {% if recent_transactions %}
+    <div div style="background-color: white; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.08); overflow-x: auto;">
+         {% if page_obj.object_list %}
         <div style="overflow-x: auto;">
-            <table style="width: 100%; border-collapse: collapse;">
+             <table class="table align-middle mb-0">
                 <thead>
                     <tr style="background-color: #f8f9fa;">
-                        <th style="padding: 12px; text-align: left; font-weight: 600; border-bottom: 2px solid #dee2e6;">Type</th>
-                        <th style="padding: 12px; text-align: left; font-weight: 600; border-bottom: 2px solid #dee2e6;">Product</th>
-                        <th style="padding: 12px; text-align: left; font-weight: 600; border-bottom: 2px solid #dee2e6;">Qty</th>
-                        <th style="padding: 12px; text-align: left; font-weight: 600; border-bottom: 2px solid #dee2e6;">Date</th>
-                        <th style="padding: 12px; text-align: left; font-weight: 600; border-bottom: 2px solid #dee2e6;">Remarks</th>
-                        <th style="padding: 12px; text-align: left; font-weight: 600; border-bottom: 2px solid #dee2e6;">Actions</th>
+                       <th scope="col" style="font-weight: 600; padding-left: 25px">Type</th>
+                        <th scope="col" style="font-weight: 600;">Product</th>
+                        <th scope="col" style="font-weight: 600;">Quantity</th>
+                        <th scope="col" style="font-weight: 600;">Date</th>
+                        <th scope="col" style="font-weight: 600;">Remarks</th>
+                        <th scope="col" style="font-weight: 600;">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for transaction in recent_transactions %}
+                    {% for transaction in page_obj %}
                     <tr style="border-bottom: 1px solid #dee2e6;">
                         <td style="padding: 12px;">
                             {% if transaction.transaction_type == 'IN' %}
@@ -84,19 +101,16 @@
                             </span>
                             {% endif %}
                         </td>
-                        <td style="padding: 12px; font-weight: 500;">{{ transaction.product.name }}</td>
-                        <td style="padding: 12px;">{{ transaction.quantity|intcomma }}</td>
+                        <td style="padding: 12px;">{{ transaction.product.name }}</td>
+                        <td>
+                             <span class="badge rounded-pill"
+                              style="background-color:#ffc107; font-weight: 500; padding: 6px 10px;">
+                            {{ transaction.quantity|intcomma }}
+                        </span>
+                        </td>
                         <td style="padding: 12px;">{{ transaction.date|date:"m/d/Y" }}</td>
                         <td style="padding: 12px;">{{ transaction.remarks|default:"-" }}</td>
                         <td style="padding: 12px;">
-                            <button class="btn btn-sm"
-                                    style="background-color: #0d6efd; color: white; width: 30px; height: 30px; padding: 0; font-size: 0.9rem; line-height: 30px; margin-right: 5px;"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#editTransactionModal"
-                                    data-transaction-id="{{ transaction.id }}"
-                                    title="Edit transaction">
-                                ✎
-                            </button>
                             <button class="btn btn-sm"
                                     style="background-color: #dc3545; color: white; width: 30px; height: 30px; padding: 0; font-size: 1.1rem; line-height: 30px;"
                                     data-bs-toggle="modal"
@@ -121,36 +135,10 @@
     </div>
 </div>
 <div id="modal-container"></div>
+ {% include 'products/partials/product_pagination.html' %}
 {% include 'products/partials/delete_confirm_modal.html' %}
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, '0');
-    const day = String(now.getDate()).padStart(2, '0');
-    const today = `${year}-${month}-${day}`;
-    
-    const dateField = document.getElementById('id_date');
-    if (dateField && !dateField.value) {
-        dateField.value = today;
-    }
-
-    // Edit button click handler
-    document.addEventListener('click', function(event) {
-        if (event.target.closest('[data-bs-target="#editTransactionModal"]')) {
-            const button = event.target.closest('[data-bs-target="#editTransactionModal"]');
-            const transactionId = button.getAttribute('data-transaction-id');
-            
-            // Load the edit modal via HTMX
-            htmx.ajax('GET', `{% url 'edit_transaction_modal' 0 %}`.replace('0', transactionId), {
-                target: '#modal-container',
-                swap: 'innerHTML'
-            });
-        }
-    });
-});
-
 function setTransactionType(type) {
     document.getElementById('id_transaction_type').value = type;
     
@@ -165,39 +153,5 @@ function setTransactionType(type) {
         }
     });
 }
-
-function clearForm() {
-    document.querySelector('form').reset();
-    const buttons = document.querySelectorAll('button[onclick*="setTransactionType"]');
-    buttons.forEach(btn => {
-        btn.classList.remove('btn-primary', 'btn-danger');
-        btn.classList.add(btn.textContent.includes('Stock In') ? 'btn-outline-primary' : 'btn-outline-danger');
-    });
-    document.getElementById('id_transaction_type').value = '';
-    
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, '0');
-    const day = String(now.getDate()).padStart(2, '0');
-    const today = `${year}-${month}-${day}`;
-    document.getElementById('id_date').value = today;
-}
-
-document.addEventListener('htmx:afterOnLoad', function(event) {
-    if (event.detail.xhr.response) {
-        try {
-            const response = JSON.parse(event.detail.xhr.response);
-            if (response.success) {
-                const modal = bootstrap.Modal.getInstance(document.getElementById('deleteConfirmModal'));
-                if (modal) modal.hide();
-                window.location.reload();
-            } else if (response.error) {
-                alert('Error: ' + response.error);
-            }
-        } catch (e) {
-            // Not a JSON response, likely HTML - let HTMX handle it
-        }
-    }
-});
 </script>
 {% endblock %}

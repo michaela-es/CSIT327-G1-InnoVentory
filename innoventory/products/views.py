@@ -1,3 +1,5 @@
+from datetime import timedelta
+from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.http import HttpResponseRedirect, JsonResponse
@@ -24,6 +26,7 @@ def product_list(request):
     
     search_query = request.GET.get('search', '')
     category_filter = request.GET.get('category', '')
+    date_filter = request.GET.get('date', '')
     
     if search_query:
         products = products.filter(
@@ -34,6 +37,15 @@ def product_list(request):
     
     if category_filter:
         products = products.filter(category_id=category_filter)
+    if date_filter:
+        today = timezone.now().date()
+        if date_filter == 'today':
+            products = products.filter(date_modified__date=today)
+        elif date_filter == 'week':
+            start_of_week = today - timedelta(days=today.weekday())
+            products = products.filter(date_modified__date__gte=start_of_week)
+        elif date_filter == 'month':
+            products = products.filter(date_modified__month=today.month, date_modified__year=today.year)
     paginator = Paginator(products, 10)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
@@ -44,6 +56,7 @@ def product_list(request):
         'categories': categories,
         'search_query': search_query,
         'selected_category': category_filter,
+        'selected_date': date_filter,
     }
 
     return render(request, 'products/product_list.html', context)
@@ -189,6 +202,7 @@ def upload_excel_modal(request):
         return render(request, "products/partials/excel_upload_modal.html", context)
     
 
+@login_required
 def stock_transactions(request):
     if request.method == 'POST':
         form = StockTransactionForm(request.POST)
@@ -218,18 +232,23 @@ def stock_transactions(request):
     
     if transaction_type:
         transactions = transactions.filter(transaction_type=transaction_type)
+
+    paginator = Paginator(transactions, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
     
-    recent_transactions = transactions[:50] 
     
     context = {
         'form': form,
-        'recent_transactions': recent_transactions,
+        'recent_transactions': page_obj,
+        'page_obj': page_obj,
         'search_query': search_query,
         'selected_type': transaction_type,
         'active_page': 'stock_transactions'
     }
     return render(request, 'products/stock_transactions.html', context)
 
+@login_required
 def delete_transaction(request, transaction_id):
     transaction = get_object_or_404(StockTransaction, id=transaction_id) 
     if request.method == 'POST':
@@ -239,31 +258,6 @@ def delete_transaction(request, transaction_id):
         return redirect('stock_transactions')
     messages.error(request, 'Invalid request method.')
     return redirect('stock_transactions')
-
-@login_required
-def edit_transaction_modal(request, transaction_id):
-    transaction = get_object_or_404(StockTransaction, id=transaction_id)
-    if request.method == 'POST':
-        form = StockTransactionForm(request.POST, instance=transaction)
-        if form.is_valid():
-            form.save()
-            return HttpResponse('''
-                <script>
-                    document.getElementById("modal-container").innerHTML = "";
-                    window.location.reload();
-                </script>
-            ''')
-    else:
-        form = StockTransactionForm(instance=transaction)
-    
-    context = {
-        'form': form,
-        'transaction': transaction,
-        'modal_title': 'Edit Transaction',
-        'form_action': f'/products/transactions/edit/{transaction.id}/',
-        'submit_text': 'Update Transaction'
-    }
-    return render(request, 'products/partials/transaction_edit_modal.html', context)
 
 
 @login_required

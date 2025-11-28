@@ -29,21 +29,9 @@ class CreateSaleForm(forms.Form):
 
 
 class SaleForm(forms.ModelForm):
-    product = forms.ModelChoiceField(
-        queryset=Product.objects.all(), 
-        label="Product",
-        required=False  
-    )
-    quantity = forms.IntegerField(
-        min_value=1, 
-        label="Quantity",
-        required=False  
-    )
-    sales_type = forms.ChoiceField(
-        choices=Sale.SALES_TYPE_CHOICES, 
-        label="Sales Type",
-        required=False 
-    )
+    product = forms.ModelChoiceField(queryset=Product.objects.all(), label="Product", required=False)
+    quantity = forms.IntegerField(min_value=1, label="Quantity", required=False)
+    sales_type = forms.ChoiceField(choices=Sale.SALES_TYPE_CHOICES, label="Sales Type", required=False)
     price = forms.FloatField(label="Price", required=False, disabled=True)
     total = forms.FloatField(label="Total", required=False, disabled=True)
     
@@ -70,16 +58,13 @@ class SaleForm(forms.ModelForm):
 
         if product and quantity > product.stock_quantity:
             raise forms.ValidationError(f"Only {product.stock_quantity} item(s) available in stock")
-
         return quantity
 
     def clean(self):
         cleaned_data = super().clean()
         product = cleaned_data.get("product")
         qty = cleaned_data.get("quantity")
-
         if product and qty:
             cleaned_data['price'] = product.price
             cleaned_data['total'] = product.price * qty
-
         return cleaned_data

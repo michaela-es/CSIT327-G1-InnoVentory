@@ -20,7 +20,7 @@
 
         <a href="/suppliers/" class="nav-item {% if request.resolver_match.url_name == 'supplier_list' %}active{% endif %}">
             <i class="fa-solid fa-truck" style="padding-right:10px"></i>
-            Categories / Suppliers
+            Suppliers
         </a>
 
         <a href="{% url 'stock_transactions' %}" class="nav-item {% if request.resolver_match.url_name == 'stock_transactions' %}active{% endif %}">
