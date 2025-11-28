@@ -1,22 +1,29 @@
-from django.shortcuts import render
-from accounts.forms import UserEditForm
-from products.forms import ThresholdForm
 from django.contrib.auth.decorators import login_required
-from products.models import InventorySettings
+from django.shortcuts import render
+from accounts.forms import UserEditForm, ThresholdForm
+from sales.models import InventorySettings
 
 @login_required
 def settings_view(request):
-    profile_form = UserEditForm(request.POST or None, instance=request.user)
-    if profile_form.is_valid() and 'profile_form_submit' in request.POST:
-        profile_form.save()
+    profile_form = UserEditForm(instance=request.user)
+
+    if 'profile_form_submit' in request.POST:
+        profile_form = UserEditForm(request.POST, instance=request.user)
+        if profile_form.is_valid():
+            for field, value in profile_form.cleaned_data.items():
+                if value not in [None, '']:
+                    setattr(request.user, field, value)
+            request.user.save()
 
     threshold_form = None
     if request.user.role == 'admin':
         threshold_settings, _ = InventorySettings.objects.get_or_create(id=1)
-        threshold_form = ThresholdForm(request.POST or None, instance=threshold_settings)
+        threshold_form = ThresholdForm(instance=threshold_settings)
 
-        if threshold_form.is_valid() and 'threshold_form_submit' in request.POST:
-            threshold_form.save()
+        if 'threshold_form_submit' in request.POST:
+            threshold_form = ThresholdForm(request.POST, instance=threshold_settings)
+            if threshold_form.is_valid():
+                threshold_form.save()
 
     context = {
         'profile_form': profile_form,
@@ -24,4 +31,3 @@ def settings_view(request):
     }
 
     return render(request, 'settings.html', context)
-
