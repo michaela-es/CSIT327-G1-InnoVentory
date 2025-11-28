@@ -20,23 +20,12 @@
     </div>
     {% endif %}
 
-    <!-- Filters section (same as before) -->
     <div class="card mb-4">
         <div class="card-body">
             <h5 class="mb-3"><span class="me-2">🔍︎</span>Filters</h5>
             <form method="get">
                 <div class="mb-3">
                     <input type="text" name="search" value="{{ search_query }}" placeholder="Search users..." class="form-control">
-                </div>
-                <div class="row g-3 mb-3">
-                    <div class="col-md-6">
-                        <label class="form-label">Role</label>
-                        <select name="role" class="form-select">
-                            <option value="">All Roles</option>
-                            <option value="admin" {% if selected_role == "admin" %}selected{% endif %}>Administrator</option>
-                            <option value="staff" {% if selected_role == "staff" %}selected{% endif %}>Staff</option>
-                        </select>
-                    </div>
                 </div>
                 <div class="d-flex align-items-center">
                     <button type="submit" class="btn btn-primary me-3">Apply Filters</button>
@@ -94,7 +83,6 @@
         </div>
     </div>
 
-    <!-- Staff Section -->
     <div class="card">
         <div class="card-header bg-secondary text-white">
             <h5 class="mb-0">Staff Users</h5>

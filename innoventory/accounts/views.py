@@ -286,7 +286,6 @@ def user_list(request):
     users = CustomUser.objects.all().order_by('-date_joined')
 
     search_query = request.GET.get('search', '')
-    role_filter = request.GET.get('role', '')
 
     if search_query:
         users = users.filter(
@@ -296,15 +295,11 @@ def user_list(request):
             Q(email__icontains=search_query) |
             Q(phone_number__icontains=search_query)
         )
-    
-    if role_filter:
-        users = users.filter(role=role_filter)
 
     users = users.annotate(sales_count=Count('sale'))
     context = {
         'users': users,
         'search_query': search_query,
-        'selected_role': role_filter,
         'active_page': 'user_management'
     }
     return render(request, 'accounts/user_list.html', context)
