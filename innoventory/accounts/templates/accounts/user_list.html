@@ -51,7 +51,7 @@
                         Apply Filters
                     </button>
 
-                    <a href="{% url 'accounts:user_list' %}" class="text-decoration-none text-muted">
+                    <a href="{% url 'user_list' %}" class="text-decoration-none text-muted">
                         <span class="me-1">✕</span> Clear Filters
                     </a>
                 </div>
@@ -125,7 +125,7 @@
                                     {% endif %}
                                     
                                     <button class="btn btn-sm {% if user.is_active %}btn-warning{% else %}btn-success{% endif %}"
-                                            data-toggle-url="{% url 'accounts:toggle_user_status' user.id %}"
+                                            data-toggle-url="{% url 'toggle_user_status' user.id %}"
                                             onclick="toggleUserStatus(this)"
                                             title="{% if user.is_active %}Deactivate user{% else %}Activate user{% endif %}">
                                         {% if user.is_active %}⚡{% else %}♻️{% endif %}

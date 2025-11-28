@@ -18,9 +18,9 @@
             Inventory Management
         </a>
 
-        <a href="/suppliers/" class="nav-item {% if request.resolver_match.url_name == 'supplier_list' %}active{% endif %}">
+        <a href="{% url 'supplier_list' %}" class="nav-item {% if request.resolver_match.url_name == 'supplier_list' %}active{% endif %}">
             <i class="fa-solid fa-truck" style="padding-right:10px"></i>
-            Suppliers
+            Supplier Management
         </a>
 
         <a href="{% url 'stock_transactions' %}" class="nav-item {% if request.resolver_match.url_name == 'stock_transactions' %}active{% endif %}">
@@ -33,7 +33,7 @@
             Sales Record
         </a>
 
-        <a href="#" class="nav-item">
+        <a href="{% url 'user_list' %}" class="nav-item">
             <i class="fa-solid fa-users" style="padding-right:10px"></i>
             User Management
         </a>
