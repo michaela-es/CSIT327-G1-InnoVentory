@@ -8,8 +8,6 @@ from django.db.models import Sum, Q
 from django.utils import timezone
 import json
 from django.contrib import messages
-
-
 from products.models import Product
 from .forms import SaleForm, CreateSaleForm
 from .models import Sale
@@ -380,12 +378,18 @@ def quick_paid(request, sale_id):
     sale.save()
 
     if request.headers.get("HX-Request"):
-        return HttpResponse('''
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                Credit marked as paid successfully!
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        ''')
+        overdue_count = Sale.objects.filter(
+            sales_type='credit',
+            due_date__lt=timezone.now().date(),
+            balance__gt=0
+        ).count()
+
+        response = HttpResponse('''
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    Credit marked as paid successfully!
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            ''')
         response['HX-Trigger'] = f'updateBadge:{overdue_count}'
         return response
 
