@@ -20,21 +20,14 @@
     </div>
     {% endif %}
 
+    <!-- Filters section (same as before) -->
     <div class="card mb-4">
         <div class="card-body">
             <h5 class="mb-3"><span class="me-2">🔍︎</span>Filters</h5>
-
             <form method="get">
                 <div class="mb-3">
-                    <input
-                        type="text"
-                        name="search"
-                        value="{{ search_query }}"
-                        placeholder="Search users by name, email, or phone..."
-                        class="form-control"
-                    >
+                    <input type="text" name="search" value="{{ search_query }}" placeholder="Search users..." class="form-control">
                 </div>
-
                 <div class="row g-3 mb-3">
                     <div class="col-md-6">
                         <label class="form-label">Role</label>
@@ -45,12 +38,8 @@
                         </select>
                     </div>
                 </div>
-
                 <div class="d-flex align-items-center">
-                    <button type="submit" class="btn btn-primary me-3">
-                        Apply Filters
-                    </button>
-
+                    <button type="submit" class="btn btn-primary me-3">Apply Filters</button>
                     <a href="{% url 'user_list' %}" class="text-decoration-none text-muted">
                         <span class="me-1">✕</span> Clear Filters
                     </a>
@@ -59,14 +48,10 @@
         </div>
     </div>
 
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h5>User List</h5>
-        <span class="text-muted small">
-            Showing {{ users|length }} of {{ users.count }} users
-        </span>
-    </div>
-
-    <div class="card">
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Administrators</h5>
+        </div>
         <div class="card-body">
             <div class="table-responsive">
                 <table class="table table-striped">
@@ -77,7 +62,53 @@
                             <th>Full Name</th>
                             <th>Email</th>
                             <th>Phone</th>
-                            <th>Role</th>
+                            <th>Status</th>
+                            <th>Date Joined</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users %}
+                            {% if user.role == 'admin' %}
+                            <tr>
+                                <td class="text-muted">{{ forloop.counter }}</td>
+                                <td>{{ user.username }}</td>
+                                <td>{{ user.get_full_name|default:"-" }}</td>
+                                <td>{{ user.email }}</td>
+                                <td>{{ user.phone_number }}</td>
+                                <td>
+                                    <span class="badge {% if user.is_active %}bg-success{% else %}bg-danger{% endif %}">
+                                        {{ user.is_active|yesno:"Active,Inactive" }}
+                                    </span>
+                                </td>
+                                <td>{{ user.date_joined|date:"m/d/Y" }}</td>
+                            </tr>
+                            {% endif %}
+                        {% empty %}
+                        <tr>
+                            <td colspan="8" class="text-center py-4 text-muted">No administrators found.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Staff Section -->
+    <div class="card">
+        <div class="card-header bg-secondary text-white">
+            <h5 class="mb-0">Staff Users</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>No.</th>
+                            <th>Username</th>
+                            <th>Full Name</th>
+                            <th>Email</th>
+                            <th>Phone</th>
                             <th>Status</th>
                             <th>Sales</th>
                             <th>Date Joined</th>
@@ -86,30 +117,23 @@
                     </thead>
                     <tbody>
                         {% for user in users %}
-                        <tr>
-                            <td class="text-muted">{{ forloop.counter }}</td>
-                            <td>{{ user.username }}</td>
-                            <td>{{ user.get_full_name|default:"-" }}</td>
-                            <td>{{ user.email }}</td>
-                            <td>{{ user.phone_number }}</td>
-                            <td>
-                                <span class="badge {% if user.role == 'admin' %}bg-primary{% else %}bg-secondary{% endif %}">
-                                    {{ user.get_role_display }}
-                                </span>
-                            </td>
-                            <td>
-                                <span class="badge {% if user.is_active %}bg-success{% else %}bg-danger{% endif %}">
-                                    {{ user.is_active|yesno:"Active,Inactive" }}
-                                </span>
-                            </td>
-                            <td>
-                                <span class="badge bg-warning text-dark">
-                                    {{ user.sales_count|intcomma }}
-                                </span>
-                            </td>
-                            <td>{{ user.date_joined|date:"m/d/Y" }}</td>
-                            <td>
-                                {% if user.role == 'staff' %}
+                            {% if user.role == 'staff' %}
+                            <tr>
+                                <td class="text-muted">{{ forloop.counter }}</td>
+                                <td>{{ user.username }}</td>
+                                <td>{{ user.get_full_name|default:"-" }}</td>
+                                <td>{{ user.email }}</td>
+                                <td>{{ user.phone_number }}</td>
+                                <td>
+                                    <span class="badge {% if user.is_active %}bg-success{% else %}bg-danger{% endif %}">
+                                        {{ user.is_active|yesno:"Active,Inactive" }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-warning text-dark">{{ user.sales_count|intcomma }}</span>
+                                </td>
+                                <td>{{ user.date_joined|date:"m/d/Y" }}</td>
+                                <td>
                                     {% if user.sales_count == 0 %}
                                     <button class="btn btn-sm btn-danger"
                                             data-bs-toggle="modal"
@@ -117,29 +141,28 @@
                                             data-user-id="{{ user.id }}"
                                             data-username="{{ user.username }}"
                                             data-item-type="user"
+                                            data-action-type="delete"
                                             title="Delete user">
-                                        ×
+                                        Delete
                                     </button>
                                     {% else %}
-                                    <span class="text-muted small" title="Cannot delete - has {{ user.sales_count }} sales record{{ user.sales_count|pluralize }}">×</span>
-                                    {% endif %}
-                                    
-                                    <button class="btn btn-sm {% if user.is_active %}btn-warning{% else %}btn-success{% endif %}"
-                                            data-toggle-url="{% url 'toggle_user_status' user.id %}"
-                                            onclick="toggleUserStatus(this)"
-                                            title="{% if user.is_active %}Deactivate user{% else %}Activate user{% endif %}">
-                                        {% if user.is_active %}⚡{% else %}♻️{% endif %}
+                                    <button class="btn btn-sm btn-warning"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#deleteConfirmModal"
+                                            data-user-id="{{ user.id }}"
+                                            data-username="{{ user.username }}"
+                                            data-item-type="user"
+                                            data-action-type="deactivate"
+                                            title="Deactivate user">
+                                        Deactivate
                                     </button>
-                                {% else %}
-                                    <span class="text-muted small">-</span>
-                                {% endif %}
-                            </td>
-                        </tr>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endif %}
                         {% empty %}
                         <tr>
-                            <td colspan="10" class="text-center py-4 text-muted">
-                                No users found.
-                            </td>
+                            <td colspan="9" class="text-center py-4 text-muted">No staff users found.</td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -148,17 +171,5 @@
         </div>
     </div>
 </div>
-
 {% include 'products/partials/delete_confirm_modal.html' %}
-
-<script>
-function toggleUserStatus(button) {
-    var action = button.getAttribute('data-toggle-url');
-    var message = "Are you sure you want to change this user's status?";
-    
-    if (confirm(message)) {
-        window.location.href = action;
-    }
-}
-</script>
 {% endblock %}
