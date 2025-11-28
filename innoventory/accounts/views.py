@@ -1,6 +1,9 @@
 from django.contrib.auth import views as auth_views
 from django.contrib import messages
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required, user_passes_test
+
+from innoventory.accounts.models import CustomUser
 from .forms import RegisterForm
 from django.db.models import Sum, Count, Q
 from products.models import Product
@@ -272,3 +275,70 @@ def register(request):
         form = RegisterForm()
 
     return render(request, 'accounts/register.html', {'form': form})
+
+
+def is_admin(user):
+    return user.is_authenticated and user.role == CustomUser.Role.ADMIN
+
+@login_required
+@user_passes_test(is_admin)
+def user_list(request):
+    users = CustomUser.objects.all().order_by('-date_joined')
+
+    search_query = request.GET.get('search', '')
+    role_filter = request.GET.get('role', '')
+
+    if search_query:
+        users = users.filter(
+            Q(username__icontains=search_query) |
+            Q(first_name__icontains=search_query) |
+            Q(last_name__icontains=search_query) |
+            Q(email__icontains=search_query) |
+            Q(phone_number__icontains=search_query)
+        )
+    
+    if role_filter:
+        users = users.filter(role=role_filter)
+
+    users = users.annotate(sales_count=Count('sale'))
+    context = {
+        'users': users,
+        'search_query': search_query,
+        'selected_role': role_filter,
+        'active_page': 'user_management'
+    }
+    return render(request, 'accounts/user_list.html', context)
+
+@login_required
+@user_passes_test(is_admin)
+def delete_user(request, user_id):
+    user_to_delete = get_object_or_404(CustomUser, id=user_id)
+
+    if user_to_delete == request.user:
+        messages.error(request, "You cannot delete your own account.")
+        return redirect('user_list')
+    
+    if user_to_delete.get_sales_count() > 0:
+        user_to_delete.is_active = False
+        user_to_delete.save()
+        messages.success(request, f'User {user_to_delete.username} has been deactivated (has {user_to_delete.get_sales_count()} sales records).')
+    else:
+        user_to_delete.delete()
+        messages.success(request, f'User {user_to_delete.username} has been deleted successfully.')
+    
+    return redirect('user_list')
+
+@login_required
+@user_passes_test(is_admin)
+def toggle_user_status(request, user_id):
+    user = get_object_or_404(CustomUser, id=user_id)
+
+    if user == request.user:
+        messages.error(request, "You cannot change the status of your own account.")
+        return redirect('user_list')
+
+    user.is_active = not user.is_active
+    user.save()
+    status = 'activated' if user.is_active else 'deactivated'
+    messages.success(request, f'User {user.username} has been {status} successfully.')
+    return redirect('user_list')
