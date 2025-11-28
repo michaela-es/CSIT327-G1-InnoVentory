@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+<style>
+    .parent {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        grid-template-rows: repeat(5, 1fr);
+        gap: 8px;
+    }
+    .div1 {
+        grid-column: span 3 / span 3;
+        grid-row: span 4 / span 4;
+    }
+    .div2 {
+        grid-column: span 2 / span 2;
+        grid-row: span 3 / span 3;
+        grid-column-start: 4;
+    }
+</style>
+
+<div class="parent">
+
+    <div class="div1">
+        <h2>Edit Profile</h2>
+        {% include 'accounts/_user_edit_form.html' with form=profile_form form_id="profile_form" %}
+    </div>
+
+    {% if request.user.role == 'admin' %}
+    <div class="div2">
+        <h2>Inventory Threshold Settings</h2>
+        {% include 'partials/_threshold_form.html' with form=threshold_form form_id="threshold_form" %}
+    </div>
+    {% endif %}
+
+</div>
+
+{% endblock %}

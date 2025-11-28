@@ -1,0 +1,54 @@
+<form id="profile-form" method="post" novalidate>
+    {% csrf_token %}
+
+    <label class="form-label" for="{{ form.username.id_for_label }}">Username</label>
+    {{ form.username }}
+    {% if form.username.errors %}
+        <div class="error">{{ form.username.errors.0 }}</div>
+    {% endif %}
+
+    <label class="form-label" for="{{ form.email.id_for_label }}">Email</label>
+    {{ form.email }}
+    {% if form.email.errors %}
+        <div class="error">{{ form.email.errors.0 }}</div>
+    {% endif %}
+
+    <label class="form-label" for="{{ form.phone_number.id_for_label }}">Phone Number</label>
+    {{ form.phone_number }}
+    {% if form.phone_number.errors %}
+        <div class="error">{{ form.phone_number.errors.0 }}</div>
+    {% endif %}
+
+    <label class="form-label" for="{{ form.password1.id_for_label }}">New Password</label>
+    {{ form.password1 }}
+    {% if form.password1.errors %}
+        <div class="error">{{ form.password1.errors.0 }}</div>
+    {% endif %}
+
+    <label class="form-label" for="{{ form.password2.id_for_label }}">Confirm New Password</label>
+    {{ form.password2 }}
+    {% if form.password2.errors %}
+        <div class="error">{{ form.password2.errors.0 }}</div>
+    {% endif %}
+
+    <button type="submit" name="profile_form_submit" id="save-btn-profile">
+        Save Changes
+    </button>
+</form>
+
+<style>
+    .form-input, .form-control {
+        padding: 0.5em;
+        width: 100%;
+        margin-bottom: 0.5em;
+    }
+    .form-label {
+        font-weight: bold;
+        display: block;
+        margin-bottom: 0.2em;
+    }
+    .error {
+        color: red;
+        font-size: 0.9em;
+    }
+</style>

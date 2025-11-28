@@ -1,5 +1,5 @@
 from django import forms
-from .models import Product, Category, StockTransaction
+from .models import Product, Category, StockTransaction, InventorySettings
 from suppliers.models import Supplier
 from django import forms
 from .models import Product, Category
@@ -111,17 +111,58 @@ class StockTransactionForm(forms.ModelForm):
             raise forms.ValidationError("Quantity must be positive.")
         return quantity
 
+from django import forms
+from .models import InventorySettings
+
+class ThresholdForm(forms.ModelForm):
+    class Meta:
+        model = InventorySettings
+        fields = ['low_percentage', 'medium_percentage']
+        widgets = {
+            'low_percentage': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'min': 1,
+                'max': 100,
+                'id': 'id_low_percentage'
+            }),
+            'medium_percentage': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'min': 1,
+                'max': 100,
+                'id': 'id_medium_percentage'
+            }),
+        }
+
+    def clean(self):
+        cleaned = super().clean()
+        low = cleaned.get('low_percentage')
+        medium = cleaned.get('medium_percentage')
+
+        if low is None:
+            self.add_error('low_percentage', 'Low percentage is required.')
+
+        if medium is None:
+            self.add_error('medium_percentage', 'Medium percentage is required.')
+
+        if low is not None and medium is not None and medium <= low:
+            self.add_error(
+                'medium_percentage',
+                'Medium percentage must be greater than low percentage.'
+            )
+
+        return cleaned
+
     def clean(self):
         cleaned_data = super().clean()
         transaction_type = cleaned_data.get('transaction_type')
         quantity = cleaned_data.get('quantity')
         product = cleaned_data.get('product')
-        
+
         if transaction_type == 'OUT' and product and quantity:
             if product.stock_quantity == 0:
                 raise forms.ValidationError(f'Cannot stock out - {product.name} is out of stock!')
-            
+
             if quantity > product.stock_quantity:
                 raise forms.ValidationError(f'Insufficient stock! {product.name} has only {product.stock_quantity} units available.')
-        
+
         return cleaned_data

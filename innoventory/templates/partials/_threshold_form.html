@@ -1,0 +1,40 @@
+<form id="threshold-form" method="post" novalidate>
+    {% csrf_token %}
+
+    <label class="form-label" for="{{ threshold_form.low_percentage.id_for_label }}">
+        Low Percentage
+    </label>
+    {{ threshold_form.low_percentage }}
+    {% if threshold_form.low_percentage.errors %}
+        <div class="error">{{ threshold_form.low_percentage.errors.0 }}</div>
+    {% endif %}
+
+    <label class="form-label" for="{{ threshold_form.medium_percentage.id_for_label }}">
+        Medium Percentage
+    </label>
+    {{ threshold_form.medium_percentage }}
+    {% if threshold_form.medium_percentage.errors %}
+        <div class="error">{{ threshold_form.medium_percentage.errors.0 }}</div>
+    {% endif %}
+
+    <button type="submit" name="threshold_form_submit" id="save-btn-threshold">
+        Save Changes
+    </button>
+</form>
+
+<style>
+    .form-input, .form-control {
+        padding: 0.5em;
+        width: 100%;
+        margin-bottom: 0.5em;
+    }
+    .form-label {
+        font-weight: bold;
+        display: block;
+        margin-bottom: 0.2em;
+    }
+    .error {
+        color: red;
+        font-size: 0.9em;
+    }
+</style>
