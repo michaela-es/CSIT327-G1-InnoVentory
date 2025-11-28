@@ -4,9 +4,6 @@ from products.forms import ThresholdForm
 from django.contrib.auth.decorators import login_required
 from products.models import InventorySettings
 
-def unauthorized_view(request, exception=None):
-    return render(request, "unauthorized.html", status=403)
-
 @login_required
 def settings_view(request):
     profile_form = UserEditForm(request.POST or None, instance=request.user)

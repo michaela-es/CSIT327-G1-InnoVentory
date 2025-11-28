@@ -11,9 +11,10 @@ from datetime import timedelta, datetime, time
 from products.models import Product, StockTransaction, Category
 from django.db.models import Case, When, Value, FloatField, IntegerField, F, ExpressionWrapper
 from products.models import InventorySettings
+from .decorators import admin_required
 
-from ..innoventory.decorators import admin_required
-
+def unauthorized_view(request, exception=None):
+    return render(request, "unauthorized.html", status=403)
 
 def root_redirect(request):
     if request.user.is_authenticated:
