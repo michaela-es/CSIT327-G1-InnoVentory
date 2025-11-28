@@ -48,7 +48,6 @@
                         <tr>
                             <th>No.</th>
                             <th>Username</th>
-                            <th>Full Name</th>
                             <th>Email</th>
                             <th>Phone</th>
                             <th>Status</th>
@@ -61,7 +60,6 @@
                             <tr>
                                 <td class="text-muted">{{ forloop.counter }}</td>
                                 <td>{{ user.username }}</td>
-                                <td>{{ user.get_full_name|default:"-" }}</td>
                                 <td>{{ user.email }}</td>
                                 <td>{{ user.phone_number }}</td>
                                 <td>
@@ -94,7 +92,6 @@
                         <tr>
                             <th>No.</th>
                             <th>Username</th>
-                            <th>Full Name</th>
                             <th>Email</th>
                             <th>Phone</th>
                             <th>Status</th>
@@ -109,7 +106,6 @@
                             <tr>
                                 <td class="text-muted">{{ forloop.counter }}</td>
                                 <td>{{ user.username }}</td>
-                                <td>{{ user.get_full_name|default:"-" }}</td>
                                 <td>{{ user.email }}</td>
                                 <td>{{ user.phone_number }}</td>
                                 <td>
