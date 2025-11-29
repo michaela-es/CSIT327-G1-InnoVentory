@@ -4,7 +4,7 @@ from django.urls import reverse
 from django.views.decorators.http import require_POST
 from django.http import HttpResponse, JsonResponse
 from django.core.paginator import Paginator
-from django.db.models import Sum, Q
+from django.db.models import Q
 from django.utils import timezone
 import json
 from django.contrib import messages
@@ -13,7 +13,6 @@ from .forms import SaleForm, CreateSaleForm
 from .models import Sale
 from products.models import StockTransaction
 from django.core.paginator import Paginator
-from django.db.models import Sum, Avg, Count, F
 
 
 @login_required

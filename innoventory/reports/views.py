@@ -1,10 +1,9 @@
 from django.shortcuts import render
 from django.db.models import Sum
-from django.utils.dateparse import parse_date
 from sales.models import Sale
-from products.models import Product, StockTransaction, Category
+from products.models import Product, Category
 from datetime import datetime
-from django.db.models import Sum, Count
+from django.db.models import Sum
 from django.http import HttpResponse
 from openpyxl import Workbook
 from openpyxl.styles import Font, PatternFill, Alignment

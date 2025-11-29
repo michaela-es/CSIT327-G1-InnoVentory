@@ -1,5 +1,5 @@
 from django.db import models
-from django.core.validators import MinValueValidator, MinLengthValidator, MaxValueValidator
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.utils import timezone
 from django.db.models import Case, When, Value, F, ExpressionWrapper, FloatField, IntegerField
     
