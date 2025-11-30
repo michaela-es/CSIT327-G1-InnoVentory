@@ -29,7 +29,7 @@
             Sales
         </a>
 
-        <a href="{% url 'settings' %}" class="nav-item">
+        <a href="{% url 'settings' %}" class="nav-item {% if request.resolver_match.url_name == 'settings' %}active{% endif %}">
             <i class="fa-solid fa-gear" style="padding-right:10px"></i>
             Settings
         </a>

@@ -33,7 +33,7 @@
             Sales Record
         </a>
 
-        <a href="{% url 'user_list' %}" class="nav-item">
+        <a href="{% url 'user_list' %}" class="nav-item {% if request.resolver_match.url_name == 'user_list' %}active{% endif %}">
             <i class="fa-solid fa-users" style="padding-right:10px"></i>
             User Management
         </a>
@@ -43,7 +43,7 @@
             Reports & Analytics
         </a>
 
-        <a href="{% url 'settings' %}" class="nav-item">
+        <a href="{% url 'settings' %}" class="nav-item {% if request.resolver_match.url_name == 'settings' %}active{% endif %}">
             <i class="fa-solid fa-gear" style="padding-right:10px"></i>
             Settings
         </a>
