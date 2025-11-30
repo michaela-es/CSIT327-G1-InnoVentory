@@ -6,5 +6,5 @@ app_name = 'reports'
 
 urlpatterns = [
     path('', views.report_dashboard, name='dashboard'),
-    path('export-excel/', is_admin(views.export_excel), name='export_excel'),
+    path('export-excel/', admin_required(views.export_excel), name='export_excel'),
 ]
