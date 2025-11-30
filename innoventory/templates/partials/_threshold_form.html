@@ -17,7 +17,7 @@
         <div class="error">{{ threshold_form.medium_percentage.errors.0 }}</div>
     {% endif %}
 
-    <button type="submit" name="threshold_form_submit" id="save-btn-threshold">
+    <button type="submit" name="threshold_form_submit" id="save-btn-threshold" class="submit-threshold">
         Save Changes
     </button>
 </form>
@@ -36,5 +36,14 @@
     .error {
         color: red;
         font-size: 0.9em;
+    }
+    .submit-threshold {
+        background-color: var(--accent-yellow);
+        color: white;
+        border: none;
+        padding: 0.5em 1em;
+        cursor: pointer;
+        border-radius: 4px;
+        font-weight: bold;
     }
 </style>
