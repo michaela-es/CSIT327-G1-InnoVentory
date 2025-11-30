@@ -156,8 +156,8 @@ def admin_dashboard(request):
         'low_performing': low_performing,
         
         'filters': {
-            'start_date': start_date,
-            'end_date': end_date,
+            'start_date': start_date if start_date else '',
+            'end_date': end_date if end_date else '',
             'product': product_q,
             'category': category_q,
         },
