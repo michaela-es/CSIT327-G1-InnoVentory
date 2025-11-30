@@ -12,8 +12,7 @@ from django.db.models.functions import TruncDate, TruncHour
 from django.utils import timezone
 from datetime import timedelta, datetime, time
 from products.models import Product, StockTransaction, Category
-from django.db.models import Case, When, Value, FloatField, IntegerField, F, ExpressionWrapper
-from products.models import InventorySettings
+from .decorators import admin_required
 from .decorators import admin_required
 
 def unauthorized_view(request, exception=None):
