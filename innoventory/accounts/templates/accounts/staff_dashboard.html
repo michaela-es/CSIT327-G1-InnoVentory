@@ -3,7 +3,13 @@
 {% load custom_filters %}
 
 {% block content %}
+
+
 <div class="container-fluid py-4">
+      {% if overdue_summary %}
+        {% include 'partials/overdue_credit.html' %}
+    {% endif %}
+
     <div class="row mb-4">
         <div class="col-md-3 mb-3">
             <div class="card shadow-sm border-0 h-100">
@@ -274,6 +280,9 @@
 {{ chart_dates|json_script:"chart-dates" }}
 {{ sales_data|json_script:"sales-data" }}
 {{ revenue_data|json_script:"revenue-data" }}
+
+<div id="modal-container"></div>
+
 {% endblock %}
 
 {% block extra_js %}
@@ -356,5 +365,24 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+
+    document.addEventListener('htmx:afterSwap', (event) => {
+        if (event.target.id === "modal-container") {
+            const modalEl = document.getElementById('overdueCreditsModal');
+            if (modalEl) {
+                const modal = new bootstrap.Modal(modalEl);
+                modal.show();
+            }
+        }
+    });
+
+    document.body.addEventListener('htmx:afterOnLoad', function(evt) {
+        const trigger = evt.detail.xhr.getResponseHeader('HX-Trigger');
+        if (trigger && trigger.startsWith('updateBadge:')) {
+            const count = trigger.split(':')[1];
+            const badge = document.getElementById('overdue-badge');
+            if (badge) badge.innerHTML = count + '<span class="visually-hidden">overdue credits</span>';
+        }
+    });
 </script>
 {% endblock %}

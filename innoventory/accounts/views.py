@@ -38,6 +38,20 @@ def dashboard(request):
     # Fallback for other users
     return render(request, 'accounts/generic_user_dashboard.html', {})
 
+def get_overdue_summary(limit=5):
+    today = timezone.localtime().date()
+    overdue = Sale.objects.filter(
+        sales_type='credit',
+        due_date__lt=today,
+        balance__gt=0
+    ).select_related('product_sold')[:limit]
+
+    for sale in overdue:
+        sale.days_overdue_calculated = (today - sale.due_date).days if sale.due_date else None
+
+    return overdue
+
+
 @admin_required
 def admin_dashboard(request):
     # Get date filters
@@ -130,11 +144,7 @@ def admin_dashboard(request):
     )
 
     today = timezone.now().date()
-    overdue_summary = Sale.objects.filter(
-        sales_type='credit',
-        due_date__lt=today,
-        balance__gt=0
-    )[:5]
+    overdue_summary = get_overdue_summary()
 
     context = {
         'overdue_summary': overdue_summary,
@@ -191,6 +201,7 @@ def staff_dashboard(request):
     low_stock_products = Product.objects.low_stock().order_by('stock_quantity')
     low_stock_count = low_stock_products.count()
     out_of_stock = low_stock_products.filter(stock_quantity=0).count()
+    overdue_summary = get_overdue_summary()
 
     pending_credits = Sale.objects.filter(
         sales_type='credit'
@@ -235,6 +246,7 @@ def staff_dashboard(request):
         'chart_dates': chart_dates,
         'sales_data': sales_data,
         'revenue_data': revenue_data,
+        'overdue_summary': overdue_summary
     }
 
     return render(request, 'accounts/staff_dashboard.html', context)

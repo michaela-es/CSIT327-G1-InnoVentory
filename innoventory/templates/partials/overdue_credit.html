@@ -1,0 +1,11 @@
+<button class="btn btn-outline-danger position-relative"
+        hx-get="{% url 'overdue_credits_modal' %}"
+        hx-target="#modal-container"
+        hx-swap="innerHTML"
+        hx-trigger="click">
+    <i class="fas fa-bell"></i>
+    <span id="overdue-badge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+        {{ overdue_summary|length }}
+        <span class="visually-hidden">overdue credits</span>
+    </span>
+</button>
