@@ -13,7 +13,6 @@ from django.utils import timezone
 from datetime import timedelta, datetime, time
 from products.models import Product, StockTransaction, Category
 from .decorators import admin_required
-from .decorators import admin_required
 
 def unauthorized_view(request, exception=None):
     return render(request, "unauthorized.html", status=403)

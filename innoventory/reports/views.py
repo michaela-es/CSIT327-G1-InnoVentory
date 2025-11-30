@@ -7,6 +7,7 @@ from django.db.models import Sum
 from django.http import HttpResponse
 from openpyxl import Workbook
 from openpyxl.styles import Font, PatternFill, Alignment
+from accounts.decorators import admin_required
 
 def export_excel(request):
     # Re-run the filtered query to get fresh data
@@ -128,7 +129,7 @@ def _parse_date_or_none(value):
     except Exception:
         return None
 
-
+@admin_required
 def report_dashboard(request):
     # Filters
     start_date = _parse_date_or_none(request.GET.get('start_date'))
