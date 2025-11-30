@@ -1,40 +1,70 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block content %}
-
+{% block extra_css %}
 <style>
-    .parent {
-        display: grid;
-        grid-template-columns: repeat(5, 1fr);
-        grid-template-rows: repeat(5, 1fr);
-        gap: 8px;
+    .settings-container {
+        padding: 30px 20px;
     }
-    .div1 {
-        grid-column: span 3 / span 3;
-        grid-row: span 4 / span 4;
+
+    .card-settings {
+        border-radius: 10px;
+        box-shadow: 0 6px 18px rgba(24, 39, 52, 0.08);
+        border: none;
     }
-    .div2 {
-        grid-column: span 2 / span 2;
-        grid-row: span 3 / span 3;
-        grid-column-start: 4;
+
+    .section-title {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 18px;
+    }
+
+    .section-title i {
+        color: var(--accent-yellow);
+        font-size: 1.15rem;
+    }
+
+    .muted-note {
+        color: #6c757d;
+        font-size: 0.95rem;
+        margin-bottom: 12px;
+    }
+
+    @media (max-width: 768px) {
+        .settings-container { padding: 18px 12px; }
     }
 </style>
+{% endblock %}
 
-<div class="parent">
+{% block content %}
 
-    <div class="div1">
-        <h2>Edit Profile</h2>
-        {% include 'accounts/_user_edit_form.html' with form=profile_form form_id="profile_form" %}
+<div class="container settings-container">
+    <div class="row g-4">
+        <div class="col-12 col-md-8">
+            <div class="card card-settings p-4">
+                <div class="section-title">
+                    <i class="fa-solid fa-user"></i>
+                    <h2 class="h5 mb-0">Edit Profile</h2>
+                </div>
+                <p class="muted-note">Update your personal information and contact details below.</p>
+                {% include 'accounts/_user_edit_form.html' with form=profile_form form_id="profile_form" %}
+            </div>
+        </div>
+
+        {% if request.user.role == 'admin' %}
+        <div class="col-12 col-md-4">
+            <div class="card card-settings p-4">
+                <div class="section-title">
+                    <i class="fa-solid fa-sliders"></i>
+                    <h2 class="h5 mb-0">Inventory Threshold Settings</h2>
+                </div>
+                <p class="muted-note">Manage low-stock thresholds used for notifications.</p>
+                {% include 'partials/_threshold_form.html' with form=threshold_form form_id="threshold_form" %}
+            </div>
+        </div>
+        {% endif %}
     </div>
-
-    {% if request.user.role == 'admin' %}
-    <div class="div2">
-        <h2>Inventory Threshold Settings</h2>
-        {% include 'partials/_threshold_form.html' with form=threshold_form form_id="threshold_form" %}
-    </div>
-    {% endif %}
-
 </div>
 
 {% endblock %}
