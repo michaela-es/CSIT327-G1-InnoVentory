@@ -5,22 +5,26 @@
 
 {% block content %}
 <div class="container mt-3">
-    {% if error_occurred %}
-    <div class="alert alert-warning">
-        <strong>Note:</strong> Showing basic credit sales information due to a technical issue.
-    </div>
-    {% endif %}
-
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h1 class="mb-1">Credit Management</h1>
         </div>
+
         <div>
             <a href="{% url 'sales_record' %}" class="btn btn-secondary">
                 <i class="fas fa-arrow-left me-2"></i>Back to Sales
             </a>
         </div>
     </div>
+
+    {% for message in messages %}
+        {% if 'credit_management' in message.tags or not message.extra_tags %}
+           <div class="alert alert-info alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endif %}
+    {% endfor %}
 
     <div class="card">
         <div class="card-header">

@@ -306,10 +306,10 @@ def delete_credit_sale(request, sale_id):
         )
 
         sale.delete()
-        messages.success(request, f'Credit sale for {customer_name} deleted successfully!')
+        messages.success(request, f'Credit sale for {customer_name} deleted successfully!', extra_tags='credit_management')
         return redirect('credit_management')
 
-    messages.error(request, 'Invalid request method.')
+    messages.error(request, 'Invalid request method.', extra_tags='credit_management')
     return redirect('credit_management')
 
 @login_required

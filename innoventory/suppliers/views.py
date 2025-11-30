@@ -4,7 +4,7 @@ from django.core.paginator import Paginator
 from django.db.models import Q, Count
 from .models import Supplier
 from .forms import SupplierForm
-import json
+from django.contrib import messages
 
 def supplier_list(request):
     suppliers = Supplier.objects.annotate(products_count_annotation=Count('products'))
@@ -71,16 +71,10 @@ def delete_supplier(request, supplier_id):
     if request.method == 'POST':
         supplier_name = supplier.name
         supplier.delete()
-        return HttpResponse(
-            status=204,
-            headers={
-                'HX-Trigger': json.dumps({
-                    "supplierListChanged": None,
-                    "showMessage": f"Supplier {supplier_name} deleted successfully."
-                })
-            }
-        )
-    return redirect('supplier_list')
+        messages.success(request, f"Supplier {supplier_name} deleted successfully.", extra_tags='suppliers')
+        return redirect('supplier_list') 
+    messages.error(request, 'Invalid request method.', extra_tags='suppliers')
+    return render(request, 'suppliers/partials/delete_confirm_modal.html', {'supplier': supplier })
 
 def import_suppliers_from_excel(excel_file):
     try:

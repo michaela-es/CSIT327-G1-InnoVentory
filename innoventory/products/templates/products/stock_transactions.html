@@ -8,6 +8,16 @@
     <div class="d-flex justify-content-between align-items-center mb-2 mt-4">
         <h1>Stock Management</h1>
     </div>
+    
+    {% for message in messages %}
+    {% if 'stock_transactions' in message.tags or not message.extra_tags %}
+       <div class="alert alert-info alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    {% endif %}
+    {% endfor %}
+
    <div style="background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 30px;">
     <form method="post">
         {% csrf_token %}
