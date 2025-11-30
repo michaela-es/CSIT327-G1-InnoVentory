@@ -191,7 +191,11 @@ def staff_dashboard(request):
     low_stock_products = Product.objects.low_stock().order_by('stock_quantity')
     low_stock_count = low_stock_products.count()
     out_of_stock = low_stock_products.filter(stock_quantity=0).count()
-
+    overdue_summary = Sale.objects.filter(
+        sales_type='credit',
+        due_date__lt=today,
+        balance__gt=0
+    )[:5]
     pending_credits = Sale.objects.filter(
         sales_type='credit'
     ).exclude(
@@ -235,6 +239,7 @@ def staff_dashboard(request):
         'chart_dates': chart_dates,
         'sales_data': sales_data,
         'revenue_data': revenue_data,
+        'overdue_summary': overdue_summary
     }
 
     return render(request, 'accounts/staff_dashboard.html', context)
