@@ -365,5 +365,24 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+
+    document.addEventListener('htmx:afterSwap', (event) => {
+        if (event.target.id === "modal-container") {
+            const modalEl = document.getElementById('overdueCreditsModal');
+            if (modalEl) {
+                const modal = new bootstrap.Modal(modalEl);
+                modal.show();
+            }
+        }
+    });
+
+    document.body.addEventListener('htmx:afterOnLoad', function(evt) {
+        const trigger = evt.detail.xhr.getResponseHeader('HX-Trigger');
+        if (trigger && trigger.startsWith('updateBadge:')) {
+            const count = trigger.split(':')[1];
+            const badge = document.getElementById('overdue-badge');
+            if (badge) badge.innerHTML = count + '<span class="visually-hidden">overdue credits</span>';
+        }
+    });
 </script>
 {% endblock %}
