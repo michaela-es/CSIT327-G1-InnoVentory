@@ -1,6 +1,7 @@
 from django.urls import path
 from . import views
-from accounts.views import is_admin
+from accounts.decorators import admin_required
+
 app_name = 'reports'
 
 urlpatterns = [
