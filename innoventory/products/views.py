@@ -209,11 +209,12 @@ def stock_transactions(request):
                 transaction = form.save()
                 messages.success(
                     request, 
-                    f'Stock {transaction.get_transaction_type_display().lower()} recorded successfully for {transaction.product.name}!'
+                    f'Stock {transaction.get_transaction_type_display().lower()} recorded successfully for {transaction.product.name}!',
+                    extra_tags='stock_transactions'
                 )
                 return redirect('stock_transactions')
             except ValueError as e:
-                messages.error(request, str(e))
+                messages.error(request, str(e), extra_tags='stock_transactions')
     else:
         form = StockTransactionForm()
     
@@ -252,9 +253,9 @@ def delete_transaction(request, transaction_id):
     if request.method == 'POST':
         product_name = transaction.product.name
         transaction.delete()
-        messages.success(request, f'Transaction for {product_name} deleted successfully!')
+        messages.success(request, f'Transaction for {product_name} deleted successfully!', extra_tags='stock_transactions')
         return redirect('stock_transactions')
-    messages.error(request, 'Invalid request method.')
+    messages.error(request, 'Invalid request method.', extra_tags='stock_transactions')
     return redirect('stock_transactions')
 
 

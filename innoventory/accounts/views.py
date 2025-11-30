@@ -265,11 +265,11 @@ def register(request):
                 user = form.save()
                 print("=== USER SAVED SUCCESSFULLY ===")
                 print(f"User: {user.username}, Email: {user.email}, Phone: {user.phone_number}")
-                messages.success(request, 'Registration successful! You can now log in.')
+                messages.success(request, 'Registration successful! You can now log in.', extra_tags='registration')
                 return redirect('login')
             except Exception as e:
                 print(f"=== SAVE ERROR: {e} ===")
-                messages.error(request, f'Error during registration: {str(e)}')
+                messages.error(request, f'Error during registration: {str(e)}', extra_tags='registration')
     else:
         form = RegisterForm()
 
@@ -309,12 +309,12 @@ def delete_user(request, user_id):
     user_to_delete = get_object_or_404(CustomUser, id=user_id)
 
     if user_to_delete == request.user:
-        messages.error(request, "You cannot delete your own account.")
+        messages.error(request, "You cannot delete your own account.", extra_tags='user_management')
         return redirect('user_list')
     
     if user_to_delete.get_sales_count() == 0:
         user_to_delete.delete()
-        messages.success(request, f'User {user_to_delete.username} has been deleted successfully.')
+        messages.success(request, f'User {user_to_delete.username} has been deleted successfully.', extra_tags='user_management')
     
     return redirect('user_list')
 
@@ -324,11 +324,11 @@ def toggle_user_status(request, user_id):
     user = get_object_or_404(CustomUser, id=user_id)
 
     if user == request.user:
-        messages.error(request, "You cannot change the status of your own account.")
+        messages.error(request, "You cannot change the status of your own account.", extra_tags='user_management')
         return redirect('user_list')
 
     user.is_active = not user.is_active
     user.save()
     status = 'activated' if user.is_active else 'deactivated'
-    messages.success(request, f'User {user.username} has been {status} successfully.')
+    messages.success(request, f'User {user.username} has been {status} successfully.', extra_tags='user_management')
     return redirect('user_list')
