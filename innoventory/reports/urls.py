@@ -5,6 +5,6 @@ from accounts.decorators import admin_required
 app_name = 'reports'
 
 urlpatterns = [
-    path('', views.report_dashboard, name='dashboard'),
+    path('', admin_required(views.report_dashboard), name='dashboard'),
     path('export-excel/', admin_required(views.export_excel), name='export_excel'),
 ]
