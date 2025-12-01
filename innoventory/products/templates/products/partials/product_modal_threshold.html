@@ -22,7 +22,13 @@
             {% if field.name == 'is_tracked' %}
             <div class="form-check form-switch">
               {{ field }}
-              <label class="form-check-label" for="id_is_tracked">Track Stock</label>
+              <label class="form-check-label" for="id_is_tracked">Track Stock
+                    <i class="fas fa-info-circle ms-1"
+                       data-bs-toggle="tooltip"
+                       data-bs-placement="top"
+                       title="Enables individual stock tracking for this product. Low and Medium thresholds determine color-coded indicators of inventory levels for fast-moving or critical items.">
+                    </i>
+              </label>
             </div>
 
             {% elif field.name in ['low_threshold', 'medium_threshold'] %}
