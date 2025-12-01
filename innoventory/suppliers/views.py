@@ -1,4 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
+from datetime import timedelta
+from django.utils import timezone
 from django.http import HttpResponse
 from django.core.paginator import Paginator
 from django.db.models import Q, Count
@@ -10,6 +12,8 @@ def supplier_list(request):
     suppliers = Supplier.objects.annotate(products_count_annotation=Count('products'))
     
     search_query = request.GET.get('search', '')
+    date_filter = request.GET.get('date', '')
+    
     if search_query:
         suppliers = suppliers.filter(
             Q(name__icontains=search_query) |
@@ -25,6 +29,16 @@ def supplier_list(request):
     elif products_range == '11+':
         suppliers = suppliers.filter(products_count_annotation__gte=11)
     
+    if date_filter:
+        today = timezone.now().date()
+        if date_filter == 'today':
+            suppliers = suppliers.filter(created_at__date=today)
+        elif date_filter == 'week':
+            start_of_week = today - timedelta(days=today.weekday())
+            suppliers = suppliers.filter(created_at__date__gte=start_of_week)
+        elif date_filter == 'month':
+            suppliers = suppliers.filter(created_at__month=today.month, created_at__year=today.year)
+
     suppliers = suppliers.order_by('name')
     
     paginator = Paginator(suppliers, 10)
@@ -34,6 +48,7 @@ def supplier_list(request):
     context = {
         'page_obj': page_obj,
         'search_query': search_query,
+        'selected_date': date_filter,
         'selected_products_range': products_range,
         'page_title': 'Supplier Management',
     }
