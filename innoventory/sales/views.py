@@ -141,36 +141,7 @@ def credit_management(request):
     try:
         credit_sales = Sale.objects.filter(sales_type='credit').select_related('product_sold')
 
-        status_filter = request.GET.get('status', 'all')
-        due_date_filter = request.GET.get('due_date', '')
-        search_query = request.GET.get('search', '')
-        today = timezone.now().date()
-
-        status_filters = {
-            'active': Q(payment_status__in=['pending', 'partial']) | Q(payment_status__isnull=True),
-            'overdue': Q(payment_status='overdue'),
-        }
-        if status_filter in status_filters:
-            credit_sales = credit_sales.filter(status_filters[status_filter])
-        elif status_filter != 'all':
-            credit_sales = credit_sales.filter(payment_status=status_filter)
-
-        due_date_ranges = {
-            'today': [today, today],
-            'week': [today, today + timezone.timedelta(days=7)],
-            'month': [today, today + timezone.timedelta(days=30)],
-            'overdue': Q(due_date__lt=today) & (Q(balance__gt=0) | Q(balance__isnull=True))
-        }
-        if due_date_filter in due_date_ranges:
-            if due_date_filter == 'overdue':
-                credit_sales = credit_sales.filter(due_date_ranges[due_date_filter])
-            else:
-                credit_sales = credit_sales.filter(due_date__range=due_date_ranges[due_date_filter])
-
-        if search_query:
-            credit_sales = credit_sales.filter(
-                Q(customer_name__icontains=search_query) | Q(product_sold__name__icontains=search_query)
-            )
+        today = timezone.now().date()   
 
         overdue_sales_to_update = Sale.objects.filter(
             sales_type='credit',
@@ -194,9 +165,6 @@ def credit_management(request):
 
         context = {
             'page_obj': page_obj,
-            'status_filter': status_filter,
-            'due_date_filter': due_date_filter,
-            'search_query': search_query,
             'total_balance': total_balance,
             'total_receivable': total_receivable,
             'overdue_summary': overdue_summary,

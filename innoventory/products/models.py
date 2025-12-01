@@ -145,10 +145,9 @@ class StockTransaction(models.Model):
     remarks = models.TextField(blank=True)
     date = models.DateField(default=timezone.now)
     created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
     
     class Meta:
-        ordering = ['-date', '-created_at']
+        ordering = ['-date']
     
     def __str__(self):
         return f"{self.get_transaction_type_display()} - {self.product.name} - {self.quantity}"
