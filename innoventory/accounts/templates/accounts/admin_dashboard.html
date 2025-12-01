@@ -41,9 +41,17 @@
         </div>
     </div>
 
-    {% if overdue_summary %}
-        {% include 'partials/overdue_credit.html' %}
-    {% endif %}
+    <div class="d-flex gap-3 align-items-center justify-content-start">
+        {% if overdue_summary %}
+            {% include 'partials/overdue_credit.html' %}
+        {% endif %}
+
+        {% if low_stock_count %}
+            {% include 'partials/low_stock_alert.html' %}
+        {% endif %}
+
+    </div>
+
 
     <!-- High-Level KPIs -->
     <div class="row mb-4">
@@ -236,14 +244,20 @@
 
 <script>
 
-    document.addEventListener('htmx:afterSwap', (event) => {
-  if (event.target.id === "modal-container") {
-    const modalEl = document.getElementById('overdueCreditsModal');
-    if (modalEl) {
-      const modal = new bootstrap.Modal(modalEl);
-      modal.show();
+document.addEventListener('htmx:afterSwap', function(event) {
+    if (event.target.id === "modal-container") {
+        const lowStockEl = document.getElementById('lowStockModal');
+        if (lowStockEl) {
+            const modal = new bootstrap.Modal(lowStockEl);
+            modal.show();
+        }
+
+        const overdueEl = document.getElementById('overdueCreditsModal');
+        if (overdueEl) {
+            const modal = new bootstrap.Modal(overdueEl);
+            modal.show();
+        }
     }
-  }
 });
 
 document.addEventListener('DOMContentLoaded', function() {

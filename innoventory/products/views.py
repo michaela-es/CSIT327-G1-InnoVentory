@@ -10,12 +10,16 @@ from django.http import HttpResponse
 from .forms import ProductForm
 from django.db.models import Q, ProtectedError
 from .models import Product, Category, StockTransaction
-from .utils import import_products_from_excel
+from .utils import import_products_from_excel, generate_low_stock_excel
 from suppliers.utils import import_suppliers_from_excel
 from .forms import StockTransactionForm
 from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
 
+@login_required
+def export_low_stock_products_excel(request):
+    products = Product.objects.low_stock().select_related('supplier')
+    return generate_low_stock_excel(products)
 
 @login_required
 def product_list(request):
@@ -330,4 +334,10 @@ def product_modal_threshold(request, pk=None):
         'form_action': form_action,
     })
 
+@login_required
+def low_stock_modal(request):
+    low_stock_products = Product.objects.low_stock().order_by('stock_quantity')
+    return render(request, "products/partials/low_stock_modal.html", {
+        "low_stock_products": low_stock_products
+    })
 

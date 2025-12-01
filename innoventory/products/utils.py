@@ -90,3 +90,43 @@ def import_products_from_excel(file):
         'errors': errors,
         'total': created + updated + skipped
     }
+
+
+from openpyxl import Workbook
+from openpyxl.styles import Font, PatternFill, Alignment
+from django.http import HttpResponse
+from .models import Product
+
+
+def generate_low_stock_excel(products, filename="low_stock_products.xlsx"):
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Low Stock Products"
+
+    header_font = Font(bold=True)
+    header_fill = PatternFill(start_color="f8f9fa", end_color="f8f9fa", fill_type="solid")
+
+    ws.column_dimensions['A'].width = 40  # Product Name
+    ws.column_dimensions['B'].width = 30  # Supplier Name
+    ws.column_dimensions['C'].width = 30  # Supplier Contact Info
+
+    headers = ["Product Name", "Supplier", "Contact Info"]
+    ws.append(headers)
+    for cell in ws[1]:
+        cell.font = header_font
+        cell.fill = header_fill
+        cell.alignment = Alignment(horizontal='center')
+
+    for p in products:
+        ws.append([
+            p.name,
+            p.supplier.name if p.supplier else "",
+            p.supplier.contact if p.supplier else ""
+        ])
+
+    response = HttpResponse(
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+    wb.save(response)
+    return response
