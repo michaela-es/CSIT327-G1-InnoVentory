@@ -45,7 +45,11 @@
         {% if overdue_summary %}
             {% include 'partials/overdue_credit.html' %}
         {% endif %}
-        {% include 'partials/low_stock_alert.html' %}
+
+        {% if low_stock_count %}
+            {% include 'partials/low_stock_alert.html' %}
+        {% endif %}
+
     </div>
 
 
