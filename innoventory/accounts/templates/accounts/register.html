@@ -77,51 +77,122 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const form = document.getElementById('registerForm');
-    const inputs = form.querySelectorAll('input, select');
+  const form = document.getElementById('registerForm');
+  const inputs = form.querySelectorAll('input, select');
 
-    inputs.forEach(input => {
-        input.addEventListener('input', function() {
-            const formGroup = this.closest('.form-group');
-            if (formGroup && formGroup.classList.contains('has-error')) {
-                formGroup.classList.remove('has-error');
+  // Remove server-side error blocks when user starts typing
+  inputs.forEach(input => {
+    input.addEventListener('input', function() {
+      const formGroup = this.closest('.form-group');
+      if (formGroup && formGroup.classList.contains('has-error')) {
+        formGroup.classList.remove('has-error');
 
-                const errorDiv = formGroup.querySelector('.field-errors');
-                if (errorDiv) {
-                    errorDiv.style.opacity = '0';
-                    setTimeout(() => {
-                        errorDiv.remove();
-                    }, 300);
-                }
-            }
-        });
-
-        input.addEventListener('focus', function() {
-            const formGroup = this.closest('.form-group');
-            if (formGroup && formGroup.classList.contains('has-error')) {
-                formGroup.classList.remove('has-error');
-                const errorDiv = formGroup.querySelector('.field-errors');
-                if (errorDiv) {
-                    errorDiv.style.opacity = '0';
-                    setTimeout(() => {
-                        errorDiv.remove();
-                    }, 300);
-                }
-            }
-        });
+        const errorDiv = formGroup.querySelector('.field-errors');
+        if (errorDiv) {
+          errorDiv.style.opacity = '0';
+          setTimeout(() => {
+            errorDiv.remove();
+          }, 300);
+        }
+      }
     });
 
-    const nonFieldErrors = document.querySelector('.non-field-errors');
-    if (nonFieldErrors) {
-        inputs.forEach(input => {
-            input.addEventListener('input', function() {
-                nonFieldErrors.style.opacity = '0';
-                setTimeout(() => {
-                    nonFieldErrors.remove();
-                }, 300);
-            });
-        });
+    input.addEventListener('focus', function() {
+      const formGroup = this.closest('.form-group');
+      if (formGroup && formGroup.classList.contains('has-error')) {
+        formGroup.classList.remove('has-error');
+        const errorDiv = formGroup.querySelector('.field-errors');
+        if (errorDiv) {
+          errorDiv.style.opacity = '0';
+          setTimeout(() => {
+            errorDiv.remove();
+          }, 300);
+        }
+      }
+    });
+  });
+
+  const nonFieldErrors = document.querySelector('.non-field-errors');
+  if (nonFieldErrors) {
+    inputs.forEach(input => {
+      input.addEventListener('input', function() {
+        nonFieldErrors.style.opacity = '0';
+        setTimeout(() => {
+          nonFieldErrors.remove();
+        }, 300);
+      });
+    });
+  }
+
+  // --- Client-side password validation ---
+  const passwordInputs = Array.from(form.querySelectorAll('input[type="password"]'));
+  const commonPasswords = ['123456','password','12345678','qwerty','abc123','111111','123456789','12345','iloveyou','admin','welcome'];
+
+  function setClientMessage(input, message) {
+    const formGroup = input.closest('.form-group');
+    if (!formGroup) return;
+    let msg = formGroup.querySelector('.client-msg');
+    if (!msg) {
+      msg = document.createElement('div');
+      msg.className = 'client-msg';
+      msg.style.color = '#d9534f';
+      msg.style.marginTop = '6px';
+      msg.style.fontSize = '0.9em';
+      formGroup.appendChild(msg);
     }
+    msg.textContent = message || '';
+    msg.style.display = message ? 'block' : 'none';
+  }
+
+  if (passwordInputs.length > 0) {
+    const pwd = passwordInputs[0];
+    const confirm = passwordInputs[1] || null;
+
+    pwd.addEventListener('input', function() {
+      const value = pwd.value || '';
+      if (value.length > 0 && value.length < 8) {
+        setClientMessage(pwd, 'Password is too short.');
+      } else if (commonPasswords.includes(value.toLowerCase())) {
+        setClientMessage(pwd, 'Password is too common.');
+      } else {
+        setClientMessage(pwd, '');
+      }
+
+      if (confirm) {
+        if (confirm.value && confirm.value !== value) {
+          setClientMessage(confirm, "Passwords don't match");
+        } else {
+          setClientMessage(confirm, '');
+        }
+      }
+    });
+
+    if (confirm) {
+      confirm.addEventListener('input', function() {
+        if (confirm.value !== pwd.value) {
+          setClientMessage(confirm, "Passwords don't match");
+        } else {
+          setClientMessage(confirm, '');
+        }
+      });
+    }
+  }
+
+  // --- Phone number: numeric-only ---
+  const phoneRegex = /phone|mobile|contact|telephone|phone_number|phonenumber/i;
+  const phoneInputs = Array.from(form.querySelectorAll('input')).filter(i => phoneRegex.test(i.name || i.id || ''));
+  phoneInputs.forEach(input => {
+    input.setAttribute('inputmode', 'numeric');
+    input.addEventListener('input', function() {
+      const digits = this.value.replace(/\D+/g, '');
+      if (this.value !== digits) this.value = digits;
+    });
+    input.addEventListener('paste', function(e) {
+      e.preventDefault();
+      const text = (e.clipboardData || window.clipboardData).getData('text') || '';
+      this.value = text.replace(/\D+/g, '');
+    });
+  });
 });
 </script>
 
