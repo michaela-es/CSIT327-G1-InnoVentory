@@ -250,6 +250,10 @@ def stock_transactions(request):
 @login_required
 def delete_transaction(request, transaction_id):
     transaction = get_object_or_404(StockTransaction, id=transaction_id) 
+    if transaction.remarks and ('Sale ID' in transaction.remarks):
+        messages.error(request, 'Cannot delete transactions generated from sales.',extra_tags='stock_transactions')
+        return redirect('stock_transactions')
+    
     if request.method == 'POST':
         product_name = transaction.product.name
         transaction.delete()
