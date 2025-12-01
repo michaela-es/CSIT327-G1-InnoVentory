@@ -71,6 +71,11 @@
 document.addEventListener('htmx:afterSwap', function(evt) {
     if(evt.detail.target.id === 'modal-container') {
 
+        const tooltipEl = evt.detail.target.querySelector('[data-bs-toggle="tooltip"]');
+        if (tooltipEl) {
+            new bootstrap.Tooltip(tooltipEl);
+        }
+
         const isTracked = document.getElementById('id_is_tracked');
         const lowContainer = document.getElementById('low_threshold-container');
         const mediumContainer = document.getElementById('medium_threshold-container');

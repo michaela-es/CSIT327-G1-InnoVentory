@@ -352,21 +352,6 @@
         updateDateTime();
         setInterval(updateDateTime, 60000);
 
-
-        function initTooltips(container=document) {
-            const tooltipTriggerList = [].slice.call(container.querySelectorAll('[data-bs-toggle="tooltip"]'));
-            tooltipTriggerList.forEach(function (el) {
-                if (!el._tooltip) {
-                    el._tooltip = new bootstrap.Tooltip(el);
-                }
-            });
-        }
-
-        initTooltips();
-
-        document.body.addEventListener('htmx:afterSwap', function(evt) {
-            initTooltips(evt.detail.target);
-        });
     </script>
 
     {% block extra_js %}{% endblock %}
