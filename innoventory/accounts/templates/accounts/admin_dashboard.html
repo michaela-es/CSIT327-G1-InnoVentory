@@ -41,9 +41,13 @@
         </div>
     </div>
 
-    {% if overdue_summary %}
-        {% include 'partials/overdue_credit.html' %}
-    {% endif %}
+    <div class="d-flex gap-3 align-items-center justify-content-start">
+        {% if overdue_summary %}
+            {% include 'partials/overdue_credit_button.html' %}
+        {% endif %}
+        {% include 'partials/low_stock_button.html' %}
+    </div>
+
 
     <!-- High-Level KPIs -->
     <div class="row mb-4">
