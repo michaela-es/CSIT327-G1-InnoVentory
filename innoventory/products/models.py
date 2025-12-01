@@ -127,7 +127,7 @@ class Product(models.Model):
         elif self.stock_quantity <= medium:
             return "warning" # orange
         else:
-            return "info"
+            return "success"
 
     def __str__(self):
         return self.name
