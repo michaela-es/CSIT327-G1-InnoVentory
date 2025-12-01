@@ -140,8 +140,15 @@ def calculate_total(request):
 def credit_management(request):
     try:
         credit_sales = Sale.objects.filter(sales_type='credit').select_related('product_sold')
+        status = request.GET.get("status")
 
-        today = timezone.now().date()   
+        today = timezone.now().date()
+
+        if status == "overdue":
+            credit_sales = credit_sales.filter(
+                due_date__lt=today,
+                balance__gt=0
+            )
 
         overdue_sales_to_update = Sale.objects.filter(
             sales_type='credit',
