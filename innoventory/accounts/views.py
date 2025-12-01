@@ -1,8 +1,6 @@
 from django.contrib.auth import views as auth_views
 from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required, user_passes_test
-
 from .models import CustomUser
 from .forms import RegisterForm
 from django.db.models import Sum, Count, Q
@@ -12,7 +10,6 @@ from django.db.models.functions import TruncDate, TruncHour
 from django.utils import timezone
 from datetime import timedelta, datetime, time
 from products.models import Product, StockTransaction, Category
-from .decorators import admin_required
 from .decorators import admin_required
 
 def unauthorized_view(request, exception=None):
@@ -284,15 +281,10 @@ def register(request):
                 messages.error(request, f'Error during registration: {str(e)}', extra_tags='registration')
     else:
         form = RegisterForm()
-
     return render(request, 'accounts/register.html', {'form': form})
 
 
-def is_admin(user):
-    return user.is_authenticated and user.role == CustomUser.Role.ADMIN
-
-@login_required
-@user_passes_test(is_admin)
+@admin_required
 def user_list(request):
     users = CustomUser.objects.all().order_by('-date_joined')
 
@@ -315,8 +307,7 @@ def user_list(request):
     }
     return render(request, 'accounts/user_list.html', context)
 
-@login_required
-@user_passes_test(is_admin)
+@admin_required
 def delete_user(request, user_id):
     user_to_delete = get_object_or_404(CustomUser, id=user_id)
 
@@ -330,8 +321,7 @@ def delete_user(request, user_id):
     
     return redirect('user_list')
 
-@login_required
-@user_passes_test(is_admin)
+@admin_required
 def toggle_user_status(request, user_id):
     user = get_object_or_404(CustomUser, id=user_id)
 

@@ -11,10 +11,10 @@ from .forms import ProductForm
 from django.db.models import Q, ProtectedError
 from .models import Product, Category, StockTransaction
 from .utils import import_products_from_excel
+from suppliers.utils import import_suppliers_from_excel
 from .forms import StockTransactionForm
 from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
-from suppliers.views import import_suppliers_from_excel
 
 
 @login_required
@@ -250,6 +250,10 @@ def stock_transactions(request):
 @login_required
 def delete_transaction(request, transaction_id):
     transaction = get_object_or_404(StockTransaction, id=transaction_id) 
+    if transaction.remarks and ('Sale ID' in transaction.remarks):
+        messages.error(request, 'Cannot delete transactions generated from sales.',extra_tags='stock_transactions')
+        return redirect('stock_transactions')
+    
     if request.method == 'POST':
         product_name = transaction.product.name
         transaction.delete()
