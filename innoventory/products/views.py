@@ -11,10 +11,10 @@ from .forms import ProductForm
 from django.db.models import Q, ProtectedError
 from .models import Product, Category, StockTransaction
 from .utils import import_products_from_excel
+from suppliers.utils import import_suppliers_from_excel
 from .forms import StockTransactionForm
 from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
-from suppliers.views import import_suppliers_from_excel
 
 
 @login_required

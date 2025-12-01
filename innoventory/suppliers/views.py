@@ -4,7 +4,6 @@ from django.core.paginator import Paginator
 from django.db.models import Q, Count
 from .models import Supplier
 from .forms import SupplierForm
-import pandas as pd
 from django.contrib import messages
 
 def supplier_list(request):
@@ -69,56 +68,13 @@ def supplier_modal(request, supplier_id=None):
 
 def delete_supplier(request, supplier_id):
     supplier = get_object_or_404(Supplier, id=supplier_id)
+    supplier_name = supplier.name
+    if supplier.products.exists():
+            messages.error(request, f"Cannot delete supplier {supplier_name} because it is associated with existing product/s.", extra_tags='suppliers')
+            return redirect('supplier_list')
     if request.method == 'POST':
-        supplier_name = supplier.name
         supplier.delete()
         messages.success(request, f"Supplier {supplier_name} deleted successfully.", extra_tags='suppliers')
         return redirect('supplier_list') 
     messages.error(request, 'Invalid request method.', extra_tags='suppliers')
-    return render(request, 'suppliers/partials/delete_confirm_modal.html', {'supplier': supplier })
-
-def import_suppliers_from_excel(excel_file):
-    try:
-        if excel_file.name.endswith('.xlsx'):
-            df = pd.read_excel(excel_file, engine='openpyxl')
-        else:
-            df = pd.read_excel(excel_file)
-        
-        created = 0
-        updated = 0
-        total = 0
-        
-        for index, row in df.iterrows():
-            total += 1
-            try:
-                supplier, created_flag = Supplier.objects.get_or_create(
-                    name=row['name'],
-                    defaults={
-                        'contact': row.get('contact', ''),
-                        'email': row.get('email', ''),
-                        'address': row.get('address', ''),
-                        'notes': row.get('notes', ''),
-                    }
-                )
-                
-                if created_flag:
-                    created += 1
-                else:
-                    supplier.contact = row.get('contact', supplier.contact)
-                    supplier.email = row.get('email', supplier.email)
-                    supplier.address = row.get('address', supplier.address)
-                    supplier.notes = row.get('notes', supplier.notes)
-                    supplier.save()
-                    updated += 1
-                    
-            except Exception as e:
-                raise Exception(f"Row {index + 2}: {str(e)}")
-        
-        return {
-            'created': created,
-            'updated': updated,
-            'total': total
-        }
-        
-    except Exception as e:
-        raise Exception(f"Error processing Excel file: {str(e)}")
+    return redirect('supplier_list')
