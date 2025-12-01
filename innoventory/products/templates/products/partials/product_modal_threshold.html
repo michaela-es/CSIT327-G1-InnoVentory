@@ -22,12 +22,10 @@
             {% if field.name == 'is_tracked' %}
             <div class="form-check form-switch">
                 {{ field }}
-                <label class="form-check-label" for="id_is_tracked"
-                       data-bs-toggle="tooltip"
-                       data-bs-placement="top"
-                       title="Enables individual stock tracking for this product. Low and Medium thresholds determine color-coded indicators of inventory levels for fast-moving or critical items.">
+                <label class="form-check-label" for="id_is_tracked">
                     Track Stock
-                    <i class="fas fa-info-circle ms-1"></i>
+                    <i class="fas fa-info-circle ms-1 custom-tooltip"
+                       title="Enables individual stock tracking for this product. Low and Medium thresholds determine color-coded indicators of inventory levels for fast-moving or critical items."></i>
                 </label>
             </div>
 
@@ -66,7 +64,41 @@
     </div>
   </div>
 </div>
+<style>
+.custom-tooltip {
+    position: relative;
+    cursor: help;
+}
 
+.custom-tooltip:hover::after {
+    content: attr(title);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #333;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 14px;
+    white-space: pre-wrap;
+    width: 300px;
+    z-index: 1000;
+    margin-bottom: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.custom-tooltip:hover::before {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-top-color: #333;
+    margin-bottom: 4px;
+}
+</style>
 <script>
 document.addEventListener('htmx:afterSwap', function(evt) {
     if(evt.detail.target.id === 'modal-container') {
